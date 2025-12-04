@@ -175,179 +175,179 @@
           </div>
         </div>
 
-        h3 style=margin-top12pxArticlesh3
-        table id=wo_items_tabletheadtrthTypeththDescriptionththQtéhrsththPrixuththTotalthththtrtheadtbodytbodytable
+       <h3 style="margin-top:12px">Articles</h3>
+        <table id="wo_items_table"><thead><tr><th>Type</th><th>Description</th><th>Qté/hrs</th><th>Prix/u</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
 
-        div style=displayflex;justify-contentspace-between;align-itemscenter;margin-top12px
-          div style=displayflex;gap8px;align-itemscenter
-            label class=mutedTPSlabelinput id=wo_gst style=width80px type=number step=0.001 value=5.00 
-            label class=mutedTVQlabelinput id=wo_qst style=width80px type=number step=0.001 value=9.975 
-          div
-          div style=text-alignright
-            div class=mutedSous-total span id=wo_subtotal0.00span $div
-            div class=mutedTPS span id=wo_gst_amt0.00span $div
-            div class=mutedTVQ span id=wo_qst_amt0.00span $div
-            h3Total span id=wo_total0.00span $h3
-            div style=displayflex;gap8px;justify-contentflex-end;margin-top6px
-              button id=wo_save title=Enregistrer bonEnregistrerbutton
-              button id=wo_to_invoice class=ghost title=Transformer en factureVers facturebutton
-            div
-          div
-        div
-      section
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <label class="muted">TPS</label><input id="wo_gst" style="width:80px" type="number" step="0.001" value="5.00" />
+            <label class="muted">TVQ</label><input id="wo_qst" style="width:80px" type="number" step="0.001" value="9.975" />
+          </div>
+          <div style="text-align:right">
+            <div class="muted">Sous-total: <span id="wo_subtotal">0.00</span> $</div>
+            <div class="muted">TPS: <span id="wo_gst_amt">0.00</span> $</div>
+            <div class="muted">TVQ: <span id="wo_qst_amt">0.00</span> $</div>
+            <h3>Total: <span id="wo_total">0.00</span> $</h3>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+              <button id="wo_save" title="Enregistrer bon">Enregistrer</button>
+              <button id="wo_to_invoice" class="ghost" title="Transformer en facture">Vers facture</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      !-- Invoices Page --
-      section id=page-invoices class=page card
-        h2Factures  Devish2
-        div style=displayflex;gap8px;margin-bottom8px
-          input id=inv_search placeholder=Rechercher client, n°, date 
-          select id=inv_sort
-            option value=newRécentesoption
-            option value=oldAnciennesoption
-          select
-          button id=export_invoices_csv class=ghostExport CSVbutton
-        div
+      <!-- Invoices Page -->
+      <section id="page-invoices" class="page card">
+        <h2>Factures / Devis</h2>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="inv_search" placeholder="Rechercher client, n°, date" />
+          <select id="inv_sort">
+            <option value="new">Récentes</option>
+            <option value="old">Anciennes</option>
+          </select>
+          <button id="export_invoices_csv" class="ghost">Export CSV</button>
+        </div>
 
-        table id=invoices_tabletheadtrthN°ththDateththClientththJobththTotalthththtrtheadtbodytbodytable
-      section
+        <table id="invoices_table"><thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Job</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
+      </section>
 
-      !-- History Page --
-      section id=page-history class=page card
-        h2Historique des bons de travailh2
+      <!-- History Page -->
+      <section id="page-history" class="page card">
+        <h2>Historique des bons de travail</h2>
 
-        div style=displayflex;gap8px;margin-bottom8px
-          input id=hist_search placeholder=Client, plaqueVIN, description... 
-          button id=filter_by_vehicle class=ghostPar véhiculebutton
-          button id=export_wo_csv class=ghostExport CSVbutton
-        div
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="hist_search" placeholder="Client, plaque/VIN, description..." />
+          <button id="filter_by_vehicle" class="ghost">Par véhicule</button>
+          <button id="export_wo_csv" class="ghost">Export CSV</button>
+        </div>
 
-        div id=history-listdiv
-      section
+        <div id="history-list"></div>
+      </section>
 
-      !-- Settings Page --
-      section id=page-settings class=page card
-        h2Paramètresh2
-        labelNom de l'entrepriselabel
-        input id=s_company placeholder=Mon Garage 
-        labelCoordonnées (adresse, tel, email)label
-        textarea id=s_contact rows=3textarea
-        div style=displayflex;gap8px;margin-top8px
-          div style=flex1
-            labelTPS (%)label
-            input id=s_gst type=number step=0.001 
-          div
-          div style=width140px
-            labelTVQ (%)label
-            input id=s_qst type=number step=0.001 
-          div
-        div
-        div style=displayflex;gap8px;margin-top12px;justify-contentflex-end
-          button id=s_saveSauvegarderbutton
-          button id=s_reset class=ghostRéinitialiser donnéesbutton
-        div
-      section
-    div
+      <!-- Settings Page -->
+      <section id="page-settings" class="page card">
+        <h2>Paramètres</h2>
+        <label>Nom de l'entreprise</label>
+        <input id="s_company" placeholder="Mon Garage" />
+        <label>Coordonnées (adresse, tel, email)</label>
+        <textarea id="s_contact" rows="3"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <div style="flex:1">
+            <label>TPS (%)</label>
+            <input id="s_gst" type="number" step="0.001" />
+          </div>
+          <div style="width:140px">
+            <label>TVQ (%)</label>
+            <input id="s_qst" type="number" step="0.001" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+          <button id="s_save">Sauvegarder</button>
+          <button id="s_reset" class="ghost">Réinitialiser données</button>
+        </div>
+      </section>
+    </div>
 
-    !-- Right column --
-    aside
-      div class=card
-        h2Actions rapidesh2
-        div style=displayflex;flex-directioncolumn;gap8px;margin-top6px
-          button id=quick_newwo class=ghostNouveau Bonbutton
-          button id=quick_newinvNouvelle facturebutton
-          button id=quick_history class=ghostVoir historiquebutton
-          button id=quick_install class=ghost style=displaynoneInstaller PWAbutton
-        div
-      div
+    <!-- Right column -->
+    <aside>
+      <div class="card">
+        <h2>Actions rapides</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+          <button id="quick_newwo" class="ghost">Nouveau Bon</button>
+          <button id="quick_newinv">Nouvelle facture</button>
+          <button id="quick_history" class="ghost">Voir historique</button>
+          <button id="quick_install" class="ghost" style="display:none">Installer PWA</button>
+        </div>
+      </div>
 
-      div class=card
-        h2Rechercher véhicule  clienth2
-        input id=lookup_input placeholder=Plaque, VIN ou nom client 
-        div style=displayflex;gap8px;margin-top8px
-          button id=lookup_btnChercherbutton
-          button id=lookup_clear class=ghostEffacerbutton
-        div
-        div style=margin-top10px
-          div class=mutedRésultatsdiv
-          div id=lookup_results style=margin-top8pxdiv
-        div
-      div
+      <div class="card">
+        <h2>Rechercher véhicule / client</h2>
+        <input id="lookup_input" placeholder="Plaque, VIN ou nom client" />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="lookup_btn">Chercher</button>
+          <button id="lookup_clear" class="ghost">Effacer</button>
+        </div>
+        <div style="margin-top:10px">
+          <div class="muted">Résultats</div>
+          <div id="lookup_results" style="margin-top:8px"></div>
+        </div>
+      </div>
 
-      div class=card
-        h2Imprimer  Exporth2
-        div style=displayflex;gap8px
-          button id=print_all class=ghostImprimer Aperçubutton
-          button id=export_all_json class=ghostExporter JSONbutton
-        div
-      div
-    aside
-  div
+      <div class="card">
+        <h2>Imprimer / Export</h2>
+        <div style="display:flex;gap:8px">
+          <button id="print_all" class="ghost">Imprimer Aperçu</button>
+          <button id="export_all_json" class="ghost">Exporter JSON</button>
+        </div>
+      </div>
+    </aside>
+  </div>
 
-  !-- Hidden printable area --
-  div id=printArea style=displaynonediv
-main
+  <!-- Hidden printable area -->
+  <div id="printArea" style="display:none"></div>
+</main>
 
-script
- ========== Storage keys & helpers ========== 
+<script>
+/* ========== Storage keys & helpers ========== */
 const KEYS = {
-  WORK 'ar_workorders_v2',
-  INV 'ar_invoices_v2',
-  SETTINGS 'ar_settings_v2',
-  COUNTER 'ar_invoice_counter_v2'
+  WORK: 'ar_workorders_v2',
+  INV: 'ar_invoices_v2',
+  SETTINGS: 'ar_settings_v2',
+  COUNTER: 'ar_invoice_counter_v2'
 };
-const $ = id = document.getElementById(id);
-function money(n){return Number(n0).toFixed(2);}
+const $ = id => document.getElementById(id);
+function money(n){return Number(n||0).toFixed(2);}
 
- ========== Load  Save ========== 
-function loadWorkOrders(){ return JSON.parse(localStorage.getItem(KEYS.WORK)  '[]'); }
+/* ========== Load / Save ========== */
+function loadWorkOrders(){ return JSON.parse(localStorage.getItem(KEYS.WORK) || '[]'); }
 function saveWorkOrders(list){ localStorage.setItem(KEYS.WORK, JSON.stringify(list)); }
-function loadInvoices(){ return JSON.parse(localStorage.getItem(KEYS.INV)  '[]'); }
+function loadInvoices(){ return JSON.parse(localStorage.getItem(KEYS.INV) || '[]'); }
 function saveInvoices(list){ localStorage.setItem(KEYS.INV, JSON.stringify(list)); }
-function loadSettings(){ return JSON.parse(localStorage.getItem(KEYS.SETTINGS)  '{}'); }
+function loadSettings(){ return JSON.parse(localStorage.getItem(KEYS.SETTINGS) || '{}'); }
 function saveSettings(s){ localStorage.setItem(KEYS.SETTINGS, JSON.stringify(s)); }
 function nextInvoiceNumber(){
-  let n = Number(localStorage.getItem(KEYS.COUNTER)  0) + 1;
+  let n = Number(localStorage.getItem(KEYS.COUNTER) || 0) + 1;
   localStorage.setItem(KEYS.COUNTER, n);
   return String(n).padStart(5,'0');
 }
 
- ========== UI Navigation ========== 
+/* ========== UI Navigation ========== */
 function showPage(id){
-  document.querySelectorAll('.page').forEach(p=p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el = $(id);
   if(el) el.classList.add('active');
 }
-['nav-dashboard','nav-newwo','nav-invoices','nav-history','nav-settings'].forEach(btn={
+['nav-dashboard','nav-newwo','nav-invoices','nav-history','nav-settings'].forEach(btn=>{
   const map = {
-    'nav-dashboard''page-dashboard',
-    'nav-newwo''page-newwo',
-    'nav-invoices''page-invoices',
-    'nav-history''page-history',
-    'nav-settings''page-settings'
+    'nav-dashboard':'page-dashboard',
+    'nav-newwo':'page-newwo',
+    'nav-invoices':'page-invoices',
+    'nav-history':'page-history',
+    'nav-settings':'page-settings'
   };
   const node = $(btn);
-  if(node) node.addEventListener('click', ()= showPage(map[btn]));
+  if(node) node.addEventListener('click', ()=> showPage(map[btn]));
 });
 
- ========== Initialize settings and fields ========== 
+/* ========== Initialize settings and fields ========== */
 function initSettingsUI(){
   const s = loadSettings();
-  $('s_company').value = s.companyName  'Mon Garage';
-  $('s_contact').value = s.companyContact  'AdressenTéléphone';
-  $('s_gst').value = s.gst  5.00;
-  $('s_qst').value = s.qst  9.975;
-   WO default tax fields
-  $('wo_gst').value = s.gst  5.00;
-  $('wo_qst').value = s.qst  9.975;
+  $('s_company').value = s.companyName || 'Mon Garage';
+  $('s_contact').value = s.companyContact || 'Adresse\nTéléphone';
+  $('s_gst').value = s.gst ?? 5.00;
+  $('s_qst').value = s.qst ?? 9.975;
+  // WO default tax fields:
+  $('wo_gst').value = s.gst ?? 5.00;
+  $('wo_qst').value = s.qst ?? 9.975;
 }
-$('s_save').addEventListener('click', ()={
-  const s = { companyName $('s_company').value, companyContact $('s_contact').value, gst Number($('s_gst').value)0, qst Number($('s_qst').value)0 };
+$('s_save').addEventListener('click', ()=>{
+  const s = { companyName: $('s_company').value, companyContact: $('s_contact').value, gst: Number($('s_gst').value)||0, qst: Number($('s_qst').value)||0 };
   saveSettings(s);
   alert('Paramètres sauvegardés');
   initSettingsUI();
 });
-$('s_reset').addEventListener('click', ()={
-  if(confirm('Supprimer toutes les factures et bons de travail locaux ')){
+$('s_reset').addEventListener('click', ()=>{
+  if(confirm('Supprimer toutes les factures et bons de travail locaux ?')){
     localStorage.removeItem(KEYS.WORK);
     localStorage.removeItem(KEYS.INV);
     localStorage.removeItem(KEYS.COUNTER);
@@ -355,47 +355,47 @@ $('s_reset').addEventListener('click', ()={
   }
 });
 
- ========== Dashboard Stats & Recent WO ========== 
+/* ========== Dashboard Stats & Recent WO ========== */
 function refreshDashboard(){
   const wos = loadWorkOrders();
   const invs = loadInvoices();
   $('stat-open').innerText = wos.length;
   $('stat-invoices').innerText = invs.length;
-  const total = invs.reduce((s,i)=s + (Number(i.total)0), 0);
+  const total = invs.reduce((s,i)=>s + (Number(i.total)||0), 0);
   $('stat-total').innerText = money(total) + ' $';
-   recent workorders
+  // recent workorders
   const recent = wos.slice(0,6);
   const container = $('recent-wo');
-  container.innerHTML = recent.map(o=`
-    div class=history-item data-id=${o.id} style=cursorpointer
-      strong${o.client}strong — ${o.vehicle  ''} span class=muted style=floatright${o.status'OUVERT'}spanbr
-      div class=muted style=font-size12px${(new Date(o.id)).toLocaleString()}div
-      div style=margin-top6px${(o.description'').slice(0,120)}div
-    div
+  container.innerHTML = recent.map(o=>`
+    <div class="history-item" data-id="${o.id}" style="cursor:pointer">
+      <strong>${o.client}</strong> — ${o.vehicle || ''} <span class="muted" style="float:right">${o.status||'OUVERT'}</span><br>
+      <div class="muted" style="font-size:12px">${(new Date(o.id)).toLocaleString()}</div>
+      <div style="margin-top:6px">${(o.description||'').slice(0,120)}</div>
+    </div>
   `).join('');
-   double click to open
-  container.querySelectorAll('.history-item').forEach(el={
-    el.addEventListener('dblclick', ()={
+  // double click to open
+  container.querySelectorAll('.history-item').forEach(el=>{
+    el.addEventListener('dblclick', ()=>{
       const id = Number(el.dataset.id);
       openWorkOrderEdit(id);
     });
   });
 }
 
- ========== Work Order (WO) logic ========== 
+/* ========== Work Order (WO) logic ========== */
 let WO_items = [];
 function woRenderItems(){
   const tbody = document.querySelector('#wo_items_table tbody');
   tbody.innerHTML = '';
   let sub = 0;
-  WO_items.forEach((it,idx)={
-    const total = Number(it.qty)Number(it.rate);
+  WO_items.forEach((it,idx)=>{
+    const total = Number(it.qty)*Number(it.rate);
     sub += total;
     const tr = document.createElement('tr');
-    tr.innerHTML = `td${it.type}tdtd${it.desc}tdtd${it.qty}tdtd${money(it.rate)}tdtd${money(total)}tdtdbutton class=ghost data-idx=${idx}Supprbuttontd`;
+    tr.innerHTML = `<td>${it.type}</td><td>${it.desc}</td><td>${it.qty}</td><td>${money(it.rate)}</td><td>${money(total)}</td><td><button class="ghost" data-idx="${idx}">Suppr</button></td>`;
     tbody.appendChild(tr);
   });
-  tbody.querySelectorAll('button[data-idx]').forEach(b=b.addEventListener('click', e={
+  tbody.querySelectorAll('button[data-idx]').forEach(b=>b.addEventListener('click', e=>{
     WO_items.splice(Number(e.currentTarget.dataset.idx),1);
     woRenderItems();
     woApplyTaxes();
@@ -404,28 +404,251 @@ function woRenderItems(){
   woApplyTaxes();
 }
 function woApplyTaxes(){
-  const sub = Number($('wo_subtotal').innerText)  0;
-  const gst = Number($('wo_gst').value)0;
-  const qst = Number($('wo_qst').value)0;
-  const gstAmt = sub  gst100;
-  const qstAmt = (sub + gstAmt)  qst100;
+  const sub = Number($('wo_subtotal').innerText) || 0;
+  const gst = Number($('wo_gst').value)||0;
+  const qst = Number($('wo_qst').value)||0;
+  const gstAmt = sub * gst/100;
+  const qstAmt = (sub + gstAmt) * qst/100;
   $('wo_gst_amt').innerText = money(gstAmt);
   $('wo_qst_amt').innerText = money(qstAmt);
   $('wo_total').innerText = money(sub + gstAmt + qstAmt);
 }
-$('wo_add_part').addEventListener('click', ()={
+$('wo_add_part').addEventListener('click', ()=>{
   const name = $('wo_part_name').value.trim();
-  const qty = Number($('wo_part_qty').value)  0;
-  const price = Number($('wo_part_price').value)  0;
-  if(!name  qty=0  price0){ alert('Nom, quantité et prix requis'); return; }
-  WO_items.push({ type 'Pièce', desc name, qty, rate price });
+  const qty = Number($('wo_part_qty').value) || 0;
+  const price = Number($('wo_part_price').value) || 0;
+  if(!name || qty<=0 || price<0){ alert('Nom, quantité et prix requis'); return; }
+  WO_items.push({ type: 'Pièce', desc: name, qty, rate: price });
   $('wo_part_name').value=''; $('wo_part_price').value=''; $('wo_part_qty').value=1;
   woRenderItems();
 });
-$('wo_add_lab').addEventListener('click', ()={
+$('wo_add_lab').addEventListener('click', ()=>{
   const desc = $('wo_lab_desc').value.trim();
-  const hrs = Number($('wo_lab_hours').value)  0;
-  const rate = Number($('wo_lab_rate').value)  0;
-  if(!desc  hrs=0  rate0){ alert('Description, heures et taux requis'); return; }
-  WO_items.push({ type Main-d'oeuvre, desc, qty hrs, rate });
-  $('wo_lab_desc').value=''; $('wo_lab_hours').va
+  const hrs = Number($('wo_lab_hours').value) || 0;
+  const rate = Number($('wo_lab_rate').value) || 0;
+  if(!desc || hrs<=0 || rate<0){ alert('Description, heures et taux requis'); return; }
+  WO_items.push({ type: "Main-d'oeuvre", desc, qty: hrs, rate });
+  $('wo_lab_desc').value=''; $('wo_lab_hours').value=''; $('wo_lab_rate').value='';
+  woRenderItems();
+});
+$('wo_gst').addEventListener('change', woApplyTaxes);
+$('wo_qst').addEventListener('change', woApplyTaxes);
+
+/* Save work order */
+function saveWorkOrder(){
+  const client = $('wo_client').value.trim();
+  if(!client) return alert('Nom du client requis');
+  const vehicle = $('wo_vehicle').value.trim();
+  const description = $('wo_description').value.trim();
+  if(WO_items.length===0) {
+    if(!confirm('Aucun article ajouté. Sauvegarder quand même?')) return;
+  }
+  const id = Date.now();
+  const wo = {
+    id,
+    client,
+    vehicle,
+    vehicleInfo: $('wo_vehicle_info').value || '',
+    description,
+    items: JSON.parse(JSON.stringify(WO_items)),
+    subtotal: Number($('wo_subtotal').innerText)||0,
+    gst: Number($('wo_gst_amt').innerText)||0,
+    qst: Number($('wo_qst_amt').innerText)||0,
+    total: Number($('wo_total').innerText)||0,
+    status: 'OUVERT'
+  };
+  const list = loadWorkOrders();
+  list.unshift(wo);
+  saveWorkOrders(list);
+  WO_items = [];
+  woRenderItems();
+  $('wo_client').value=''; $('wo_vehicle').value=''; $('wo_vehicle_info').value=''; $('wo_description').value='';
+  alert('Bon de travail enregistré');
+  loadAll();
+}
+$('wo_save').addEventListener('click', saveWorkOrder);
+
+/* Convert WO to Invoice */
+$('wo_to_invoice').addEventListener('click', ()=>{
+  if(WO_items.length===0) return alert('Aucun article à convertir');
+  // Create invoice object similar to earlier invoice structure
+  const number = nextInvoiceNumber();
+  const inv = {
+    number,
+    date: new Date().toLocaleString(),
+    client: $('wo_client').value || '',
+    job: $('wo_description').value || '',
+    items: JSON.parse(JSON.stringify(WO_items)),
+    subtotal: Number($('wo_subtotal').innerText)||0,
+    gst: Number($('wo_gst_amt').innerText)||0,
+    qst: Number($('wo_qst_amt').innerText)||0,
+    total: Number($('wo_total').innerText)||0
+  };
+  const invs = loadInvoices();
+  invs.unshift(inv); saveInvoices(invs);
+  // Optionally mark WO closed or create a copy
+  if(confirm('Enregistrer la facture et marquer ce bon comme TERMINÉ ?')){
+    // Save WO as closed
+    const id = Date.now();
+    const wo = {
+      id,
+      client: $('wo_client').value || '',
+      vehicle: $('wo_vehicle').value || '',
+      vehicleInfo: $('wo_vehicle_info').value || '',
+      description: $('wo_description').value || '',
+      items: JSON.parse(JSON.stringify(WO_items)),
+      subtotal: inv.subtotal, gst: inv.gst, qst: inv.qst, total: inv.total,
+      status: 'TERMINÉ'
+    };
+    const list = loadWorkOrders(); list.unshift(wo); saveWorkOrders(list);
+    // reset
+    WO_items = [];
+    woRenderItems();
+    $('wo_client').value=''; $('wo_vehicle').value=''; $('wo_vehicle_info').value=''; $('wo_description').value='';
+  }
+  alert('Facture créée (#'+inv.number+')');
+  loadAll();
+});
+
+/* Open existing WO in editor */
+function openWorkOrderEdit(id){
+  const list = loadWorkOrders();
+  const wo = list.find(w=>w.id===id);
+  if(!wo) return alert('Bon introuvable');
+  showPage('page-newwo');
+  $('wo_client').value = wo.client;
+  $('wo_vehicle').value = wo.vehicle || '';
+  $('wo_vehicle_info').value = wo.vehicleInfo || '';
+  $('wo_description').value = wo.description || '';
+  WO_items = JSON.parse(JSON.stringify(wo.items || []));
+  $('wo_subtotal').innerText = money(wo.subtotal||0);
+  $('wo_gst').value = (loadSettings().gst) || 5.00;
+  $('wo_qst').value = (loadSettings().qst) || 9.975;
+  woRenderItems();
+  woApplyTaxes();
+}
+
+/* ========== Invoices UI ========== */
+function renderInvoicesTable(){
+  const list = loadInvoices() || [];
+  const tbody = $('invoices_table').querySelector('tbody');
+  tbody.innerHTML = '';
+  const q = $('inv_search').value.trim().toLowerCase();
+  const sorted = list.sort((a,b)=> $('inv_sort').value==='new' ? (new Date(b.date) - new Date(a.date)) : (new Date(a.date)-new Date(b.date)));
+  sorted.forEach((inv, idx)=>{
+    if(q && !(inv.client.toLowerCase().includes(q) || inv.number.includes(q) || (inv.job||'').toLowerCase().includes(q))) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${inv.number}</td><td>${inv.date}</td><td>${inv.client}</td><td>${inv.job||''}</td><td>${money(inv.total)}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="ghost view-inv" data-idx="${idx}">Voir</button>
+          <button class="ghost del-inv" data-idx="${idx}">Suppr</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.view-inv').forEach(b => b.addEventListener('click', e=>{
+    const i = Number(e.currentTarget.dataset.idx);
+    viewInvoice(i);
+  }));
+  tbody.querySelectorAll('.del-inv').forEach(b => b.addEventListener('click', e=>{
+    const i = Number(e.currentTarget.dataset.idx);
+    if(!confirm('Supprimer facture ?')) return;
+    const list = loadInvoices(); list.splice(i,1); saveInvoices(list); renderInvoicesTable(); loadAll();
+  }));
+}
+$('inv_search').addEventListener('input', renderInvoicesTable);
+$('inv_sort').addEventListener('change', renderInvoicesTable);
+
+/* Render single invoice for print */
+function buildInvoiceHTML(company, contact, inv){
+  const itemsHtml = (inv.items || []).map(it=>`<tr><td>${it.type}</td><td>${it.desc}</td><td>${it.qty}</td><td>${money(it.rate)}</td><td>${money(it.qty*it.rate)}</td></tr>`).join('');
+  return `
+    <div style="padding:20px;color:#000;font-family:Arial;background:#fff;width:800px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><h2 style="margin:0">${company}</h2><div style="white-space:pre-wrap">${contact}</div></div>
+        <div style="text-align:right">
+          <div><strong>Facture #</strong> ${inv.number}</div>
+          <div><strong>Date:</strong> ${inv.date}</div>
+        </div>
+      </div>
+      <hr />
+      <div style="margin-top:10px"><strong>Client:</strong> ${inv.client}</div>
+      <div style="margin-top:10px"><strong>Job:</strong> ${inv.job || ''}</div>
+      <table style="width:100%;margin-top:12px;border-collapse:collapse">
+        <thead><tr style="background:#f3f3f3"><th>Type</th><th>Description</th><th>Qté/hrs</th><th>Prix/u</th><th>Total</th></tr></thead>
+        <tbody>${itemsHtml}</tbody>
+      </table>
+      <div style="text-align:right;margin-top:12px">
+        <div>Sous-total: ${money(inv.subtotal)} $</div>
+        <div>TPS: ${money(inv.gst)} $</div>
+        <div>TVQ: ${money(inv.qst)} $</div>
+        <h3>Total: ${money(inv.total)} $</h3>
+      </div>
+      <hr />
+      <div style="font-size:12px;color:#333">Merci! Paiement comptant ou par carte.</div>
+    </div>
+  `;
+}
+function viewInvoice(index){
+  const invs = loadInvoices();
+  const inv = invs[index];
+  if(!inv) return alert('Introuvable');
+  const s = loadSettings();
+  $('printArea').style.display='block';
+  $('printArea').innerHTML = buildInvoiceHTML(s.companyName||'Mon Garage', s.companyContact||'', inv);
+  window.print();
+  $('printArea').style.display='none';
+}
+
+/* ========== History UI ========== */
+function renderHistoryList(){
+  const list = loadWorkOrders() || [];
+  const q = $('hist_search').value.trim().toLowerCase();
+  const container = $('history-list');
+  const filtered = list.filter(w=>{
+    if(!q) return true;
+    return (w.client||'').toLowerCase().includes(q) || (w.vehicle||'').toLowerCase().includes(q) || (w.description||'').toLowerCase().includes(q);
+  });
+  container.innerHTML = filtered.map(w=>`
+    <div class="history-item" data-id="${w.id}">
+      <strong>${w.client}</strong> — ${w.vehicle || ''} <span style="float:right" class="muted">${w.status||''}</span><br>
+      <div class="muted" style="font-size:12px">${(new Date(w.id)).toLocaleString()}</div>
+      <div style="margin-top:8px">${(w.description||'').slice(0,200)}</div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="ghost view-wo" data-id="${w.id}">Voir</button>
+        <button class="ghost dup-wo" data-id="${w.id}">Dupliquer</button>
+        <button class="ghost del-wo" data-id="${w.id}">Suppr</button>
+      </div>
+    </div>
+  `).join('');
+  // attach handlers
+  container.querySelectorAll('.view-wo').forEach(b=>b.addEventListener('click', e=>{
+    const id = Number(e.currentTarget.dataset.id);
+    openWorkOrderEdit(id);
+  }));
+  container.querySelectorAll('.dup-wo').forEach(b=>b.addEventListener('click', e=>{
+    const id = Number(e.currentTarget.dataset.id);
+    const list = loadWorkOrders();
+    const wo = list.find(x=>x.id===id);
+    if(!wo) return;
+    // duplicate into new WO editor
+    showPage('page-newwo');
+    $('wo_client').value = wo.client;
+    $('wo_vehicle').value = wo.vehicle;
+    $('wo_vehicle_info').value = wo.vehicleInfo || '';
+    $('wo_description').value = wo.description || '';
+    WO_items = JSON.parse(JSON.stringify(wo.items||[]));
+    woRenderItems();
+  }));
+  container.querySelectorAll('.del-wo').forEach(b=>b.addEventListener('click', e=>{
+    const id = Number(e.currentTarget.dataset.id);
+    if(!confirm('Supprimer ce bon de travail ?')) return;
+    let list = loadWorkOrders(); list = list.filter(w=>w.id !== id); saveWorkOrders(list); renderHistoryList(); loadAll();
+  }));
+}
+$('hist_search').addEventListener('input', renderHistoryList);
+
+/* ========== Lookup quick search ========== */
+$('lookup_btn').addEventListener('click', ()=>{
+  const q = $('lookup_input').value.trim().toLowe
