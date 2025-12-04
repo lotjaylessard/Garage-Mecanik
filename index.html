@@ -151,4 +151,273 @@
             <div class="muted">Ajouter une pièce</div>
             <input id="wo_part_name" placeholder="Nom pièce" />
             <div style="display:flex;gap:8px;margin-top:6px">
-              <input id="wo_part_qty" type="number" placeho
+              <input id="wo_part_qty" type="number" placeholder=Prix uni step=0.01 
+              button class=ghost id=wo_add_partAjouterbutton
+            div
+          div
+
+          div class=card style=flex1;padding10px
+            div class=mutedAjouter main-d'œuvrediv
+            input id=wo_lab_desc placeholder=Ex Remplacement plaquettes 
+            div style=displayflex;gap8px;margin-top6px
+              input id=wo_lab_hours type=number placeholder=Heures step=0.1 
+              input id=wo_lab_rate type=number placeholder=Tauxh step=0.01 
+              button class=ghost id=wo_add_labAjouterbutton
+            div
+          div
+        div
+
+        h3 style=margin-top12pxArticlesh3
+        table id=wo_items_tabletheadtrthTypeththDescriptionththQtéhrsththPrixuththTotalthththtrtheadtbodytbodytable
+
+        div style=displayflex;justify-contentspace-between;align-itemscenter;margin-top12px
+          div style=displayflex;gap8px;align-itemscenter
+            label class=mutedTPSlabelinput id=wo_gst style=width80px type=number step=0.001 value=5.00 
+            label class=mutedTVQlabelinput id=wo_qst style=width80px type=number step=0.001 value=9.975 
+          div
+          div style=text-alignright
+            div class=mutedSous-total span id=wo_subtotal0.00span $div
+            div class=mutedTPS span id=wo_gst_amt0.00span $div
+            div class=mutedTVQ span id=wo_qst_amt0.00span $div
+            h3Total span id=wo_total0.00span $h3
+            div style=displayflex;gap8px;justify-contentflex-end;margin-top6px
+              button id=wo_save title=Enregistrer bonEnregistrerbutton
+              button id=wo_to_invoice class=ghost title=Transformer en factureVers facturebutton
+            div
+          div
+        div
+      section
+
+      !-- Invoices Page --
+      section id=page-invoices class=page card
+        h2Factures  Devish2
+        div style=displayflex;gap8px;margin-bottom8px
+          input id=inv_search placeholder=Rechercher client, n°, date 
+          select id=inv_sort
+            option value=newRécentesoption
+            option value=oldAnciennesoption
+          select
+          button id=export_invoices_csv class=ghostExport CSVbutton
+        div
+
+        table id=invoices_tabletheadtrthN°ththDateththClientththJobththTotalthththtrtheadtbodytbodytable
+      section
+
+      !-- History Page --
+      section id=page-history class=page card
+        h2Historique des bons de travailh2
+
+        div style=displayflex;gap8px;margin-bottom8px
+          input id=hist_search placeholder=Client, plaqueVIN, description... 
+          button id=filter_by_vehicle class=ghostPar véhiculebutton
+          button id=export_wo_csv class=ghostExport CSVbutton
+        div
+
+        div id=history-listdiv
+      section
+
+      !-- Settings Page --
+      section id=page-settings class=page card
+        h2Paramètresh2
+        labelNom de l'entrepriselabel
+        input id=s_company placeholder=Mon Garage 
+        labelCoordonnées (adresse, tel, email)label
+        textarea id=s_contact rows=3textarea
+        div style=displayflex;gap8px;margin-top8px
+          div style=flex1
+            labelTPS (%)label
+            input id=s_gst type=number step=0.001 
+          div
+          div style=width140px
+            labelTVQ (%)label
+            input id=s_qst type=number step=0.001 
+          div
+        div
+        div style=displayflex;gap8px;margin-top12px;justify-contentflex-end
+          button id=s_saveSauvegarderbutton
+          button id=s_reset class=ghostRéinitialiser donnéesbutton
+        div
+      section
+    div
+
+    !-- Right column --
+    aside
+      div class=card
+        h2Actions rapidesh2
+        div style=displayflex;flex-directioncolumn;gap8px;margin-top6px
+          button id=quick_newwo class=ghostNouveau Bonbutton
+          button id=quick_newinvNouvelle facturebutton
+          button id=quick_history class=ghostVoir historiquebutton
+          button id=quick_install class=ghost style=displaynoneInstaller PWAbutton
+        div
+      div
+
+      div class=card
+        h2Rechercher véhicule  clienth2
+        input id=lookup_input placeholder=Plaque, VIN ou nom client 
+        div style=displayflex;gap8px;margin-top8px
+          button id=lookup_btnChercherbutton
+          button id=lookup_clear class=ghostEffacerbutton
+        div
+        div style=margin-top10px
+          div class=mutedRésultatsdiv
+          div id=lookup_results style=margin-top8pxdiv
+        div
+      div
+
+      div class=card
+        h2Imprimer  Exporth2
+        div style=displayflex;gap8px
+          button id=print_all class=ghostImprimer Aperçubutton
+          button id=export_all_json class=ghostExporter JSONbutton
+        div
+      div
+    aside
+  div
+
+  !-- Hidden printable area --
+  div id=printArea style=displaynonediv
+main
+
+script
+ ========== Storage keys & helpers ========== 
+const KEYS = {
+  WORK 'ar_workorders_v2',
+  INV 'ar_invoices_v2',
+  SETTINGS 'ar_settings_v2',
+  COUNTER 'ar_invoice_counter_v2'
+};
+const $ = id = document.getElementById(id);
+function money(n){return Number(n0).toFixed(2);}
+
+ ========== Load  Save ========== 
+function loadWorkOrders(){ return JSON.parse(localStorage.getItem(KEYS.WORK)  '[]'); }
+function saveWorkOrders(list){ localStorage.setItem(KEYS.WORK, JSON.stringify(list)); }
+function loadInvoices(){ return JSON.parse(localStorage.getItem(KEYS.INV)  '[]'); }
+function saveInvoices(list){ localStorage.setItem(KEYS.INV, JSON.stringify(list)); }
+function loadSettings(){ return JSON.parse(localStorage.getItem(KEYS.SETTINGS)  '{}'); }
+function saveSettings(s){ localStorage.setItem(KEYS.SETTINGS, JSON.stringify(s)); }
+function nextInvoiceNumber(){
+  let n = Number(localStorage.getItem(KEYS.COUNTER)  0) + 1;
+  localStorage.setItem(KEYS.COUNTER, n);
+  return String(n).padStart(5,'0');
+}
+
+ ========== UI Navigation ========== 
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=p.classList.remove('active'));
+  const el = $(id);
+  if(el) el.classList.add('active');
+}
+['nav-dashboard','nav-newwo','nav-invoices','nav-history','nav-settings'].forEach(btn={
+  const map = {
+    'nav-dashboard''page-dashboard',
+    'nav-newwo''page-newwo',
+    'nav-invoices''page-invoices',
+    'nav-history''page-history',
+    'nav-settings''page-settings'
+  };
+  const node = $(btn);
+  if(node) node.addEventListener('click', ()= showPage(map[btn]));
+});
+
+ ========== Initialize settings and fields ========== 
+function initSettingsUI(){
+  const s = loadSettings();
+  $('s_company').value = s.companyName  'Mon Garage';
+  $('s_contact').value = s.companyContact  'AdressenTéléphone';
+  $('s_gst').value = s.gst  5.00;
+  $('s_qst').value = s.qst  9.975;
+   WO default tax fields
+  $('wo_gst').value = s.gst  5.00;
+  $('wo_qst').value = s.qst  9.975;
+}
+$('s_save').addEventListener('click', ()={
+  const s = { companyName $('s_company').value, companyContact $('s_contact').value, gst Number($('s_gst').value)0, qst Number($('s_qst').value)0 };
+  saveSettings(s);
+  alert('Paramètres sauvegardés');
+  initSettingsUI();
+});
+$('s_reset').addEventListener('click', ()={
+  if(confirm('Supprimer toutes les factures et bons de travail locaux ')){
+    localStorage.removeItem(KEYS.WORK);
+    localStorage.removeItem(KEYS.INV);
+    localStorage.removeItem(KEYS.COUNTER);
+    loadAll();
+  }
+});
+
+ ========== Dashboard Stats & Recent WO ========== 
+function refreshDashboard(){
+  const wos = loadWorkOrders();
+  const invs = loadInvoices();
+  $('stat-open').innerText = wos.length;
+  $('stat-invoices').innerText = invs.length;
+  const total = invs.reduce((s,i)=s + (Number(i.total)0), 0);
+  $('stat-total').innerText = money(total) + ' $';
+   recent workorders
+  const recent = wos.slice(0,6);
+  const container = $('recent-wo');
+  container.innerHTML = recent.map(o=`
+    div class=history-item data-id=${o.id} style=cursorpointer
+      strong${o.client}strong — ${o.vehicle  ''} span class=muted style=floatright${o.status'OUVERT'}spanbr
+      div class=muted style=font-size12px${(new Date(o.id)).toLocaleString()}div
+      div style=margin-top6px${(o.description'').slice(0,120)}div
+    div
+  `).join('');
+   double click to open
+  container.querySelectorAll('.history-item').forEach(el={
+    el.addEventListener('dblclick', ()={
+      const id = Number(el.dataset.id);
+      openWorkOrderEdit(id);
+    });
+  });
+}
+
+ ========== Work Order (WO) logic ========== 
+let WO_items = [];
+function woRenderItems(){
+  const tbody = document.querySelector('#wo_items_table tbody');
+  tbody.innerHTML = '';
+  let sub = 0;
+  WO_items.forEach((it,idx)={
+    const total = Number(it.qty)Number(it.rate);
+    sub += total;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `td${it.type}tdtd${it.desc}tdtd${it.qty}tdtd${money(it.rate)}tdtd${money(total)}tdtdbutton class=ghost data-idx=${idx}Supprbuttontd`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button[data-idx]').forEach(b=b.addEventListener('click', e={
+    WO_items.splice(Number(e.currentTarget.dataset.idx),1);
+    woRenderItems();
+    woApplyTaxes();
+  }));
+  $('wo_subtotal').innerText = money(sub);
+  woApplyTaxes();
+}
+function woApplyTaxes(){
+  const sub = Number($('wo_subtotal').innerText)  0;
+  const gst = Number($('wo_gst').value)0;
+  const qst = Number($('wo_qst').value)0;
+  const gstAmt = sub  gst100;
+  const qstAmt = (sub + gstAmt)  qst100;
+  $('wo_gst_amt').innerText = money(gstAmt);
+  $('wo_qst_amt').innerText = money(qstAmt);
+  $('wo_total').innerText = money(sub + gstAmt + qstAmt);
+}
+$('wo_add_part').addEventListener('click', ()={
+  const name = $('wo_part_name').value.trim();
+  const qty = Number($('wo_part_qty').value)  0;
+  const price = Number($('wo_part_price').value)  0;
+  if(!name  qty=0  price0){ alert('Nom, quantité et prix requis'); return; }
+  WO_items.push({ type 'Pièce', desc name, qty, rate price });
+  $('wo_part_name').value=''; $('wo_part_price').value=''; $('wo_part_qty').value=1;
+  woRenderItems();
+});
+$('wo_add_lab').addEventListener('click', ()={
+  const desc = $('wo_lab_desc').value.trim();
+  const hrs = Number($('wo_lab_hours').value)  0;
+  const rate = Number($('wo_lab_rate').value)  0;
+  if(!desc  hrs=0  rate0){ alert('Description, heures et taux requis'); return; }
+  WO_items.push({ type Main-d'oeuvre, desc, qty hrs, rate });
+  $('wo_lab_desc').value=''; $('wo_lab_hours').va
