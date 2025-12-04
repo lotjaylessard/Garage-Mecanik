@@ -72,7 +72,7 @@
       <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM13 3v6h8V3h-8zM3 21h8v-4H3v4z" fill="#fff"/></svg> Dashboard
     </button>
 
-    <button class="nav-btn" id="nav-newwo" title="Nouveau bon de travail">
+    <button class="nav-btn" id="nav-newwo" title="Bon de travail">
       <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M3 6h18" stroke="#fff" stroke-width="1.2"/><path d="M6 6v14h12V6" stroke="#fff" stroke-width="1.2"/></svg> Bon de travail
     </button>
 
@@ -126,7 +126,7 @@
 
       <!-- New Work Order Page -->
       <section id="page-newwo" class="page card">
-        <h2>Nouveau bon de travail</h2>
+        <h2>Bon de travail</h2>
 
         <div style="display:flex;gap:12px">
           <div style="flex:1">
@@ -150,21 +150,30 @@
             <div class="muted">Ajouter une pièce</div>
             <input id="wo_part_name" placeholder="Nom pièce" />
             <div style="display:flex;gap:8px;margin-top:6px">
-              <input id="wo_part_qty" type="number" placeholder=Prix uni step=0.01 
-              button class=ghost id=wo_add_partAjouterbutton
-            div
-          div
+              <input id="wo_part_qty" type="number" placeholder=Prix uni step=0.01 /­­>
+              <button class="ghost"
+                id="wo_add_part">Ajouter</button>
+            </div>
+          </div>
 
-          div class=card style=flex1;padding10px
-            div class=mutedAjouter main-d'œuvrediv
-            input id=wo_lab_desc placeholder=Ex Remplacement plaquettes 
-            div style=displayflex;gap8px;margin-top6px
-              input id=wo_lab_hours type=number placeholder=Heures step=0.1 
-              input id=wo_lab_rate type=number placeholder=Tauxh step=0.01 
-              button class=ghost id=wo_add_labAjouterbutton
-            div
-          div
-        div
+        </div> class="card"
+        style="flex:1;padding:10px">
+            <div class="muted"Ajouter main-d'oeuvre</div>
+            <input id="wo_lab_desc"
+              placeholder="Ex: Remplacement plaquettes" />
+            <div>
+              style="display:flex;gap:8px;margin-top:6px">
+              <input id="wo_lab_hours"
+                type="number" placeholder="Heures"
+                step="0.1" />
+              <input id="wo_lab_rate"
+                type="number" placeholder="Taux/h"
+                step="0.01" />
+              <button class="ghost"
+                id="wo_add_lab">Ajouter</button>
+            </div>
+          </div>
+        </div>
 
         h3 style=margin-top12pxArticlesh3
         table id=wo_items_tabletheadtrthTypeththDescriptionththQtéhrsththPrixuththTotalthththtrtheadtbodytbodytable
