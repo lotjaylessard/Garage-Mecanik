@@ -651,4 +651,104 @@ $('hist_search').addEventListener('input', renderHistoryList);
 
 /* ========== Lookup quick search ========== */
 $('lookup_btn').addEventListener('click', ()=>{
-  const q = $('lookup_input').value.trim().toLowe
+  const q = $('lookup_input').value.trim().toLowerCase();
+  if(!q) return;
+  const wos = loadWorkOrders();
+  const invs = loadInvoices();
+  const matchesWO = wos.filter(w=> (w.client||'').toLowerCase().includes(q) || (w.vehicle||'').toLowerCase().includes(q));
+  const matchesInv = invs.filter(i=> (i.client||'').toLowerCase().includes(q) || (i.number||'').toLowerCase().includes(q));
+  const out = [];
+  if(matchesWO.length){
+    out.push('<div class="muted">Bons trouvés</div>');
+    matchesWO.slice(0,8).forEach(w=> out.push(`<div class="history-item"><strong>${w.client}</strong> — ${w.vehicle||''}<div class="muted" style="font-size:12px">${(new Date(w.id)).toLocaleDateString()}</div></div>`));
+  }
+  if(matchesInv.length){
+    out.push('<div class="muted" style="margin-top:8px">Factures trouvées</div>');
+    matchesInv.slice(0,8).forEach(i=> out.push(`<div class="history-item"><strong>${i.client}</strong> — #${i.number}<div class="muted" style="font-size:12px">${i.date}</div></div>`));
+  }
+  $('lookup_results').innerHTML = out.join('') || '<div class="muted">Aucun résultat</div>';
+});
+$('lookup_clear').addEventListener('click', ()=>{ $('lookup_input').value=''; $('lookup_results').innerHTML=''; });
+
+/* ========== Export / Print helpers ========== */
+$('export_invoices_csv').addEventListener('click', ()=>{
+  const list = loadInvoices();
+  if(!list.length) return alert('Aucune facture');
+  let csv = 'number,date,client,job,subtotal,gst,qst,total\n';
+  list.forEach(i=> csv += `${i.number},"${i.date}","${(i.client||'').replace(/"/g,'""')}","${(i.job||'').replace(/"/g,'""')}",${i.subtotal},${i.gst},${i.qst},${i.total}\n`);
+  const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'factures.csv'; a.click(); URL.revokeObjectURL(url);
+});
+$('export_wo_csv').addEventListener('click', ()=>{
+  const list = loadWorkOrders();
+  if(!list.length) return alert('Aucun bon de travail');
+  let csv = 'id,date,client,vehicle,description,subtotal,gst,qst,total,status\n';
+  list.forEach(w=> csv += `${w.id},"${(new Date(w.id)).toLocaleString()}","${(w.client||'').replace(/"/g,'""')}","${(w.vehicle||'').replace(/"/g,'""')}","${(w.description||'').replace(/"/g,'""')}",${w.subtotal},${w.gst},${w.qst},${w.total},"${w.status}"\n`);
+  const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'bons_de_travail.csv'; a.click(); URL.revokeObjectURL(url);
+});
+$('print_all').addEventListener('click', ()=>{
+  // print simple summary
+  const s = loadSettings();
+  const wos = loadWorkOrders();
+  let html = `<div style="padding:20px;font-family:Arial;background:#fff;color:#000"><h2>${s.companyName||'Mon Garage'} - Résumé</h2>`;
+  wos.forEach(w=> {
+    html += `<div style="margin-bottom:8px"><strong>${w.client}</strong> — ${w.vehicle||''} — ${(new Date(w.id)).toLocaleString()}<div>${(w.description||'')}</div></div>`;
+  });
+  html += '</div>';
+  $('printArea').style.display='block'; $('printArea').innerHTML = html; window.print(); $('printArea').style.display='none';
+});
+$('export_all_json').addEventListener('click', ()=>{
+  const all = { settings: loadSettings(), workorders: loadWorkOrders(), invoices: loadInvoices() };
+  const blob = new Blob([JSON.stringify(all, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='backup_atelier.json'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ========== Quick actions wiring ========== */
+$('quick_newwo').addEventListener('click', ()=> showPage('page-newwo'));
+$('quick_newinv').addEventListener('click', ()=> showPage('page-invoices'));
+$('quick_history').addEventListener('click', ()=> showPage('page-history'));
+$('quick_install').addEventListener('click', installPWA);
+
+/* ========== PWA: basic service worker from blob ========= */
+if('serviceWorker' in navigator){
+  const swCode = `self.addEventListener('install', e => { self.skipWaiting(); }); self.addEventListener('activate', e => { clients.claim(); }); self.addEventListener('fetch', e => {});`;
+  try{
+    const blob = new Blob([swCode],{type:'text/javascript'});
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).then(()=>console.log('SW registered (blob)')).catch(()=>console.warn('SW failed'));
+  }catch(e){console.warn('SW error', e)}
+}
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  window.deferredPrompt = e;
+  $('btn-install').style.display = 'inline-flex';
+  $('quick_install').style.display = 'inline-flex';
+});
+$('btn-install').addEventListener('click', installPWA);
+function installPWA(){ const prompt = window.deferredPrompt; if(!prompt) return; prompt.prompt(); window.deferredPrompt = null; }
+
+/* ========== Load everything and refresh UI ========== */
+function loadAll(){
+  initSettingsUI();
+  renderHistoryList();
+  renderInvoicesTable();
+  refreshDashboard();
+}
+loadAll();
+
+/* ========== Initial demo population (only if empty) - optional ========== */
+/* Uncomment to seed demo data for first run
+if(loadWorkOrders().length===0){
+  const demo = [{id:Date.now(),client:'Jean Tremblay',vehicle:'ABC-123',description:'Freins bruyants',items:[{type:'Pièce',desc:'Plaquettes',qty:4,rate:45},{type:'Main-d\'oeuvre',desc:'Changement',qty:1.5,rate:80}],subtotal: (4*45+1.5*80),gst:0,qst:0,total: (4*45+1.5*80),status:'OUVERT'}];
+  saveWorkOrders(demo);
+  loadAll();
+}
+*/
+
+/* ========== Ensure links between modules update lists when changed ========== */
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') loadAll(); });
+
+</script>
+</body>
+</html>
