@@ -384,7 +384,13 @@ $('addPart').addEventListener('click',()=>{
   const price=Number($('partPrice').value)||0;
   if(!name || qty<=0) return alert("Informations pièce incomplètes");
 
-  items.push({type:'Pièce',desc:name,qty,rate:price});
+  const newItem = {type:'Pièce',desc:name,qty,rate:price};
+
+  // Tente de lier à une pièce d'inventaire si le # de pièce est dans la description
+  const linkedOk = linkNewItemToInventory(newItem);
+  if(linkedOk === false) return; // stock insuffisant, on annule
+
+  items.push(newItem);
   $('partName').value='';
   $('partPrice').value='';
   $('partQty').value=1;
@@ -435,8 +441,31 @@ function renderItems(){
 }
 
 function removeItem(i){
+  const item = items[i];
+  if(item && item.invNumber){
+    // on remet le stock en place
+    const qty = Number(item.qty)||1;
+    adjustStockForLinkedItem(item, qty);
+  }
   items.splice(i,1);
   renderItems();
+}
+
+  if($('clearItems')){
+  $('clearItems').addEventListener('click',()=>{
+    if(!items.length) return;
+    if(!confirm("Vider tous les articles de la facture ?")) return;
+
+    items.forEach(it=>{
+      if(it.invNumber){
+        const qty = Number(it.qty)||1;
+        adjustStockForLinkedItem(it, qty);
+      }
+    });
+
+    items = [];
+    renderItems();
+  });
 }
 
 /* ===================== SAVE INVOICE ===================== */
@@ -780,6 +809,60 @@ saveClientsToStorage = function(){
 
 loadVehicles();
 
+  /* ====================================================================
+   LIEN FACTURE <-> INVENTAIRE
+==================================================================== */
+
+// Trouve une pièce d'inventaire à partir d'un texte (description) qui contient le # de pièce
+function findInventoryPartFromText(text){
+  text = (text || "").toLowerCase();
+  for(let i=0; i<PARTS.length; i++){
+    const num = String(PARTS[i].number || "").toLowerCase();
+    if(num && text.includes(num)){ // Option 2 : match si le numéro apparaît n'importe où
+      return PARTS[i];
+    }
+  }
+  return null;
+}
+
+// Déduire ou restaurer le stock pour un item lié
+function adjustStockForLinkedItem(item, deltaQty){
+  if(!item || !item.invNumber) return;
+  const num = String(item.invNumber);
+  const part = PARTS.find(p => String(p.number) === num);
+  if(!part) return;
+
+  const current = Number(part.qty || 0);
+  part.qty = current + deltaQty;
+  if(part.qty < 0) part.qty = 0;
+
+  saveParts();
+  renderParts();
+}
+
+// Lorsqu'on crée un nouvel item de facture, essayer de le lier à une pièce d'inventaire
+function linkNewItemToInventory(item){
+  // On ne lie que les items de type "Pièce" pour éviter les faux positifs sur la main-d'œuvre
+  if(!item || !item.desc || !item.type || !item.type.toLowerCase().includes('pièce')) return;
+
+  const part = findInventoryPartFromText(item.desc);
+  if(!part) return; // aucune pièce correspondante, on ne fait rien
+
+  const qty = Number(item.qty)||1;
+  const currentQty = Number(part.qty || 0);
+
+  if(currentQty < qty){
+    alert("Stock insuffisant pour cette pièce en inventaire.");
+    return false; // on annule la création
+  }
+
+  part.qty = currentQty - qty;
+  item.invNumber = part.number; // on marque l'item comme lié à cette pièce
+  saveParts();
+  renderParts();
+  return true;
+}
+  
 /* ====================================================================
    INVENTAIRE DES PIÈCES — CARTES VISUELLES
 ==================================================================== */
@@ -808,7 +891,7 @@ function renderParts(){
   const filterCat = ($("partInvFilter")?.value || "");
 
   PARTS.forEach((p,i)=>{
-    const hay = `${p.name||""} ${p.number||""}`.toLowerCase();
+    const hay = `${p.name||""} ${p.number||""} ${p.category||""}`.toLowerCase(); // recherche avancée
     if(q && !hay.includes(q)) return;
     if(filterCat && p.category && p.category !== filterCat) return;
 
@@ -865,22 +948,36 @@ function renderParts(){
     });
   });
 
-  /* Ajouter une pièce à la facture */
+  /* Ajouter une pièce à la facture + déduction stock */
   wrap.querySelectorAll("button[data-action='addToInvoice']").forEach(btn=>{
     btn.addEventListener("click",()=>{
       const id = Number(btn.dataset.id);
       const p = PARTS[id];
       if(!p) return;
 
-      items.push({
+      const currentQty = Number(p.qty||0);
+      if(currentQty <= 0){
+        alert("Stock insuffisant pour cette pièce.");
+        return;
+      }
+
+      // déduire 1 du stock
+      p.qty = currentQty - 1;
+
+      // créer l'item de facture lié à cette pièce
+      const newItem = {
         type:"Pièce (Inventaire)",
         desc:`${p.name} (#${p.number})`,
         qty:1,
-        rate:p.price
-      });
+        rate:p.price,
+        invNumber:p.number // pour savoir à quelle pièce ça se rattache
+      };
 
+      saveParts();
+      renderParts();
+
+      items.push(newItem);
       renderItems();
-      alert("Pièce ajoutée à la facture !");
     });
   });
 }
