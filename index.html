@@ -397,8 +397,28 @@
   <!-- MODAL CHOIX SERVICE -->
 <div id="servicePickerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:var(--card); width:700px; max-width:95%; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:0 8px 24px rgba(0,0,0,0.6); max-height:90vh; overflow-y:auto;">
-    <h2>Choisir un service</h2>
-    <div id="servicePickerList">Chargement...</div>
+<h2>Choisir un service</h2>
+
+<label style="margin-top:10px;">Filtrer par catégorie :</label>
+<select id="servicePickerFilter" style="margin-bottom:15px;">
+  <option value="">Toutes les catégories</option>
+  <option value="Entretien">Entretien</option>
+  <option value="Mécanique générale">Mécanique générale</option>
+  <option value="Freins">Freins</option>
+  <option value="Suspension">Suspension</option>
+  <option value="Direction">Direction</option>
+  <option value="Refroidissement">Refroidissement</option>
+  <option value="Diagnostic">Diagnostic</option>
+  <option value="Électricité">Électricité</option>
+  <option value="Pneus">Pneus</option>
+  <option value="Échappement">Échappement</option>
+  <option value="Transmission">Transmission</option>
+  <option value="Moteur">Moteur</option>
+  <option value="Divers">Divers</option>
+</select>
+
+<div id="servicePickerList">Chargement...</div>
+
     <div style="text-align:right; margin-top:15px;">
       <button id="closeServicePicker" class="ghost">Fermer</button>
     </div>
@@ -1310,15 +1330,98 @@ function initServicesModule(){
   const btnOpen = $("openServicePicker");
   const btnClose = $("closeServicePicker");
 
+  // Icônes mécaniques par catégorie
+const SERVICE_ICONS = {
+  "Entretien": "🛢️",
+  "Mécanique générale": "🧰",
+  "Freins": "🛑",
+  "Suspension": "🦾",
+  "Direction": "🛞",
+  "Refroidissement": "❄️",
+  "Diagnostic": "🔎",
+  "Électricité": "🔌",
+  "Pneus": "🚗",
+  "Échappement": "🔩",
+  "Transmission": "⚙️",
+  "Moteur": "🚀",
+  "Divers": "📦"
+};
+
   if(btnOpen && modal && list){
 btnOpen.addEventListener("click",()=>{
   loadServices();
 
-  if(SERVICES.length === 0){
-    list.innerHTML = '<div class="muted">Aucun service enregistré pour le moment.</div>';
-    modal.style.display = "flex";
-    return;
+  const filterSelect = $("servicePickerFilter");
+
+  function renderPicker(){
+    if(SERVICES.length === 0){
+      list.innerHTML = '<div class="muted">Aucun service enregistré pour le moment.</div>';
+      return;
+    }
+
+    const filter = filterSelect?.value || "";
+
+    // Regrouper par catégories
+    const grouped = {};
+    SERVICES.forEach(s=>{
+      if(filter && s.category !== filter) return;
+      if(!grouped[s.category]) grouped[s.category] = [];
+      grouped[s.category].push(s);
+    });
+
+    let html = "";
+
+    Object.keys(grouped).sort().forEach(cat=>{
+      const icon = SERVICE_ICONS[cat] || "⚙️";
+
+      html += `
+        <h3 style="color:var(--accent);margin-top:15px;">
+          ${icon} ${cat}
+        </h3>
+        <div style="margin-bottom:10px;border-bottom:1px solid var(--border);"></div>
+      `;
+
+      grouped[cat].forEach(s=>{
+        const label = s.priceFixed > 0
+          ? `${s.name} — ${s.priceFixed.toFixed(2)} $`
+          : `${s.name} — ${s.hours} h × ${s.rate.toFixed(2)} $/h`;
+
+        html += `
+          <div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;">
+            <div><b>${label}</b></div>
+            ${s.desc ? `<div class="small">${s.desc}</div>` : ""}
+            <button class="ghost" data-action="pick-service" data-id="${s.id}" style="margin-top:4px;">
+              Ajouter à la facture
+            </button>
+          </div>
+        `;
+      });
+    });
+
+    list.innerHTML = html;
+
+    // Boutons d'ajout
+    list.querySelectorAll("button[data-action='pick-service']").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const id = btn.dataset.id;
+        const s = SERVICES.find(x => String(x.id) === String(id));
+        if(!s) return;
+        addServiceToInvoice(s);
+        modal.style.display = "none";
+      });
+    });
   }
+
+  // Premier affichage
+  renderPicker();
+
+  // Réagir au filtre
+  if(filterSelect){
+    filterSelect.onchange = renderPicker;
+  }
+
+  modal.style.display = "flex";
+});
 
   // Regrouper par catégories
   const grouped = {};
