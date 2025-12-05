@@ -430,7 +430,8 @@
     const STORAGE = {
       invoices: 'ar_invoices_v1',
       settings: 'ar_settings_v1',
-      invoiceCounter: 'ar_invoice_counter_v1'
+      invoiceCounter: 'ar_invoice_counter_v1',
+      clients: 'ar_clients_v1'
     };
 
     // --- Utilities ---
@@ -665,8 +666,275 @@ Téléphone';
     $('searchInvoices').addEventListener('input',loadInvoices);
     $('filterSort').addEventListener('change',loadInvoices);
 
+    // === Gestion Clients ===
+    let CLIENTS = [];
+
+    function loadClientsFromStorage(){
+      try{
+        CLIENTS = JSON.parse(localStorage.getItem(STORAGE.clients) || '[]');
+        if(!Array.isArray(CLIENTS)) CLIENTS = [];
+      }catch(e){ CLIENTS = []; }
+    }
+
+    function saveClientsToStorage(){
+      localStorage.setItem(STORAGE.clients, JSON.stringify(CLIENTS));
+    }
+
+    function renderClientsTable(){
+      const tbody = document.querySelector('#clientsTable tbody');
+      if(!tbody) return;
+      const qInput = document.getElementById('clientSearch');
+      const q = qInput ? qInput.value.trim().toLowerCase() : '';
+      tbody.innerHTML = '';
+      CLIENTS.forEach(client=>{
+        const vehicleCount = Array.isArray(client.vehicles) ? client.vehicles.length : 0;
+        const hay = (client.name||'') + ' ' + (client.phone||'') + ' ' + (client.email||'');
+        if(q && !hay.toLowerCase().includes(q)) return;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${client.name||''}</td>
+          <td>${client.phone||''}</td>
+          <td>${vehicleCount}</td>
+          <td>
+            <button class="ghost" data-action="open-client" data-id="${client.id}">Fiche</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('button[data-action="open-client"]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const id = btn.getAttribute('data-id');
+          openClientModal(id);
+        });
+      });
+    }
+
+    function findClientById(id){
+      return CLIENTS.find(c => String(c.id) === String(id));
+    }
+
+    function openClientModal(id){
+      const modal = document.getElementById('clientModal');
+      if(!modal) return;
+      modal.style.display = 'flex';
+      renderClientModal(id);
+    }
+
+    function closeClientModal(){
+      const modal = document.getElementById('clientModal');
+      if(modal) modal.style.display = 'none';
+    }
+
+    function renderClientModal(id){
+      loadClientsFromStorage();
+      const content = document.getElementById('clientModalContent');
+      if(!content) return;
+      const isNew = !id;
+      let client = null;
+      if(isNew){
+        client = { id: Date.now(), name:'', phone:'', email:'', address:'', notes:'', vehicles:[] };
+      }else{
+        client = findClientById(id);
+        if(!client){
+          alert('Client introuvable');
+          closeClientModal();
+          return;
+        }
+      }
+
+      const invoices = JSON.parse(localStorage.getItem(STORAGE.invoices) || '[]');
+      const clientInvoices = invoices.filter(inv => (inv.customer||'').toLowerCase() === (client.name||'').toLowerCase());
+
+      content.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <h3 style="margin:0 0 6px; color:var(--accent);">Informations client</h3>
+            <div class="row">
+              <div>
+                <label>Nom</label>
+                <input id="clientFormName" value="${client.name||''}" />
+              </div>
+              <div>
+                <label>Téléphone</label>
+                <input id="clientFormPhone" value="${client.phone||''}" />
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <div>
+                <label>Email</label>
+                <input id="clientFormEmail" value="${client.email||''}" />
+              </div>
+              <div>
+                <label>Adresse</label>
+                <input id="clientFormAddress" value="${client.address||''}" />
+              </div>
+            </div>
+            <label style="margin-top:8px;">Notes</label>
+            <textarea id="clientFormNotes">${client.notes||''}</textarea>
+          </div>
+
+          <div>
+            <h3 style="margin:10px 0 6px; color:var(--accent);">Véhicules</h3>
+            <div id="clientVehiclesList" class="small"></div>
+            <div style="margin-top:8px;" class="row">
+              <div><label>Marque</label><input id="vehMake" /></div>
+              <div><label>Modèle</label><input id="vehModel" /></div>
+              <div><label>Année</label><input id="vehYear" /></div>
+            </div>
+            <div class="row" style="margin-top:6px;">
+              <div><label>Plaque</label><input id="vehPlate" /></div>
+              <div><label>VIN</label><input id="vehVin" /></div>
+              <div><label>KM</label><input id="vehKm" type="number" /></div>
+            </div>
+            <label style="margin-top:6px;">Notes véhicule</label>
+            <textarea id="vehNotes"></textarea>
+            <button id="clientAddVehicleBtn" style="margin-top:6px;">Ajouter véhicule</button>
+          </div>
+
+          <div>
+            <h3 style="margin:10px 0 6px; color:var(--accent);">Historique (à partir des factures)</h3>
+            <div id="clientHistory" class="small"></div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+            ${isNew ? '' : '<button id="clientDeleteBtn" class="ghost">Supprimer client</button>'}
+            <button id="clientSaveBtn">Enregistrer</button>
+          </div>
+        </div>
+      `;
+
+      function renderVehicles(){
+        const wrap = document.getElementById('clientVehiclesList');
+        if(!wrap) return;
+        if(!client.vehicles || client.vehicles.length===0){
+          wrap.innerHTML = '<div class="muted">Aucun véhicule pour ce client.</div>';
+          return;
+        }
+        wrap.innerHTML = client.vehicles.map((v,idx)=>`
+          <div style="border:1px solid var(--border); border-radius:6px; padding:6px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div><strong>${v.make||''} ${v.model||''} ${v.year||''}</strong></div>
+              <div class="small">Plaque: ${v.plate||''} | VIN: ${v.vin||''} | KM: ${v.km||''}</div>
+              <div class="small">${v.notes||''}</div>
+            </div>
+            <button class="ghost" data-index="${idx}" data-role="del-veh">Suppr</button>
+          </div>
+        `).join('');
+        wrap.querySelectorAll('button[data-role="del-veh"]').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            const idx = Number(btn.getAttribute('data-index'));
+            client.vehicles.splice(idx,1);
+            renderVehicles();
+          });
+        });
+      }
+      renderVehicles();
+
+      const histWrap = document.getElementById('clientHistory');
+      if(histWrap){
+        if(clientInvoices.length===0){
+          histWrap.innerHTML = '<div class="muted">Aucune facture associée pour ce client pour le moment.</div>';
+        }else{
+          histWrap.innerHTML = clientInvoices.map(inv=>`
+            <div style="border-bottom:1px solid var(--border); padding:4px 0;">
+              <div><strong>#${inv.number}</strong> - ${inv.date}</div>
+              <div class="small">${inv.job||''}</div>
+              <div class="small">Total: ${Number(inv.total||0).toFixed(2)} $</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      const btnSave = document.getElementById('clientSaveBtn');
+      if(btnSave){
+        btnSave.addEventListener('click',()=>{
+          const name = document.getElementById('clientFormName').value.trim();
+          if(!name){ alert('Le nom du client est requis.'); return; }
+          client.name = name;
+          client.phone = document.getElementById('clientFormPhone').value.trim();
+          client.email = document.getElementById('clientFormEmail').value.trim();
+          client.address = document.getElementById('clientFormAddress').value.trim();
+          client.notes = document.getElementById('clientFormNotes').value.trim();
+
+          const idx = CLIENTS.findIndex(c => String(c.id) === String(client.id));
+          if(idx === -1){
+            CLIENTS.push(client);
+          }else{
+            CLIENTS[idx] = client;
+          }
+          saveClientsToStorage();
+          renderClientsTable();
+          closeClientModal();
+        });
+      }
+
+      const vehBtn = document.getElementById('clientAddVehicleBtn');
+      if(vehBtn){
+        vehBtn.addEventListener('click',()=>{
+          const make = document.getElementById('vehMake').value.trim();
+          const model = document.getElementById('vehModel').value.trim();
+          const year = document.getElementById('vehYear').value.trim();
+          if(!make && !model){
+            alert('Au moins marque ou modèle requis pour le véhicule.');
+            return;
+          }
+          const v = {
+            id: Date.now(),
+            make,
+            model,
+            year,
+            plate: document.getElementById('vehPlate').value.trim(),
+            vin: document.getElementById('vehVin').value.trim(),
+            km: document.getElementById('vehKm').value.trim(),
+            notes: document.getElementById('vehNotes').value.trim()
+          };
+          if(!Array.isArray(client.vehicles)) client.vehicles = [];
+          client.vehicles.push(v);
+          document.getElementById('vehMake').value='';
+          document.getElementById('vehModel').value='';
+          document.getElementById('vehYear').value='';
+          document.getElementById('vehPlate').value='';
+          document.getElementById('vehVin').value='';
+          document.getElementById('vehKm').value='';
+          document.getElementById('vehNotes').value='';
+          renderVehicles();
+        });
+      }
+
+      const btnDelete = document.getElementById('clientDeleteBtn');
+      if(btnDelete && !isNew){
+        btnDelete.addEventListener('click',()=>{
+          if(!confirm('Supprimer ce client ?')) return;
+          CLIENTS = CLIENTS.filter(c => String(c.id) !== String(client.id));
+          saveClientsToStorage();
+          renderClientsTable();
+          closeClientModal();
+        });
+      }
+    }
+
+    function initClients(){
+      loadClientsFromStorage();
+      const search = document.getElementById('clientSearch');
+      if(search){
+        search.addEventListener('input', renderClientsTable);
+      }
+      const btnAdd = document.getElementById('btnAddClient');
+      if(btnAdd){
+        btnAdd.addEventListener('click', ()=> openClientModal(null));
+      }
+      const btnCloseModal = document.getElementById('closeClientModal');
+      if(btnCloseModal){
+        btnCloseModal.addEventListener('click', closeClientModal);
+      }
+      renderClientsTable();
+    }
+
     // --- Init ---
-    loadSettings(); updateInvoiceNumberField(); renderItems(); loadInvoices();
+    loadSettings();
+    updateInvoiceNumberField();
+    renderItems();
+    loadInvoices();
+    initClients();
 
     // --- Simple PWA: register a service worker created from a blob so the app can be installable offline ---
     if('serviceWorker' in navigator){
