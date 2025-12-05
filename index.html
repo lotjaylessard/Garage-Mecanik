@@ -1,50 +1,934 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Garage-Atelier Mécanique J.L</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    :root{
+      --bg:#121214;
+      --card:#1e1f21;
+      --accent:#f5c542;
+      --muted:#9aa3ac;
+      --text:#e6e9eb;
+      --border:#2f3133;
+      --danger:#ff5555;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+      background:radial-gradient(circle at top,#20222a,#121214);
+      color:var(--text);
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 18px;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      background:linear-gradient(90deg,#111218,#18191f);
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo-box{
+      width:44px;height:44px;
+      background:#000;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 10px 20px rgba(0,0,0,0.7);
+    }
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      color:var(--accent);
+    }
+    .brand .sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+    nav{display:flex;gap:8px;flex-wrap:wrap}
+    .nav-btn{
+      background:var(--card);
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:6px 10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .nav-btn.active{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(245,197,66,0.2);
+    }
+    .nav-btn:hover{background:#262830}
+    main{
+      max-width:1100px;
+      margin:18px auto;
+      padding:0 10px 20px;
+    }
+    .page{
+      display:none;
+      background:linear-gradient(180deg,var(--card),#15161a);
+      border-radius:12px;
+      border:1px solid var(--border);
+      padding:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.7);
+      margin-bottom:16px;
+    }
+    .page.active{display:block}
+    h2{
+      margin:0 0 10px;
+      color:var(--accent);
+      font-size:18px;
+    }
+    h3{
+      margin:12px 0 8px;
+      color:var(--accent);
+      font-size:15px;
+    }
+    label{
+      font-size:13px;
+      font-weight:600;
+      color:var(--muted);
+      display:block;
+      margin-top:8px;
+    }
+    input,textarea,select{
+      width:100%;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:#101218;
+      color:var(--text);
+      padding:7px 8px;
+      margin-top:4px;
+      font-size:13px;
+    }
+    textarea{resize:vertical;min-height:60px}
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .row > .col{flex:1;min-width:170px}
+    .button{
+      background:var(--accent);
+      color:#111;
+      border:none;
+      border-radius:8px;
+      padding:7px 11px;
+      font-weight:600;
+      cursor:pointer;
+      font-size:13px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.5);
+    }
+    .button.ghost{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid var(--border);
+      box-shadow:none;
+    }
+    .button.danger{
+      background:var(--danger);
+      color:#fff;
+    }
+    .button + .button{margin-left:6px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+      font-size:13px;
+    }
+    th,td{
+      padding:7px;
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      text-align:left;
+    }
+    th{
+      background:#262830;
+      color:var(--muted);
+      font-weight:600;
+    }
+    td.right{text-align:right}
+    .muted{color:var(--muted);font-size:12px}
+    .stat-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;
+      margin-top:6px;
+    }
+    .stat-card{
+      background:#18191f;
+      border-radius:10px;
+      padding:10px;
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .stat-label{font-size:12px;color:var(--muted);}
+    .stat-value{font-size:20px;font-weight:700;margin-top:4px;}
+    .history-item{
+      background:#181920;
+      border-radius:8px;
+      border-left:4px solid var(--accent);
+      padding:8px;
+      margin-bottom:8px;
+    }
+    .history-header{
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      margin-bottom:4px;
+    }
+    .badge{
+      font-size:11px;
+      border-radius:999px;
+      padding:2px 7px;
+      border:1px solid rgba(255,255,255,0.18);
+      color:var(--muted);
+    }
+    footer{
+      text-align:center;
+      padding:10px;
+      font-size:12px;
+      color:var(--muted);
+      border-top:1px solid rgba(255,255,255,0.05);
+      background:#101117;
+    }
+    @media (max-width:700px){
+      header{flex-direction:column;align-items:flex-start;gap:8px}
+      nav{width:100%;flex-wrap:wrap}
+    }
+    @media print{
+      body *{visibility:hidden}
+      #printArea,#printArea *{visibility:visible}
+      #printArea{position:fixed;inset:0;background:#fff;color:#000;box-shadow:none;border:none}
+    }
+  </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="/img/gear-yellow.svg" alt="logo" class="brand-logo" />
-      <div>
-        <h1>Garage-Atelier Mécanique J.L</h1>
-        <div class="muted">Gestion — 1 utilisateur (local)</div>
+<header>
+  <div class="brand">
+    <div class="logo-box">
+      <!-- engrenage jaune -->
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="#f5c542" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+        <path d="M19.4 15a7 7 0 0 0 .1-1 7 7 0 0 0-.1-1l2.2-1.7a.5.5 0 0 0 .12-.63l-2.1-3.64a.5.5 0 0 0-.6-.22l-2.6 1a6.9 6.9 0 0 0-1.7-.98L14.5 2.4a.5.5 0 0 0-.5-.4h-4.1a.5.5 0 0 0-.5.4L8.2 6.2c-.6.2-1.1.5-1.7.9l-2.6-1a.5.5 0 0 0-.6.22L1.2 9.9a.5.5 0 0 0 .12.63L3.5 12a7 7 0 0 0 0 2l-2.2 1.7a.5.5 0 0 0-.12.63l2.1 3.64a.5.5 0 0 0 .6.22l2.6-1c.5.4 1.1.7 1.7.9l.9 3.8c.08.3.36.4.5.4h4.1c.14 0 .42-.1.5-.4l.9-3.8c.6-.2 1.1-.5 1.7-.9l2.6 1a.5.5 0 0 0 .6-.22l2.1-3.64a.5.5 0 0 0-.12-.63L19.4 15z"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Garage-Atelier Mécanique J.L</h1>
+      <div class="sub">Gestion simple — 1 utilisateur (local)</div>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+    <button class="nav-btn" data-page="newwo">Nouveau bon</button>
+    <button class="nav-btn" data-page="invoices">Factures</button>
+    <button class="nav-btn" data-page="history">Historique</button>
+    <button class="nav-btn" data-page="settings">Paramètres</button>
+  </nav>
+</header>
+
+<main>
+  <!-- DASHBOARD -->
+  <section id="page-dashboard" class="page active">
+    <h2>Tableau de bord</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Bons de travail</div>
+        <div class="stat-value" id="stat-wo-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Factures</div>
+        <div class="stat-value" id="stat-inv-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total encaissé</div>
+        <div class="stat-value" id="stat-total">0,00 $</div>
       </div>
     </div>
 
-    <nav class="nav">
-      <button id="nav-dashboard" class="nav-btn">Dashboard</button>
-      <button id="nav-newwo" class="nav-btn">Nouveau bon</button>
-      <button id="nav-invoices" class="nav-btn">Factures</button>
-      <button id="nav-history" class="nav-btn">Historique</button>
-      <button id="nav-settings" class="nav-btn">Paramètres</button>
-      <button id="btn-install" class="nav-btn" style="display:none">Installer</button>
-    </nav>
-  </header>
+    <h3>Bons récents</h3>
+    <div id="dash-recent"></div>
+  </section>
 
-  <main class="container">
-    <!-- pages (SPA) -->
-    <section id="page-dashboard" class="page card active"></section>
-    <section id="page-newwo" class="page card"></section>
-    <section id="page-invoices" class="page card"></section>
-    <section id="page-history" class="page card"></section>
-    <section id="page-settings" class="page card"></section>
+  <!-- NEW WORK ORDER / INVOICE -->
+  <section id="page-newwo" class="page">
+    <h2>Nouveau bon de travail</h2>
+    <div class="row">
+      <div class="col">
+        <label>Client</label>
+        <input id="wo-client" placeholder="Nom du client" />
+      </div>
+      <div class="col">
+        <label>Plaque / VIN</label>
+        <input id="wo-vehicle" placeholder="ABC123 / VIN" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Véhicule (modèle / année)</label>
+        <input id="wo-vehicle-info" placeholder="Ex: Civic 2012 LX" />
+      </div>
+      <div class="col">
+        <label>Numéro de facture (prochaine)</label>
+        <input id="wo-next-number" disabled />
+      </div>
+    </div>
 
-    <!-- print area -->
-    <div id="printArea" style="display:none"></div>
-  </main>
+    <label>Description du problème / job</label>
+    <textarea id="wo-description" placeholder="Ex: Bruit aux freins avant, vérifier disques et plaquettes."></textarea>
 
-  <footer class="footer muted">© Garage-Atelier Mécanique J.L</footer>
+    <h3>Ajouter des articles</h3>
+    <div class="row">
+      <div class="col">
+        <label>Pièce — nom</label>
+        <input id="wo-part-name" placeholder="Ex: Plaquettes céramique" />
+      </div>
+      <div class="col">
+        <label>Quantité</label>
+        <input id="wo-part-qty" type="number" min="1" value="1" />
+      </div>
+      <div class="col">
+        <label>Prix unitaire</label>
+        <input id="wo-part-price" type="number" step="0.01" min="0" />
+      </div>
+      <div class="col" style="align-self:flex-end">
+        <button class="button" id="wo-add-part">Ajouter pièce</button>
+      </div>
+    </div>
 
-  <!-- core scripts -->
-  <script src="/js/db.js"></script>
-  <script src="/js/pdf.js"></script>
-  <script src="/js/pwa.js"></script>
-  <script src="/js/app.js"></script>
+    <div class="row" style="margin-top:8px">
+      <div class="col">
+        <label>Main-d'œuvre — description</label>
+        <input id="wo-lab-desc" placeholder="Ex: Remplacer plaquettes avant" />
+      </div>
+      <div class="col">
+        <label>Heures</label>
+        <input id="wo-lab-hours" type="number" step="0.1" min="0" />
+      </div>
+      <div class="col">
+        <label>Taux / heure</label>
+        <input id="wo-lab-rate" type="number" step="0.01" min="0" />
+      </div>
+      <div class="col" style="align-self:flex-end">
+        <button class="button" id="wo-add-lab">Ajouter main-d'œuvre</button>
+      </div>
+    </div>
+
+    <h3>Articles du bon</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th><th>Description</th><th>Qté / hrs</th><th>Prix/u</th><th>Total</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="wo-items-body"></tbody>
+    </table>
+
+    <div class="row" style="margin-top:10px;align-items:flex-start">
+      <div class="col">
+        <label>Taxes</label>
+        <div class="row">
+          <div class="col">
+            <label><input type="checkbox" id="wo-apply-gst" checked /> TPS</label>
+            <input id="wo-gst-rate" type="number" step="0.001" />
+          </div>
+          <div class="col">
+            <label><input type="checkbox" id="wo-apply-qst" checked /> TVQ</label>
+            <input id="wo-qst-rate" type="number" step="0.001" />
+          </div>
+        </div>
+        <div class="muted" style="margin-top:4px">La TVQ est calculée sur (sous-total + TPS).</div>
+      </div>
+      <div class="col" style="text-align:right">
+        <div class="muted">Sous-total: <span id="wo-subtotal">0.00</span> $</div>
+        <div class="muted">TPS: <span id="wo-gst-amount">0.00</span> $</div>
+        <div class="muted">TVQ: <span id="wo-qst-amount">0.00</span> $</div>
+        <h3>Total: <span id="wo-total">0.00</span> $</h3>
+        <button class="button" id="wo-save">Enregistrer bon (OUVERT)</button>
+        <button class="button" id="wo-to-invoice">Convertir en facture</button>
+        <button class="button ghost" id="wo-clear">Vider le bon</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- INVOICES -->
+  <section id="page-invoices" class="page">
+    <h2>Factures</h2>
+    <div class="row" style="margin-bottom:8px">
+      <div class="col">
+        <input id="inv-search" placeholder="Rechercher client, #, job..." />
+      </div>
+      <div class="col" style="max-width:180px">
+        <select id="inv-sort">
+          <option value="new">Les plus récentes</option>
+          <option value="old">Les plus anciennes</option>
+        </select>
+      </div>
+      <div class="col" style="max-width:160px">
+        <button class="button ghost" id="inv-export-csv">Export CSV</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Date</th><th>Client</th><th>Job</th><th>Total</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="inv-body"></tbody>
+    </table>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="page-history" class="page">
+    <h2>Historique des bons de travail</h2>
+    <div class="row" style="margin-bottom:8px">
+      <div class="col">
+        <input id="hist-search" placeholder="Client, plaque, VIN, description..." />
+      </div>
+      <div class="col" style="max-width:160px">
+        <button class="button ghost" id="hist-export-csv">Export CSV</button>
+      </div>
+    </div>
+    <div id="hist-list"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="page-settings" class="page">
+    <h2>Paramètres</h2>
+    <label>Nom de l'entreprise</label>
+    <input id="s-company" />
+    <label>Adresse / Téléphone / Email</label>
+    <textarea id="s-contact"></textarea>
+    <div class="row">
+      <div class="col">
+        <label>TPS (%)</label>
+        <input id="s-gst" type="number" step="0.001" />
+      </div>
+      <div class="col">
+        <label>TVQ (%)</label>
+        <input id="s-qst" type="number" step="0.001" />
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:right">
+      <button class="button" id="s-save">Sauvegarder paramètres</button>
+      <button class="button ghost" id="s-export-json">Export backup JSON</button>
+      <button class="button danger" id="s-reset">Effacer toutes les données</button>
+    </div>
+    <p class="muted" style="margin-top:8px">
+      Toutes les données (bons, factures, paramètres) sont stockées localement dans ce navigateur via <strong>localStorage</strong>. 
+      Aucun envoi sur Internet.
+    </p>
+  </section>
+
+  <!-- zone d'impression -->
+  <div id="printArea" style="display:none"></div>
+</main>
+
+<footer>
+  © Garage-Atelier Mécanique J.L — Outil personnel de gestion de garage
+</footer>
+
+<script>
+  // ===== Helpers & Storage =====
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => document.querySelectorAll(sel);
+  const STORE = {
+    SETTINGS: 'gmjl_settings_v1',
+    WOS: 'gmjl_workorders_v1',
+    INVS: 'gmjl_invoices_v1',
+    COUNTER: 'gmjl_inv_counter_v1'
+  };
+  const money = n => Number(n||0).toFixed(2);
+
+  function loadJSON(key, def){
+    try{ return JSON.parse(localStorage.getItem(key) || JSON.stringify(def)); }
+    catch{ return def; }
+  }
+  function saveJSON(key, val){
+    localStorage.setItem(key, JSON.stringify(val));
+  }
+
+  // ===== Navigation =====
+  function showPage(name){
+    $$('.page').forEach(p=>p.classList.remove('active'));
+    $(`#page-${name}`).classList.add('active');
+    $$('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.page===name));
+  }
+  $$('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>showPage(btn.dataset.page));
+  });
+
+  // ===== Settings =====
+  function loadSettingsIntoUI(){
+    const s = loadJSON(STORE.SETTINGS,{
+      company:'Garage-Atelier Mécanique J.L',
+      contact:'Adresse\nTéléphone',
+      gst:5.0,
+      qst:9.975
+    });
+    $('#s-company').value = s.company;
+    $('#s-contact').value = s.contact;
+    $('#s-gst').value = s.gst;
+    $('#s-qst').value = s.qst;
+
+    // apply to workorder tax fields
+    $('#wo-gst-rate').value = s.gst;
+    $('#wo-qst-rate').value = s.qst;
+  }
+
+  function getSettings(){
+    return loadJSON(STORE.SETTINGS,{
+      company:'Garage-Atelier Mécanique J.L',
+      contact:'Adresse\nTéléphone',
+      gst:5.0,
+      qst:9.975
+    });
+  }
+
+  $('#s-save').addEventListener('click', ()=>{
+    const s = {
+      company: $('#s-company').value || 'Garage-Atelier Mécanique J.L',
+      contact: $('#s-contact').value || '',
+      gst: Number($('#s-gst').value)||0,
+      qst: Number($('#s-qst').value)||0
+    };
+    saveJSON(STORE.SETTINGS, s);
+    loadSettingsIntoUI();
+    alert('Paramètres sauvegardés');
+    renderDashboard();
+  });
+
+  $('#s-export-json').addEventListener('click', ()=>{
+    const backup = {
+      settings: getSettings(),
+      workorders: loadJSON(STORE.WOS, []),
+      invoices: loadJSON(STORE.INVS, [])
+    };
+    const blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'garage_backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  $('#s-reset').addEventListener('click', ()=>{
+    if(!confirm('Effacer toutes les données (bons, factures, paramètres) ?')) return;
+    localStorage.removeItem(STORE.SETTINGS);
+    localStorage.removeItem(STORE.WOS);
+    localStorage.removeItem(STORE.INVS);
+    localStorage.removeItem(STORE.COUNTER);
+    alert('Données effacées. L\'application repart à zéro.');
+    location.reload();
+  });
+
+  // ===== Invoice numbering =====
+  function nextInvoiceNumber(){
+    let n = Number(localStorage.getItem(STORE.COUNTER) || 0) + 1;
+    localStorage.setItem(STORE.COUNTER, n);
+    return String(n).padStart(5,'0');
+  }
+  function previewNextInvoiceNumber(){
+    const n = Number(localStorage.getItem(STORE.COUNTER) || 0) + 1;
+    $('#wo-next-number').value = String(n).padStart(5,'0');
+  }
+
+  // ===== Work Order items =====
+  let WO_ITEMS = [];
+  function renderWOItems(){
+    const tbody = $('#wo-items-body');
+    tbody.innerHTML = '';
+    let sub = 0;
+    WO_ITEMS.forEach((it,idx)=>{
+      const total = Number(it.qty)*Number(it.rate);
+      sub += total;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${it.type}</td>
+        <td>${it.desc}</td>
+        <td class="right">${it.qty}</td>
+        <td class="right">${money(it.rate)}</td>
+        <td class="right">${money(total)}</td>
+        <td><button class="button ghost" data-idx="${idx}">Suppr</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('button[data-idx]').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const i = Number(e.currentTarget.dataset.idx);
+        WO_ITEMS.splice(i,1);
+        renderWOItems();
+        recalcWOTotals();
+      });
+    });
+    $('#wo-subtotal').innerText = money(sub);
+    recalcWOTotals();
+  }
+
+  function recalcWOTotals(){
+    const sub = Number($('#wo-subtotal').innerText)||0;
+    const applyGst = $('#wo-apply-gst').checked;
+    const applyQst = $('#wo-apply-qst').checked;
+    const gstRate = Number($('#wo-gst-rate').value)||0;
+    const qstRate = Number($('#wo-qst-rate').value)||0;
+    const gstAmt = applyGst ? sub * gstRate/100 : 0;
+    const qstAmt = applyQst ? (sub + gstAmt) * qstRate/100 : 0;
+    $('#wo-gst-amount').innerText = money(gstAmt);
+    $('#wo-qst-amount').innerText = money(qstAmt);
+    $('#wo-total').innerText = money(sub + gstAmt + qstAmt);
+  }
+
+  $('#wo-apply-gst').addEventListener('change', recalcWOTotals);
+  $('#wo-apply-qst').addEventListener('change', recalcWOTotals);
+  $('#wo-gst-rate').addEventListener('change', recalcWOTotals);
+  $('#wo-qst-rate').addEventListener('change', recalcWOTotals);
+
+  $('#wo-add-part').addEventListener('click', ()=>{
+    const name = $('#wo-part-name').value.trim();
+    const qty = Number($('#wo-part-qty').value)||0;
+    const price = Number($('#wo-part-price').value)||0;
+    if(!name || qty<=0) return alert('Nom et quantité requis pour la pièce.');
+    WO_ITEMS.push({type:'Pièce', desc:name, qty, rate:price});
+    $('#wo-part-name').value='';
+    $('#wo-part-qty').value=1;
+    $('#wo-part-price').value='';
+    renderWOItems();
+  });
+
+  $('#wo-add-lab').addEventListener('click', ()=>{
+    const desc = $('#wo-lab-desc').value.trim();
+    const hrs = Number($('#wo-lab-hours').value)||0;
+    const rate = Number($('#wo-lab-rate').value)||0;
+    if(!desc || hrs<=0) return alert('Description et heures requis pour la main-d\'œuvre.');
+    WO_ITEMS.push({type:"Main-d'oeuvre", desc, qty:hrs, rate});
+    $('#wo-lab-desc').value='';
+    $('#wo-lab-hours').value='';
+    $('#wo-lab-rate').value='';
+    renderWOItems();
+  });
+
+  $('#wo-clear').addEventListener('click', ()=>{
+    if(!confirm('Vider ce bon de travail ?')) return;
+    WO_ITEMS = [];
+    $('#wo-client').value='';
+    $('#wo-vehicle').value='';
+    $('#wo-vehicle-info').value='';
+    $('#wo-description').value='';
+    renderWOItems();
+  });
+
+  // ===== Save work order =====
+  function saveWorkOrder(status){
+    const client = $('#wo-client').value.trim();
+    if(!client) return alert('Nom du client requis.');
+    if(WO_ITEMS.length===0) return alert('Ajoute au moins une pièce ou main-d\'œuvre.');
+
+    const wo = {
+      id: Date.now(),
+      client,
+      vehicle: $('#wo-vehicle').value.trim(),
+      vehicleInfo: $('#wo-vehicle-info').value.trim(),
+      description: $('#wo-description').value.trim(),
+      items: JSON.parse(JSON.stringify(WO_ITEMS)),
+      subtotal: Number($('#wo-subtotal').innerText)||0,
+      gst: Number($('#wo-gst-amount').innerText)||0,
+      qst: Number($('#wo-qst-amount').innerText)||0,
+      total: Number($('#wo-total').innerText)||0,
+      status
+    };
+    const list = loadJSON(STORE.WOS,[]);
+    list.unshift(wo);
+    saveJSON(STORE.WOS,list);
+    alert('Bon enregistré ('+status+').');
+    renderHistory();
+    renderDashboard();
+  }
+
+  $('#wo-save').addEventListener('click', ()=>{
+    saveWorkOrder('OUVERT');
+  });
+
+  // ===== Convert to invoice =====
+  $('#wo-to-invoice').addEventListener('click', ()=>{
+    if(WO_ITEMS.length===0) return alert('Aucun article à facturer.');
+    const client = $('#wo-client').value.trim();
+    if(!client) return alert('Nom du client requis.');
+
+    const number = nextInvoiceNumber();
+    const inv = {
+      id: Date.now(),
+      number,
+      date: new Date().toLocaleString(),
+      client,
+      job: $('#wo-description').value.trim(),
+      items: JSON.parse(JSON.stringify(WO_ITEMS)),
+      subtotal: Number($('#wo-subtotal').innerText)||0,
+      gst: Number($('#wo-gst-amount').innerText)||0,
+      qst: Number($('#wo-qst-amount').innerText)||0,
+      total: Number($('#wo-total').innerText)||0
+    };
+    const invs = loadJSON(STORE.INVS,[]);
+    invs.unshift(inv);
+    saveJSON(STORE.INVS,invs);
+
+    // enregistrer le bon en "TERMINÉ"
+    saveWorkOrder('TERMINÉ');
+
+    // reset
+    WO_ITEMS = [];
+    $('#wo-client').value='';
+    $('#wo-vehicle').value='';
+    $('#wo-vehicle-info').value='';
+    $('#wo-description').value='';
+    renderWOItems();
+    previewNextInvoiceNumber();
+    renderInvoices();
+    renderDashboard();
+    alert('Facture créée (#'+number+').');
+  });
+
+  // ===== Invoices page =====
+  function renderInvoices(){
+    const list = loadJSON(STORE.INVS,[]);
+    const q = $('#inv-search').value.trim().toLowerCase();
+    const sort = $('#inv-sort').value;
+    const tbody = $('#inv-body');
+    tbody.innerHTML='';
+    const sorted = list.slice().sort((a,b)=>{
+      return (sort==='new')
+        ? (new Date(b.date) - new Date(a.date))
+        : (new Date(a.date) - new Date(b.date));
+    });
+    sorted.forEach(inv=>{
+      if(q && !(inv.client.toLowerCase().includes(q) || String(inv.number).includes(q) || (inv.job||'').toLowerCase().includes(q))) return;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${inv.number}</td>
+        <td>${inv.date}</td>
+        <td>${inv.client}</td>
+        <td>${inv.job||''}</td>
+        <td class="right">${money(inv.total)} $</td>
+        <td>
+          <button class="button ghost" data-n="${inv.number}" data-action="view">Voir / PDF</button>
+          <button class="button ghost" data-n="${inv.number}" data-action="del">Suppr</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll('button[data-action]').forEach(btn=>{
+      const num = btn.dataset.n;
+      const action = btn.dataset.action;
+      btn.addEventListener('click', ()=>{
+        const list = loadJSON(STORE.INVS,[]);
+        const inv = list.find(i=>String(i.number)===String(num));
+        if(!inv) return alert('Facture introuvable.');
+        if(action==='view'){
+          printInvoice(inv);
+        }else if(action==='del'){
+          if(!confirm('Supprimer facture #'+inv.number+' ?')) return;
+          const remaining = list.filter(i=>String(i.number)!==String(num));
+          saveJSON(STORE.INVS,remaining);
+          renderInvoices();
+          renderDashboard();
+        }
+      });
+    });
+  }
+
+  $('#inv-search').addEventListener('input', renderInvoices);
+  $('#inv-sort').addEventListener('change', renderInvoices);
+
+  $('#inv-export-csv').addEventListener('click', ()=>{
+    const list = loadJSON(STORE.INVS,[]);
+    if(!list.length){ alert('Aucune facture à exporter.'); return; }
+    let csv = 'number,date,client,job,subtotal,gst,qst,total\n';
+    list.forEach(i=>{
+      csv += `${i.number},"${i.date}","${(i.client||'').replace(/"/g,'""')}","${(i.job||'').replace(/"/g,'""')}",${i.subtotal},${i.gst},${i.qst},${i.total}\n`;
+    });
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url;
+    a.download='factures.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  function printInvoice(inv){
+    const s = getSettings();
+    let rows='';
+    (inv.items||[]).forEach(it=>{
+      rows += `<tr>
+        <td>${it.type}</td>
+        <td>${it.desc}</td>
+        <td style="text-align:center">${it.qty}</td>
+        <td style="text-align:right">${money(it.rate)}</td>
+        <td style="text-align:right">${money(it.qty*it.rate)}</td>
+      </tr>`;
+    });
+    const html = `
+      <div style="padding:20px;font-family:Arial;color:#000;background:#fff;width:800px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2 style="margin:0">${s.company}</h2>
+            <div style="white-space:pre-wrap;font-size:13px">${s.contact||''}</div>
+          </div>
+          <div style="text-align:right;font-size:13px">
+            <div><strong>Facture #</strong> ${inv.number}</div>
+            <div><strong>Date:</strong> ${inv.date}</div>
+          </div>
+        </div>
+        <hr/>
+        <div style="margin-top:8px;font-size:13px"><strong>Client:</strong> ${inv.client}</div>
+        <div style="margin-top:4px;font-size:13px"><strong>Job:</strong> ${inv.job||''}</div>
+        <table style="width:100%;margin-top:12px;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f3f4f6">
+              <th align="left">Type</th><th align="left">Description</th><th align="center">Qté/hrs</th><th align="right">Prix/u</th><th align="right">Total</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="margin-top:12px;text-align:right;font-size:13px">
+          <div>Sous-total: ${money(inv.subtotal)} $</div>
+          <div>TPS: ${money(inv.gst)} $</div>
+          <div>TVQ: ${money(inv.qst)} $</div>
+          <h3 style="margin-top:4px">Total: ${money(inv.total)} $</h3>
+        </div>
+        <hr/>
+        <div style="font-size:11px;color:#444;margin-top:4px">Merci de votre confiance — Garage-Atelier Mécanique J.L</div>
+      </div>
+    `;
+    const pa = $('#printArea');
+    pa.style.display='block';
+    pa.innerHTML = html;
+    window.print();
+    pa.style.display='none';
+  }
+
+  // ===== History page =====
+  function renderHistory(){
+    const list = loadJSON(STORE.WOS,[]);
+    const q = $('#hist-search').value.trim().toLowerCase();
+    const cont = $('#hist-list');
+    cont.innerHTML='';
+    list.forEach(wo=>{
+      if(q && !(
+        (wo.client||'').toLowerCase().includes(q) ||
+        (wo.vehicle||'').toLowerCase().includes(q) ||
+        (wo.vehicleInfo||'').toLowerCase().includes(q) ||
+        (wo.description||'').toLowerCase().includes(q)
+      )) return;
+      const div = document.createElement('div');
+      div.className='history-item';
+      div.innerHTML = `
+        <div class="history-header">
+          <div><strong>${wo.client}</strong> — ${wo.vehicle||''}</div>
+          <div class="muted">${new Date(wo.id).toLocaleString()}</div>
+        </div>
+        <div class="muted">${wo.vehicleInfo||''}</div>
+        <div style="margin-top:4px">${wo.description||''}</div>
+        <div style="margin-top:6px;display:flex;gap:6px;justify-content:flex-end">
+          <span class="badge">${wo.status||'OUVERT'}</span>
+          <button class="button ghost" data-id="${wo.id}" data-action="load">Reprendre</button>
+          <button class="button ghost" data-id="${wo.id}" data-action="del">Suppr</button>
+        </div>
+      `;
+      cont.appendChild(div);
+    });
+
+    cont.querySelectorAll('button[data-action]').forEach(btn=>{
+      const id = Number(btn.dataset.id);
+      const action = btn.dataset.action;
+      btn.addEventListener('click', ()=>{
+        let list = loadJSON(STORE.WOS,[]);
+        const wo = list.find(w=>w.id===id);
+        if(!wo) return;
+        if(action==='load'){
+          // remplir le formulaire Nouveau bon
+          showPage('newwo');
+          $('#wo-client').value = wo.client||'';
+          $('#wo-vehicle').value = wo.vehicle||'';
+          $('#wo-vehicle-info').value = wo.vehicleInfo||'';
+          $('#wo-description').value = wo.description||'';
+          WO_ITEMS = JSON.parse(JSON.stringify(wo.items||[]));
+          renderWOItems();
+          previewNextInvoiceNumber();
+        }else if(action==='del'){
+          if(!confirm('Supprimer ce bon de travail ?')) return;
+          list = list.filter(w=>w.id!==id);
+          saveJSON(STORE.WOS,list);
+          renderHistory();
+          renderDashboard();
+        }
+      });
+    });
+  }
+
+  $('#hist-search').addEventListener('input', renderHistory);
+
+  $('#hist-export-csv').addEventListener('click', ()=>{
+    const list = loadJSON(STORE.WOS,[]);
+    if(!list.length){ alert('Aucun bon à exporter.'); return; }
+    let csv = 'id,date,client,vehicle,vehicleInfo,description,subtotal,gst,qst,total,status\n';
+    list.forEach(w=>{
+      csv += `${w.id},"${new Date(w.id).toLocaleString()}","${(w.client||'').replace(/"/g,'""')}","${(w.vehicle||'').replace(/"/g,'""')}","${(w.vehicleInfo||'').replace(/"/g,'""')}","${(w.description||'').replace(/"/g,'""')}",${w.subtotal},${w.gst},${w.qst},${w.total},"${w.status||''}"\n`;
+    });
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url;
+    a.download='bons_de_travail.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ===== Dashboard =====
+  function renderDashboard(){
+    const wos = loadJSON(STORE.WOS,[]);
+    const invs = loadJSON(STORE.INVS,[]);
+    $('#stat-wo-count').innerText = wos.length;
+    $('#stat-inv-count').innerText = invs.length;
+    const total = invs.reduce((s,i)=>s + Number(i.total||0),0);
+    $('#stat-total').innerText = money(total)+' $';
+
+    const recent = wos.slice(0,5);
+    const cont = $('#dash-recent');
+    cont.innerHTML = recent.length ? '' : '<div class="muted">Aucun bon pour le moment.</div>';
+    recent.forEach(wo=>{
+      const div = document.createElement('div');
+      div.className='history-item';
+      div.innerHTML = `
+        <div class="history-header">
+          <div><strong>${wo.client}</strong> — ${wo.vehicle||''}</div>
+          <div class="muted">${new Date(wo.id).toLocaleString()}</div>
+        </div>
+        <div class="muted">${wo.vehicleInfo||''}</div>
+        <div style="margin-top:4px">${wo.description||''}</div>
+      `;
+      cont.appendChild(div);
+    });
+  }
+
+  // ===== Initialisation =====
+  function init(){
+    loadSettingsIntoUI();
+    WO_ITEMS = [];
+    renderWOItems();
+    renderInvoices();
+    renderHistory();
+    renderDashboard();
+    previewNextInvoiceNumber();
+  }
+
+  init();
+</script>
 </body>
 </html>
