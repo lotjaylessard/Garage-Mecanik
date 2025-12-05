@@ -1361,55 +1361,6 @@ btnOpen.addEventListener("click",()=>{
 
     const filter = filterSelect?.value || "";
 
-    // Regrouper par catégories
-    const grouped = {};
-    SERVICES.forEach(s=>{
-      if(filter && s.category !== filter) return;
-      if(!grouped[s.category]) grouped[s.category] = [];
-      grouped[s.category].push(s);
-    });
-
-    let html = "";
-
-    Object.keys(grouped).sort().forEach(cat=>{
-      const icon = SERVICE_ICONS[cat] || "⚙️";
-
-      html += `
-        <h3 style="color:var(--accent);margin-top:15px;">
-          ${icon} ${cat}
-        </h3>
-        <div style="margin-bottom:10px;border-bottom:1px solid var(--border);"></div>
-      `;
-
-      grouped[cat].forEach(s=>{
-        const label = s.priceFixed > 0
-          ? `${s.name} — ${s.priceFixed.toFixed(2)} $`
-          : `${s.name} — ${s.hours} h × ${s.rate.toFixed(2)} $/h`;
-
-        html += `
-          <div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;">
-            <div><b>${label}</b></div>
-            ${s.desc ? `<div class="small">${s.desc}</div>` : ""}
-            <button class="ghost" data-action="pick-service" data-id="${s.id}" style="margin-top:4px;">
-              Ajouter à la facture
-            </button>
-          </div>
-        `;
-      });
-    });
-
-    list.innerHTML = html;
-
-    // Boutons d'ajout
-    list.querySelectorAll("button[data-action='pick-service']").forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        const id = btn.dataset.id;
-        const s = SERVICES.find(x => String(x.id) === String(id));
-        if(!s) return;
-        addServiceToInvoice(s);
-        modal.style.display = "none";
-      });
-    });
   }
 
   // Premier affichage
