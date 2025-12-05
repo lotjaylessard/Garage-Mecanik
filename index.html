@@ -784,19 +784,23 @@ function renderParts(){
       width:260px;
     `;
 
-    card.innerHTML = `
-      <h3 style="margin-bottom:10px;color:var(--accent);">${p.name}</h3>
-      <div class="small"># Pièce : <b>${p.number}</b></div>
-      <div class="small">Stock : <b>${p.qty}</b></div>
-      <div class="small">Coût : <b>${p.cost.toFixed(2)} $</b></div>
-      <div class="small">Prix : <b>${p.price.toFixed(2)} $</b></div>
-      <div class="small">Marge : <b>${profit}%</b></div>
+card.innerHTML = `
+  <h3 style="margin-bottom:10px;color:var(--accent);">${p.name}</h3>
+  <div class="small"># Pièce : <b>${p.number}</b></div>
+  <div class="small">Stock : <b>${p.qty}</b></div>
+  <div class="small">Coût : <b>${p.cost.toFixed(2)} $</b></div>
+  <div class="small">Prix : <b>${p.price.toFixed(2)} $</b></div>
+  <div class="small">Marge : <b>${profit}%</b></div>
 
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="ghost" data-action="edit" data-id="${i}" style="flex:1;">Modifier</button>
-        <button class="ghost" data-action="del" data-id="${i}" style="flex:1;">Supprimer</button>
-      </div>
-    `;
+  <div style="display:flex;gap:8px;margin-top:10px;">
+    <button class="ghost" data-action="edit" data-id="${i}" style="flex:1;">Modifier</button>
+    <button class="ghost" data-action="del" data-id="${i}" style="flex:1;">Supprimer</button>
+  </div>
+
+  <button class="ghost" data-action="addToInvoice" data-id="${i}" style="margin-top:10px;width:100%;">
+    ➕ Ajouter à la facture
+  </button>
+`;
 
     wrap.appendChild(card);
   });
@@ -819,6 +823,25 @@ function renderParts(){
       editPart(id);
     });
   });
+
+  /* Ajouter une pièce à la facture */
+wrap.querySelectorAll("button[data-action='addToInvoice']").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const id = Number(btn.dataset.id);
+    const p = PARTS[id];
+    if(!p) return;
+
+    items.push({
+      type:"Pièce (Inventaire)",
+      desc:`${p.name} (#${p.number})`,
+      qty:1,
+      rate:p.price
+    });
+
+    renderItems();
+    alert("Pièce ajoutée à la facture !");
+  });
+});
 }
 
 /* Modifier une pièce */
