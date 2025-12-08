@@ -814,11 +814,24 @@ function nextInvoiceNumber(){
   return num;
 }
 function resetInvoiceForm(){
-  $('customerName').value='';
-  $('jobDesc').value='';
-  items=[];
+  // On vide la sélection client (nouveau select)
+  if ($('customerSelect')) {
+    $('customerSelect').value = '';
+  }
+
+  // On vide la description du job si le champ existe
+  if ($('jobDesc')) {
+    $('jobDesc').value = '';
+  }
+
+  // On vide les items de la facture
+  items = [];
   renderItems();
-  $('invoiceNumber').value = nextInvoiceNumber();
+
+  // On met le prochain numéro de facture
+  if ($('invoiceNumber')) {
+    $('invoiceNumber').value = nextInvoiceNumber();
+  }
 }
 
 /* SAVE INVOICE (NEW) */
