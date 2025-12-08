@@ -206,7 +206,7 @@
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px;">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFD400">
-        <path d="M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm8.94-2.81-1.35-.1a6.94 6.94 0 0 0-.54-1.3l.84-1.07a.5.5 0 0 0-.04-.66l-1.42-1.42a.5.5 0 0 0-.66-.04l-1.07.84c-.42-.25-.86-.45-1.3-.54l-.1-1.35a.5.5 0 0 0-.5-.46h-2a.5.5 0 0 0-.5.46l-.1 1.35c-.45.1-.88.3-1.3.54l-1.07-.84a.5.5 0 0 0-.66.04L5.15 8.56a.5.5 0 0 0-.04.66l.84 1.07c-.25.42-.45.86-.54 1.3l-1.35.1a.5.5 0 0 0-.46.5v2c0 .26.2.48.46.5l1.35.1c.1.45.3.88.54 1.3l-.84 1.07a.5.5 0 0 0 .04.66l1.42 1.42c.18.18.46.2.66.04l1.07-.84c.42.25.86.45 1.3.54l.1 1.35c.02.26.24.46.5.46h2c.26 0 .48-.2.5-.46l.1-1.35c.45-.1.88-.3 1.3-.54l1.07.84c.2.16.48.14.66-.04l1.42-1.42a.5.5 0 0 0 .04-.66l-.84-1.07c.25-.42.45-.86.54-1.3l1.35-.1c.26-.02.46-.24.46-.5v-2a.5.5 0 0 0-.46-.5z"/>
+        <path d="M12 15.5A3.5 3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm8.94-2.81-1.35-.1a6.94 6.94 0 0 0-.54-1.3l.84-1.07a.5.5 0 0 0-.04-.66l-1.42-1.42a.5.5 0 0 0-.66-.04l-1.07.84c-.42-.25-.86-.45-1.3-.54l-.1-1.35a.5.5 0 0 0-.5-.46h-2a.5.5 0 0 0-.5.46l-.1 1.35c-.45.1-.88.3-1.3.54l-1.07-.84a.5.5 0 0 0-.66.04L5.15 8.56a.5.5 0 0 0-.04.66l.84 1.07c-.25.42-.45.86-.54 1.3l-1.35.1a.5.5 0 0 0-.46.5v2c0 .26.2.48.46.5l1.35.1c.1.45.3.88.54 1.3l-.84 1.07a.5.5 0 0 0 .04.66l1.42 1.42c.18.18.46.2.66.04l1.07-.84c.42.25.86.45 1.3.54l.1 1.35c.02.26.24.46.5.46h2c.26 0 .48-.2.5-.46l.1-1.35c.45-.1.88-.3 1.3-.54l1.07.84c.2.16.48.14.66-.04l1.42-1.42a.5.5 0 0 0 .04-.66l-.84-1.07c.25-.42.45-.86.54-1.3l1.35-.1c.26-.02.46-.24.46-.5v-2a.5.5 0 0 0-.46-.5z"/>
       </svg>
       <h1 style="font-size:18px;">Garage-Atelier Mécanique J.L — Gestion</h1>
     </div>
@@ -259,7 +259,7 @@
       </div>
     </div>
 
-    <!-- FACTURES -->
+    <!-- FACTURES (création seulement) -->
     <div class="page" id="page-invoices">
       <div class="card">
         <h2>Créer Devis / Travail</h2>
@@ -514,21 +514,20 @@
         <input id="settingQST" type="number" step="0.01" />
 
         <button id="saveSettings" style="margin-top:10px;">Enregistrer les paramètres</button>
+        <div class="muted" style="margin-top:6px;">Les nouvelles factures utiliseront ces taux de taxes.</div>
+
         <hr style="margin:20px 0; border-color:var(--border);">
 
-<h3>Sauvegarde / Restauration</h3>
+        <h3>Sauvegarde / Restauration</h3>
+        <button id="btnExportData">📤 Exporter toutes les données</button>
+        <br><br>
+        <input type="file" id="importBackupFile" style="display:none;" />
+        <button id="btnImportData" class="ghost">📥 Importer un backup (.json)</button>
 
-<button id="btnExportData">📤 Exporter toutes les données</button>
-<br><br>
-<input type="file" id="importBackupFile" style="display:none;" />
-<button id="btnImportData" class="ghost">📥 Importer un backup (.json)</button>
-
-<div class="muted" style="margin-top:10px;">
-  Cette fonction permet de sauvegarder toutes vos données (factures, clients, pièces, services, paramètres, etc.)
-  et de les restaurer en cas de besoin.
-</div>
-
-        <div class="muted" style="margin-top:6px;">Les nouvelles factures utiliseront ces taux de taxes.</div>
+        <div class="muted" style="margin-top:10px;">
+          Sauvegarde toutes vos données (factures, clients, pièces, services, paramètres, etc.)
+          dans un fichier .json que vous pouvez restaurer plus tard.
+        </div>
       </div>
     </div>
 
@@ -572,6 +571,21 @@
 
       <div style="text-align:right;margin-top:15px;">
         <button id="closeServicePicker" class="ghost">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT FACTURE -->
+  <div id="invoiceEditModal" class="modal-backdrop">
+    <div class="modal-panel" style="width:900px;">
+      <h2>Modifier Facture</h2>
+      <div id="invoiceEditContent">Chargement...</div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:15px;">
+        <button id="printInvoiceEditBtn" class="ghost">Imprimer</button>
+        <button id="deleteInvoiceBtn" class="ghost">Supprimer</button>
+        <button id="saveInvoiceEditBtn">Enregistrer</button>
+        <button id="closeInvoiceEditModal" class="ghost">Fermer</button>
       </div>
     </div>
   </div>
@@ -641,14 +655,14 @@ function initSettings(){
 function loadInvoices(){
   try{
     INVOICES = JSON.parse(localStorage.getItem(STORAGE.invoices) || '[]');
-    if(!Array.isArray(INVOICES)) INVOICES = [];
+    if(!Array.isArray(INVOICES)) INVOICES=[];
   }catch(e){INVOICES=[];}
 }
 function saveInvoices(){
   localStorage.setItem(STORAGE.invoices, JSON.stringify(INVOICES));
 }
 
-/* STOCK LINK WITH INVENTORY */
+/* STOCK & INVENTAIRE */
 function loadParts(){
   try{
     PARTS = JSON.parse(localStorage.getItem(STORAGE.parts) || '[]');
@@ -659,7 +673,7 @@ function saveParts(){
   localStorage.setItem(STORAGE.parts, JSON.stringify(PARTS));
 }
 function findInventoryPartFromText(text){
-  text = (text || '').toLowerCase();
+  text = (text||'').toLowerCase();
   for(const p of PARTS){
     const num = String(p.number||'').toLowerCase();
     if(num && text.includes(num)) return p;
@@ -669,11 +683,11 @@ function findInventoryPartFromText(text){
 function adjustStockForLinkedItem(item, deltaQty){
   if(!item || !item.invNumber) return;
   const num = String(item.invNumber);
-  const part = PARTS.find(p => String(p.number)===num);
+  const part = PARTS.find(p=>String(p.number)===num);
   if(!part) return;
   const current = Number(part.qty||0);
   part.qty = current + deltaQty;
-  if(part.qty < 0) part.qty = 0;
+  if(part.qty<0) part.qty=0;
   saveParts();
   renderParts();
   renderDashboard();
@@ -684,7 +698,7 @@ function linkNewItemToInventory(item){
   if(!part) return;
   const qty = Number(item.qty)||1;
   const currentQty = Number(part.qty||0);
-  if(currentQty < qty){
+  if(currentQty<qty){
     alert("Stock insuffisant pour cette pièce en inventaire.");
     return false;
   }
@@ -697,29 +711,6 @@ function linkNewItemToInventory(item){
 }
 
 /* RENDER ITEMS & TOTALS */
-function renderItems(){
-  const tbody = document.querySelector('#itemsTable tbody');
-  if(!tbody) return;
-  tbody.innerHTML = '';
-  let sub = 0;
-
-  items.forEach((it,i)=>{
-    const total = it.qty * it.rate;
-    sub += total;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${it.type}</td>
-      <td>${it.desc}</td>
-      <td>${it.qty}</td>
-      <td>${money(it.rate)}</td>
-      <td>${money(total)}</td>
-      <td><button class="ghost" onclick="removeItem(${i})">X</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  renderTotals(sub);
-}
 function renderTotals(subTotalOverride){
   const sub = (typeof subTotalOverride === 'number') ? subTotalOverride
                : items.reduce((s,it)=>s+it.qty*it.rate,0);
@@ -734,6 +725,28 @@ function renderTotals(subTotalOverride){
   if($('gstAmount')) $('gstAmount').innerText = money(gst);
   if($('qstAmount')) $('qstAmount').innerText = money(qst);
   if($('totalAmount')) $('totalAmount').innerText = money(total);
+}
+
+function renderItems(){
+  const tbody = document.querySelector('#itemsTable tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  let sub=0;
+  items.forEach((it,i)=>{
+    const total=it.qty*it.rate;
+    sub+=total;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${it.type}</td>
+      <td>${it.desc}</td>
+      <td>${it.qty}</td>
+      <td>${money(it.rate)}</td>
+      <td>${money(total)}</td>
+      <td><button class="ghost" onclick="removeItem(${i})">X</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  renderTotals(sub);
 }
 
 function removeItem(i){
@@ -756,12 +769,12 @@ if($('clearItems')){
         adjustStockForLinkedItem(it, qty);
       }
     });
-    items = [];
+    items=[];
     renderItems();
   });
 }
 
-/* ADD PART & LABOR BUTTONS */
+/* ADD PART & LABOR */
 if($('addPart')){
   $('addPart').addEventListener('click',()=>{
     const name = $('partName').value.trim();
@@ -770,7 +783,7 @@ if($('addPart')){
     if(!name || qty<=0) return alert("Informations pièce incomplètes");
     const newItem = {type:'Pièce',desc:name,qty,rate:price};
     const linkedOk = linkNewItemToInventory(newItem);
-    if(linkedOk === false) return;
+    if(linkedOk===false) return;
     items.push(newItem);
     $('partName').value='';
     $('partPrice').value='';
@@ -778,14 +791,13 @@ if($('addPart')){
     renderItems();
   });
 }
-
 if($('addLabor')){
   $('addLabor').addEventListener('click',()=>{
-    const desc = $('laborDesc').value.trim();
-    const hours = Number($('laborHours').value)||0;
-    const rate = Number($('laborRate').value)||0;
+    const desc=$('laborDesc').value.trim();
+    const hours=Number($('laborHours').value)||0;
+    const rate=Number($('laborRate').value)||0;
     if(!desc || hours<=0 || rate<=0) return alert("Infos main-d'œuvre incomplètes");
-    items.push({type:'Main-d\'œuvre',desc,qty:hours,rate});
+    items.push({type:"Main-d'œuvre",desc,qty:hours,rate});
     $('laborDesc').value='';
     $('laborHours').value='';
     $('laborRate').value='';
@@ -793,7 +805,7 @@ if($('addLabor')){
   });
 }
 
-/* SAVE INVOICE */
+/* INVOICE NUMBERS */
 function nextInvoiceNumber(){
   let num = Number(localStorage.getItem(STORAGE.invoiceCounter)||0);
   num++;
@@ -803,32 +815,14 @@ function nextInvoiceNumber(){
 function resetInvoiceForm(){
   $('customerName').value='';
   $('jobDesc').value='';
-  items = [];
+  items=[];
   renderItems();
   $('invoiceNumber').value = nextInvoiceNumber();
 }
 
+/* SAVE INVOICE (NEW) */
 function renderInvoicesTable(){
-  // Liste dans Historique seulement — rien à afficher ici
-  renderHistoryTable(); 
-}
-  list.sort((a,b)=> sort==='new'
-    ? new Date(b.date)-new Date(a.date)
-    : new Date(a.date)-new Date(b.date));
-
-  list.forEach(inv=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${inv.number}</td>
-      <td>${inv.date}</td>
-      <td>${inv.customer||''}</td>
-      <td>${inv.job||''}</td>
-      <td>${money(inv.total)} $</td>
-      <td></td>
-    `;
-    tbody.appendChild(tr);
-  });
-
+  // plus de table sur la page Factures; on met à jour Historique + Dashboard
   renderHistoryTable();
   renderDashboard();
 }
@@ -849,17 +843,7 @@ if($('saveInvoice')){
     const qst = (sub+gst)*qstRate;
     const total = sub+gst+qst;
 
-    const inv = {
-      number,
-      date:dateStr,
-      customer:cust,
-      job,
-      items:[...items],
-      subTotal:sub,
-      gst,
-      qst,
-      total
-    };
+    const inv = {number,date:dateStr,customer:cust,job,items:[...items],subTotal:sub,gst,qst,total};
     INVOICES.push(inv);
     saveInvoices();
     alert("Facture enregistrée.");
@@ -868,7 +852,7 @@ if($('saveInvoice')){
   });
 }
 
-/* INITIAL INVOICE INIT */
+/* INIT INVOICES */
 function initInvoices(){
   loadInvoices();
   loadParts();
@@ -876,7 +860,7 @@ function initInvoices(){
   renderInvoicesTable();
 }
 
-/* ===================== CLIENTS MODULE ===================== */
+/* ===================== CLIENTS ===================== */
 function loadClients(){
   try{
     CLIENTS = JSON.parse(localStorage.getItem(STORAGE.clients) || '[]');
@@ -886,17 +870,39 @@ function loadClients(){
 function saveClients(){
   localStorage.setItem(STORAGE.clients, JSON.stringify(CLIENTS));
 }
+
+function renderVehiclesPage(){
+  const tbody = document.querySelector('#vehiclesTable tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  CLIENTS.forEach(c=>{
+    (c.vehicles||[]).forEach(v=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td>${c.name||''}</td>
+        <td>${v.make||''}</td>
+        <td>${v.model||''}</td>
+        <td>${v.year||''}</td>
+        <td>${v.plate||''}</td>
+        <td>${v.vin||''}</td>
+        <td>${v.km||''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
 function renderClientsTable(){
   const tbody = document.querySelector('#clientsTable tbody');
   if(!tbody) return;
   const q = ($('clientSearch')?.value || '').toLowerCase();
-  tbody.innerHTML = '';
+  tbody.innerHTML='';
   CLIENTS.forEach(c=>{
     const hay = `${c.name||''} ${c.phone||''} ${c.email||''} ${c.address||''}`.toLowerCase();
     if(q && !hay.includes(q)) return;
-    const vehicleCount = Array.isArray(c.vehicles) ? c.vehicles.length : 0;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+    const vehicleCount = Array.isArray(c.vehicles)?c.vehicles.length:0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
       <td>${c.name||''}</td>
       <td>${c.phone||''}</td>
       <td>${c.email||''}</td>
@@ -917,17 +923,17 @@ function renderClientsTable(){
 }
 
 function findClientById(id){
-  return CLIENTS.find(c => String(c.id)===String(id));
+  return CLIENTS.find(c=>String(c.id)===String(id));
 }
 
 function openClientModal(id){
-  const modal = $('clientModal');
+  const modal=$('clientModal');
   if(!modal) return;
   modal.style.display='flex';
   renderClientModal(id);
 }
 function closeClientModal(){
-  const modal = $('clientModal');
+  const modal=$('clientModal');
   if(modal) modal.style.display='none';
 }
 if($('closeClientModal')){
@@ -936,24 +942,24 @@ if($('closeClientModal')){
 
 function renderClientModal(id){
   loadClients();
-  const content = $('clientModalContent');
+  const content=$('clientModalContent');
   if(!content) return;
   const isNew = !id;
   let client;
   if(isNew){
-    client = {id:Date.now(),name:'',phone:'',email:'',address:'',notes:'',vehicles:[]};
+    client={id:Date.now(),name:'',phone:'',email:'',address:'',notes:'',vehicles:[]};
   }else{
-    client = findClientById(id);
+    client=findClientById(id);
     if(!client){
       alert('Client introuvable');
       closeClientModal();
       return;
     }
   }
-  const invoices = INVOICES;
-  const clientInvoices = invoices.filter(inv => (inv.customer||'').toLowerCase()===(client.name||'').toLowerCase());
+  const invoices=INVOICES;
+  const clientInvoices=invoices.filter(inv=>(inv.customer||'').toLowerCase()===(client.name||'').toLowerCase());
 
-  content.innerHTML = `
+  content.innerHTML=`
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div>
         <h3 style="margin:0 0 6px;color:var(--accent);">Informations client</h3>
@@ -1012,13 +1018,13 @@ function renderClientModal(id){
   `;
 
   function renderVehiclesList(){
-    const wrap = $('clientVehiclesList');
+    const wrap=$('clientVehiclesList');
     if(!wrap) return;
     if(!client.vehicles || client.vehicles.length===0){
-      wrap.innerHTML = '<div class="muted">Aucun véhicule pour ce client.</div>';
+      wrap.innerHTML='<div class="muted">Aucun véhicule pour ce client.</div>';
       return;
     }
-    wrap.innerHTML = client.vehicles.map((v,idx)=>`
+    wrap.innerHTML=client.vehicles.map((v,idx)=>`
       <div style="border:1px solid var(--border);border-radius:6px;padding:6px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
         <div>
           <div><strong>${v.make||''} ${v.model||''} ${v.year||''}</strong></div>
@@ -1030,7 +1036,7 @@ function renderClientModal(id){
     `).join('');
     wrap.querySelectorAll('button[data-role="del-veh"]').forEach(btn=>{
       btn.addEventListener('click',()=>{
-        const idx = Number(btn.dataset.index);
+        const idx=Number(btn.dataset.index);
         client.vehicles.splice(idx,1);
         renderVehiclesList();
       });
@@ -1038,12 +1044,12 @@ function renderClientModal(id){
   }
   renderVehiclesList();
 
-  const histWrap = $('clientHistory');
+  const histWrap=$('clientHistory');
   if(histWrap){
     if(clientInvoices.length===0){
-      histWrap.innerHTML = '<div class="muted">Aucune facture associée pour ce client pour le moment.</div>';
+      histWrap.innerHTML='<div class="muted">Aucune facture associée pour ce client pour le moment.</div>';
     }else{
-      histWrap.innerHTML = clientInvoices.map(inv=>`
+      histWrap.innerHTML=clientInvoices.map(inv=>`
         <div style="border-bottom:1px solid var(--border);padding:4px 0;">
           <div><strong>#${inv.number}</strong> - ${inv.date}</div>
           <div class="small">${inv.job||''}</div>
@@ -1055,14 +1061,14 @@ function renderClientModal(id){
 
   if($('clientSaveBtn')){
     $('clientSaveBtn').addEventListener('click',()=>{
-      const name = $('clientFormName').value.trim();
-      if(!name){ alert('Le nom du client est requis.');return; }
-      client.name = name;
-      client.phone = $('clientFormPhone').value.trim();
-      client.email = $('clientFormEmail').value.trim();
-      client.address = $('clientFormAddress').value.trim();
-      client.notes = $('clientFormNotes').value.trim();
-      const idx = CLIENTS.findIndex(c=>String(c.id)===String(client.id));
+      const name=$('clientFormName').value.trim();
+      if(!name){alert('Le nom du client est requis.');return;}
+      client.name=name;
+      client.phone=$('clientFormPhone').value.trim();
+      client.email=$('clientFormEmail').value.trim();
+      client.address=$('clientFormAddress').value.trim();
+      client.notes=$('clientFormNotes').value.trim();
+      const idx=CLIENTS.findIndex(c=>String(c.id)===String(client.id));
       if(idx===-1) CLIENTS.push(client);
       else CLIENTS[idx]=client;
       saveClients();
@@ -1072,14 +1078,14 @@ function renderClientModal(id){
   }
   if($('clientAddVehicleBtn')){
     $('clientAddVehicleBtn').addEventListener('click',()=>{
-      const make = $('vehMake').value.trim();
-      const model = $('vehModel').value.trim();
-      const year = $('vehYear').value.trim();
+      const make=$('vehMake').value.trim();
+      const model=$('vehModel').value.trim();
+      const year=$('vehYear').value.trim();
       if(!make && !model){
         alert('Au moins marque ou modèle requis pour le véhicule.');
         return;
       }
-      const v = {
+      const v={
         id:Date.now(),
         make,
         model,
@@ -1104,33 +1110,12 @@ function renderClientModal(id){
   if($('clientDeleteBtn') && !isNew){
     $('clientDeleteBtn').addEventListener('click',()=>{
       if(!confirm('Supprimer ce client ?')) return;
-      CLIENTS = CLIENTS.filter(c=>String(c.id)!==String(client.id));
+      CLIENTS=CLIENTS.filter(c=>String(c.id)!==String(client.id));
       saveClients();
       renderClientsTable();
       closeClientModal();
     });
   }
-}
-
-function renderVehiclesPage(){
-  const tbody = document.querySelector('#vehiclesTable tbody');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  CLIENTS.forEach(c=>{
-    (c.vehicles||[]).forEach(v=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${c.name||''}</td>
-        <td>${v.make||''}</td>
-        <td>${v.model||''}</td>
-        <td>${v.year||''}</td>
-        <td>${v.plate||''}</td>
-        <td>${v.vin||''}</td>
-        <td>${v.km||''}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  });
 }
 
 function initClientsModule(){
@@ -1146,28 +1131,25 @@ function initClientsModule(){
 
 /* ===================== INVENTAIRE PIÈCES ===================== */
 function renderParts(){
-  const wrap = $('partsInventoryList');
+  const wrap=$('partsInventoryList');
   if(!wrap) return;
   wrap.innerHTML='';
-
-  const q = ($('partInvSearch')?.value || '').toLowerCase();
-  const filterCat = ($('partInvFilter')?.value || '');
-
+  const q=($('partInvSearch')?.value || '').toLowerCase();
+  const filterCat=($('partInvFilter')?.value || '');
   PARTS.forEach((p,i)=>{
     const hay = `${p.name||''} ${p.number||''} ${p.category||''}`.toLowerCase();
     if(q && !hay.includes(q)) return;
-    if(filterCat && p.category && p.category !== filterCat) return;
-
-    const profit = p.price > 0 ? ((p.price - p.cost)/p.price*100).toFixed(0) : 0;
-    const card = document.createElement('div');
-    card.style = `
+    if(filterCat && p.category && p.category!==filterCat) return;
+    const profit = p.price>0 ? ((p.price-p.cost)/p.price*100).toFixed(0) : 0;
+    const card=document.createElement('div');
+    card.style=`
       background:var(--card);
       border:1px solid var(--border);
       border-radius:10px;
       padding:12px;
       width:260px;
     `;
-    card.innerHTML = `
+    card.innerHTML=`
       <h3 style="margin-bottom:10px;color:var(--accent);">${p.name}</h3>
       <div class="small"># Pièce : <b>${p.number||''}</b></div>
       <div class="small">Catégorie : <b>${p.category||'Divers'}</b></div>
@@ -1186,7 +1168,7 @@ function renderParts(){
 
   wrap.querySelectorAll('button[data-action="del"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const id = Number(btn.dataset.id);
+      const id=Number(btn.dataset.id);
       if(!confirm('Supprimer cette pièce ?')) return;
       PARTS.splice(id,1);
       saveParts();
@@ -1194,40 +1176,38 @@ function renderParts(){
       renderDashboard();
     });
   });
-
   wrap.querySelectorAll('button[data-action="edit"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const id = Number(btn.dataset.id);
-      const p = PARTS[id];
+      const id=Number(btn.dataset.id);
+      const p=PARTS[id];
       if(!p) return;
-      const newName = prompt("Nom de la pièce :", p.name) || p.name;
-      const newNumber = prompt("Numéro de pièce :", p.number||"") || p.number;
-      const newCat = prompt("Catégorie :", p.category||'Divers') || p.category||'Divers';
-      const newQty = Number(prompt("Quantité :", p.qty)||p.qty);
-      const newCost = Number(prompt("Prix coûtant :", p.cost)||p.cost);
-      const newPrice = Number(prompt("Prix de vente :", p.price)||p.price);
-      PARTS[id] = {name:newName,number:newNumber,category:newCat,qty:newQty,cost:newCost,price:newPrice};
+      const newName=prompt("Nom de la pièce :",p.name)||p.name;
+      const newNumber=prompt("Numéro de pièce :",p.number||"")||p.number;
+      const newCat=prompt("Catégorie :",p.category||'Divers')||p.category||'Divers';
+      const newQty=Number(prompt("Quantité :",p.qty)||p.qty);
+      const newCost=Number(prompt("Prix coûtant :",p.cost)||p.cost);
+      const newPrice=Number(prompt("Prix de vente :",p.price)||p.price);
+      PARTS[id]={name:newName,number:newNumber,category:newCat,qty:newQty,cost:newCost,price:newPrice};
       saveParts();
       renderParts();
       renderDashboard();
     });
   });
-
   wrap.querySelectorAll('button[data-action="addToInvoice"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const id = Number(btn.dataset.id);
-      const p = PARTS[id];
+      const id=Number(btn.dataset.id);
+      const p=PARTS[id];
       if(!p) return;
-      const currentQty = Number(p.qty||0);
+      const currentQty=Number(p.qty||0);
       if(currentQty<=0){
         alert("Stock insuffisant pour cette pièce.");
         return;
       }
-      p.qty = currentQty - 1;
+      p.qty=currentQty-1;
       saveParts();
       renderParts();
       renderDashboard();
-      const newItem = {
+      const newItem={
         type:"Pièce (Inventaire)",
         desc:`${p.name} (#${p.number})`,
         qty:1,
@@ -1244,12 +1224,12 @@ function initPartsModule(){
   loadParts();
   if($('partInvAddBtn')){
     $('partInvAddBtn').addEventListener('click',()=>{
-      const name = $('partInvName').value.trim();
-      const number = $('partInvNumber').value.trim();
-      const qty = Number($('partInvQty').value)||0;
-      const cost = Number($('partInvCost').value)||0;
-      const price = Number($('partInvPrice').value)||0;
-      const category = $('partInvCategory')?.value || 'Divers';
+      const name=$('partInvName').value.trim();
+      const number=$('partInvNumber').value.trim();
+      const qty=Number($('partInvQty').value)||0;
+      const cost=Number($('partInvCost').value)||0;
+      const price=Number($('partInvPrice').value)||0;
+      const category=$('partInvCategory')?.value || 'Divers';
       if(!name){alert("Nom obligatoire");return;}
       if(qty<0){alert("Quantité invalide");return;}
       PARTS.push({name,number,qty,cost,price,category});
@@ -1268,7 +1248,7 @@ function initPartsModule(){
   renderParts();
 }
 
-/* ===================== SERVICES MODULE ===================== */
+/* ===================== SERVICES ===================== */
 function loadServices(){
   try{
     SERVICES = JSON.parse(localStorage.getItem(STORAGE.services) || '[]');
@@ -1295,25 +1275,25 @@ const SERVICE_ICONS = {
 };
 
 function addServiceToInvoice(s){
-  let desc = s.name;
-  if(s.desc) desc += " — " + s.desc;
+  let desc=s.name;
+  if(s.desc) desc+=" — "+s.desc;
   let item;
   if(s.priceFixed>0){
-    item = {type:"Service",desc,qty:1,rate:s.priceFixed};
+    item={type:"Service",desc,qty:1,rate:s.priceFixed};
   }else if(s.hours>0 && s.rate>0){
-    item = {type:"Service (horaire)",desc,qty:s.hours,rate:s.rate};
+    item={type:"Service (horaire)",desc,qty:s.hours,rate:s.rate};
   }else{
-    item = {type:"Service",desc,qty:1,rate:0};
+    item={type:"Service",desc,qty:1,rate:0};
   }
   items.push(item);
   renderItems();
 }
 
 function renderServices(){
-  const wrap = $('servicesList');
+  const wrap=$('servicesList');
   if(!wrap) return;
   wrap.innerHTML='';
-  if(SERVICES.length===0){
+  if(!SERVICES.length){
     wrap.innerHTML='<div class="muted">Aucun service enregistré pour le moment.</div>';
     return;
   }
@@ -1321,19 +1301,18 @@ function renderServices(){
     const typeLabel = s.priceFixed>0
       ? `Forfait: ${money(s.priceFixed)} $`
       : (s.hours>0 && s.rate>0
-          ? `${s.hours} h x ${money(s.rate)} $/h`
-          : `Non défini`);
+        ? `${s.hours} h x ${money(s.rate)} $/h`
+        : `Non défini`);
     const icon = SERVICE_ICONS[s.category] || "⚙️";
-
-    const card = document.createElement('div');
-    card.style = `
+    const card=document.createElement('div');
+    card.style=`
       background:var(--card);
       border:1px solid var(--border);
       border-radius:10px;
       padding:12px;
       width:260px;
     `;
-    card.innerHTML = `
+    card.innerHTML=`
       <h3 style="margin-bottom:6px;color:var(--accent);">${icon} ${s.name}</h3>
       <div class="small">Catégorie : <b>${s.category}</b></div>
       <div class="small">Tarification : <b>${typeLabel}</b></div>
@@ -1349,35 +1328,33 @@ function renderServices(){
 
   wrap.querySelectorAll('button[data-action="del-srv"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const id = btn.dataset.id;
+      const id=btn.dataset.id;
       if(!confirm('Supprimer ce service ?')) return;
-      SERVICES = SERVICES.filter(s=>String(s.id)!==String(id));
+      SERVICES=SERVICES.filter(s=>String(s.id)!==String(id));
       saveServices();
       renderServices();
     });
   });
-
   wrap.querySelectorAll('button[data-action="edit-srv"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const id = btn.dataset.id;
-      const s = SERVICES.find(x=>String(x.id)===String(id));
+      const id=btn.dataset.id;
+      const s=SERVICES.find(x=>String(x.id)===String(id));
       if(!s) return;
-      const newName = prompt("Nom du service :", s.name) || s.name;
-      const newCat = prompt("Catégorie :", s.category) || s.category;
-      const newDesc = prompt("Description :", s.desc||"") ?? s.desc;
-      const newFixed = Number(prompt("Prix fixe (0 si aucun):", s.priceFixed||0) || s.priceFixed||0);
-      const newHours = Number(prompt("Heures (0 si aucun):", s.hours||0) || s.hours||0);
-      const newRate = Number(prompt("Taux horaire (0 si aucun):", s.rate||0) || s.rate||0);
+      const newName=prompt("Nom du service :",s.name)||s.name;
+      const newCat=prompt("Catégorie :",s.category)||s.category;
+      const newDesc=prompt("Description :",s.desc||"") ?? s.desc;
+      const newFixed=Number(prompt("Prix fixe (0 si aucun):",s.priceFixed||0)||s.priceFixed||0);
+      const newHours=Number(prompt("Heures (0 si aucun):",s.hours||0)||s.hours||0);
+      const newRate=Number(prompt("Taux horaire (0 si aucun):",s.rate||0)||s.rate||0);
       Object.assign(s,{name:newName,category:newCat,desc:newDesc,priceFixed:newFixed,hours:newHours,rate:newRate});
       saveServices();
       renderServices();
     });
   });
-
   wrap.querySelectorAll('button[data-action="add-to-invoice"]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const id = btn.dataset.id;
-      const s = SERVICES.find(x=>String(x.id)===String(id));
+      const id=btn.dataset.id;
+      const s=SERVICES.find(x=>String(x.id)===String(id));
       if(!s) return;
       addServiceToInvoice(s);
       alert("Service ajouté à la facture en cours.");
@@ -1391,18 +1368,18 @@ function initServicesModule(){
 
   if($('srvAddBtn')){
     $('srvAddBtn').addEventListener('click',()=>{
-      const name = $('srvName').value.trim();
-      const category = $('srvCategory')?.value || 'Divers';
-      const desc = $('srvDesc').value.trim();
-      const priceFixed = Number($('srvPriceFixed').value)||0;
-      const hours = Number($('srvHours').value)||0;
-      const rate = Number($('srvRate').value)||0;
+      const name=$('srvName').value.trim();
+      const category=$('srvCategory')?.value || 'Divers';
+      const desc=$('srvDesc').value.trim();
+      const priceFixed=Number($('srvPriceFixed').value)||0;
+      const hours=Number($('srvHours').value)||0;
+      const rate=Number($('srvRate').value)||0;
       if(!name){alert("Nom du service requis.");return;}
       if(priceFixed<=0 && (hours<=0 || rate<=0)){
         alert("Définir soit un prix fixe, soit heures + taux.");
         return;
       }
-      const srv = {id:Date.now(),name,category,desc,priceFixed,hours,rate};
+      const srv={id:Date.now(),name,category,desc,priceFixed,hours,rate};
       SERVICES.push(srv);
       saveServices();
       renderServices();
@@ -1414,11 +1391,11 @@ function initServicesModule(){
     });
   }
 
-  const modal = $('servicePickerModal');
-  const list = $('servicePickerList');
-  const btnOpen = $('openServicePicker');
-  const btnClose = $('closeServicePicker');
-  const filterSelect = $('servicePickerFilter');
+  const modal=$('servicePickerModal');
+  const list=$('servicePickerList');
+  const btnOpen=$('openServicePicker');
+  const btnClose=$('closeServicePicker');
+  const filterSelect=$('servicePickerFilter');
 
   function renderPicker(){
     loadServices();
@@ -1426,8 +1403,8 @@ function initServicesModule(){
       list.innerHTML='<div class="muted">Aucun service enregistré pour le moment.</div>';
       return;
     }
-    const filter = filterSelect?.value || '';
-    const grouped = {};
+    const filter=filterSelect?.value || '';
+    const grouped={};
     SERVICES.forEach(s=>{
       if(filter && s.category!==filter) return;
       if(!grouped[s.category]) grouped[s.category]=[];
@@ -1435,8 +1412,8 @@ function initServicesModule(){
     });
     let html='';
     Object.keys(grouped).sort().forEach(cat=>{
-      const icon = SERVICE_ICONS[cat] || "⚙️";
-      html += `
+      const icon=SERVICE_ICONS[cat] || "⚙️";
+      html+=`
         <h3 style="color:var(--accent);margin-top:15px;">${icon} ${cat}</h3>
         <div style="margin-bottom:10px;border-bottom:1px solid var(--border);"></div>
       `;
@@ -1444,7 +1421,7 @@ function initServicesModule(){
         const label = s.priceFixed>0
           ? `${s.name} — ${money(s.priceFixed)} $`
           : `${s.name} — ${s.hours} h × ${money(s.rate)} $/h`;
-        html += `
+        html+=`
           <div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;">
             <div><b>${label}</b></div>
             ${s.desc ? `<div class="small">${s.desc}</div>` : ""}
@@ -1453,11 +1430,11 @@ function initServicesModule(){
         `;
       });
     });
-    list.innerHTML = html;
+    list.innerHTML=html;
     list.querySelectorAll('button[data-action="pick-service"]').forEach(btn=>{
       btn.addEventListener('click',()=>{
-        const id = btn.dataset.id;
-        const s = SERVICES.find(x=>String(x.id)===String(id));
+        const id=btn.dataset.id;
+        const s=SERVICES.find(x=>String(x.id)===String(id));
         if(!s) return;
         addServiceToInvoice(s);
         modal.style.display='none';
@@ -1481,13 +1458,13 @@ function initServicesModule(){
 
 /* ===================== HISTORIQUE & DASHBOARD ===================== */
 function renderHistoryTable(){
-  const tbody = document.querySelector('#historyTable tbody');
+  const tbody=document.querySelector('#historyTable tbody');
   if(!tbody) return;
   tbody.innerHTML='';
   INVOICES.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(inv=>{
-    const tr = document.createElement('tr');
+    const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td>${inv.number}</td>
+      <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
       <td>${inv.date}</td>
       <td>${inv.customer||''}</td>
       <td>${inv.job||''}</td>
@@ -1498,20 +1475,164 @@ function renderHistoryTable(){
 }
 
 function renderDashboard(){
-  const invoicesCount = INVOICES.length;
-  const revenue = INVOICES.reduce((s,inv)=>s+Number(inv.total||0),0);
-  const clientsCount = CLIENTS.length;
-  let vehiclesCount = 0;
-  CLIENTS.forEach(c=>vehiclesCount += (c.vehicles||[]).length);
-  const partsCount = PARTS.reduce((s,p)=>s+Number(p.qty||0),0);
-  const lowStock = PARTS.filter(p=>Number(p.qty||0)<=2).length;
+  const invoicesCount=INVOICES.length;
+  const revenue=INVOICES.reduce((s,inv)=>s+Number(inv.total||0),0);
+  const clientsCount=CLIENTS.length;
+  let vehiclesCount=0;
+  CLIENTS.forEach(c=>vehiclesCount+=(c.vehicles||[]).length);
+  const partsCount=PARTS.reduce((s,p)=>s+Number(p.qty||0),0);
+  const lowStock=PARTS.filter(p=>Number(p.qty||0)<=2).length;
+  if($('statInvoices')) $('statInvoices').innerText=invoicesCount;
+  if($('statRevenue')) $('statRevenue').innerText=money(revenue)+' $';
+  if($('statClients')) $('statClients').innerText=clientsCount;
+  if($('statVehicles')) $('statVehicles').innerText=vehiclesCount;
+  if($('statParts')) $('statParts').innerText=partsCount;
+  if($('statLowStock')) $('statLowStock').innerText=lowStock;
+}
 
-  if($('statInvoices')) $('statInvoices').innerText = invoicesCount;
-  if($('statRevenue')) $('statRevenue').innerText = money(revenue)+' $';
-  if($('statClients')) $('statClients').innerText = clientsCount;
-  if($('statVehicles')) $('statVehicles').innerText = vehiclesCount;
-  if($('statParts')) $('statParts').innerText = partsCount;
-  if($('statLowStock')) $('statLowStock').innerText = lowStock;
+/* ===================== EDIT EXISTING INVOICE ===================== */
+function openInvoiceEditModal(invoiceNumber){
+  const modal=$('invoiceEditModal');
+  const content=$('invoiceEditContent');
+  if(!modal || !content) return;
+  const inv=INVOICES.find(x=>String(x.number)===String(invoiceNumber));
+  if(!inv){
+    alert("Facture introuvable.");
+    return;
+  }
+  let editItems=JSON.parse(JSON.stringify(inv.items||[]));
+
+  function renderEditUI(){
+    content.innerHTML=`
+      <label>Client</label>
+      <input id="editInvCustomer" value="${inv.customer||''}" />
+
+      <label>Description / Véhicule</label>
+      <input id="editInvJob" value="${inv.job||''}" />
+
+      <h3>Articles</h3>
+      <table style="margin-top:10px;width:100%;">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Qté</th>
+            <th>Prix</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="editItemsBody"></tbody>
+      </table>
+
+      <button id="addEditItemBtn" style="margin-top:10px;" class="ghost">+ Ajouter un article</button>
+
+      <h3 style="margin-top:20px;">Totaux</h3>
+      <div>Sous-total : <span id="editSubTotal">0.00</span> $</div>
+      <div>TPS : <span id="editGST">0.00</span> $</div>
+      <div>TVQ : <span id="editQST">0.00</span> $</div>
+      <div style="font-weight:700;">Total : <span id="editTotal">0.00</span> $</div>
+    `;
+    renderEditItems();
+  }
+
+  function renderEditItems(){
+    const tbody=$('editItemsBody');
+    if(!tbody) return;
+    tbody.innerHTML='';
+    let sub=0;
+    editItems.forEach((it,i)=>{
+      const total=it.qty*it.rate;
+      sub+=total;
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td><input value="${it.type||''}" data-field="type" data-i="${i}" /></td>
+        <td><input value="${it.desc||''}" data-field="desc" data-i="${i}" /></td>
+        <td><input type="number" value="${it.qty||0}" data-field="qty" data-i="${i}" /></td>
+        <td><input type="number" value="${it.rate||0}" data-field="rate" data-i="${i}" /></td>
+        <td>${money(total)}</td>
+        <td><button class="ghost" data-del="${i}">X</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    const gst=sub*(SETTINGS.gst/100);
+    const qst=(sub+gst)*(SETTINGS.qst/100);
+    const total=sub+gst+qst;
+    $('editSubTotal').innerText=money(sub);
+    $('editGST').innerText=money(gst);
+    $('editQST').innerText=money(qst);
+    $('editTotal').innerText=money(total);
+
+    tbody.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input',()=>{
+        const idx=Number(inp.dataset.i);
+        const field=inp.dataset.field;
+        let val=inp.value;
+        if(field==="qty" || field==="rate") val=Number(val);
+        editItems[idx][field]=val;
+        renderEditItems();
+      });
+    });
+    tbody.querySelectorAll('button[data-del]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const idx=Number(btn.dataset.del);
+        editItems.splice(idx,1);
+        renderEditItems();
+      });
+    });
+  }
+
+  document.addEventListener('click',function handler(e){
+    if(e.target && e.target.id==="addEditItemBtn"){
+      editItems.push({type:"Autre",desc:"Nouvel article",qty:1,rate:0});
+      renderEditItems();
+    }
+  },{once:true});
+
+  $('saveInvoiceEditBtn').onclick=()=>{
+    inv.customer=$('editInvCustomer').value.trim();
+    inv.job=$('editInvJob').value.trim();
+    inv.items=editItems;
+    const sub=editItems.reduce((s,it)=>s+it.qty*it.rate,0);
+    const gst=sub*(SETTINGS.gst/100);
+    const qst=(sub+gst)*(SETTINGS.qst/100);
+    inv.subTotal=sub;
+    inv.gst=gst;
+    inv.qst=qst;
+    inv.total=sub+gst+qst;
+    saveInvoices();
+    alert("Facture mise à jour!");
+    modal.style.display='none';
+    renderHistoryTable();
+    renderDashboard();
+  };
+
+  $('deleteInvoiceBtn').onclick=()=>{
+    if(!confirm("Supprimer cette facture ?")) return;
+    INVOICES=INVOICES.filter(x=>String(x.number)!==String(inv.number));
+    saveInvoices();
+    modal.style.display='none';
+    renderHistoryTable();
+    renderDashboard();
+  };
+
+  $('printInvoiceEditBtn').onclick=()=>{
+    // Charger cette facture dans la page factures puis imprimer
+    $('customerName').value=inv.customer||'';
+    $('jobDesc').value=inv.job||'';
+    $('invoiceNumber').value=inv.number;
+    items=JSON.parse(JSON.stringify(inv.items||[]));
+    renderItems();
+    showPage('page-invoices');
+    window.print();
+  };
+
+  $('closeInvoiceEditModal').onclick=()=>{
+    modal.style.display='none';
+  };
+
+  modal.style.display='flex';
+  renderEditUI();
 }
 
 /* ===================== PRINT SIMPLE ===================== */
@@ -1522,83 +1643,65 @@ if($('btnPrint')){
   });
 }
 
-/* ===================== BACKUP EXPORT ===================== */
-
+/* ===================== BACKUP EXPORT / IMPORT ===================== */
 function exportAllData(){
-  const data = {
-    settings: SETTINGS,
-    invoices: INVOICES,
-    clients: CLIENTS,
-    parts: PARTS,
-    services: SERVICES
+  const data={
+    settings:SETTINGS,
+    invoices:INVOICES,
+    clients:CLIENTS,
+    parts:PARTS,
+    services:SERVICES
   };
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  const date = new Date().toISOString().split("T")[0];
-
-  a.href = url;
-  a.download = `garage_backup_${date}.json`;
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const date=new Date().toISOString().split("T")[0];
+  a.href=url;
+  a.download=`garage_backup_${date}.json`;
   a.click();
-
   URL.revokeObjectURL(url);
 }
 
-/* ===================== BACKUP IMPORT ===================== */
-
 function importAllData(json){
   try{
-    if(json.settings) SETTINGS = json.settings;
-    if(json.invoices) INVOICES = json.invoices;
-    if(json.clients) CLIENTS = json.clients;
-    if(json.parts) PARTS = json.parts;
-    if(json.services) SERVICES = json.services;
-
-    // save to localStorage
+    if(json.settings) SETTINGS=json.settings;
+    if(json.invoices) INVOICES=json.invoices;
+    if(json.clients) CLIENTS=json.clients;
+    if(json.parts) PARTS=json.parts;
+    if(json.services) SERVICES=json.services;
     saveSettings();
     saveInvoices();
     saveClients();
     saveParts();
     saveServices();
-
-    // Refresh UI
     initSettings();
     renderInvoicesTable();
     renderClientsTable();
     renderParts();
     renderServices();
     renderDashboard();
-
     alert("Backup importé avec succès !");
   }catch(e){
     alert("Erreur lors de l’importation du fichier.");
   }
 }
 
-/* ========== LISTENERS ============ */
 if($("btnExportData")){
   $("btnExportData").addEventListener("click", exportAllData);
 }
-
 if($("btnImportData")){
   $("btnImportData").addEventListener("click",()=>{
     $("importBackupFile").click();
   });
 }
-
 if($("importBackupFile")){
   $("importBackupFile").addEventListener("change",(e)=>{
-    const file = e.target.files[0];
+    const file=e.target.files[0];
     if(!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(evt){
+    const reader=new FileReader();
+    reader.onload=function(evt){
       try{
-        const json = JSON.parse(evt.target.result);
+        const json=JSON.parse(evt.target.result);
         importAllData(json);
       }catch(err){
         alert("Fichier invalide.");
