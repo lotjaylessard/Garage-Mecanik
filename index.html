@@ -789,42 +789,8 @@ $("saveInvoice").onclick = () => {
   $("customerName").value="";
   $("jobDesc").value="";
 };
-
-/* ============================================================
-   IMPRESSION — MODE PROFESSIONNEL
-============================================================ */
-
-    <h3>Client</h3>
-    <p><strong>${inv.customer}</strong><br>${inv.job || ""}</p>
-
-    <h3>Articles</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th><th>Description</th>
-          <th>Qté/Hrs</th><th>Prix</th><th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${inv.items.map(it=>`
-          <tr>
-            <td>${it.type}</td>
-            <td>${it.desc}</td>
-            <td>${it.qty}</td>
-            <td>${money(it.rate)}$</td>
-            <td>${money(it.qty * it.rate)}$</td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-
-    <div class="invoice-totals">
-      <div><span>Sous-total</span><span>${money(inv.subTotal)} $</span></div>
-      <div><span>TPS</span><span>${money(inv.gst)} $</span></div>
-      <div><span>TVQ</span><span>${money(inv.qst)} $</span></div>
-      <div><strong>Total</strong><strong>${money(inv.total)} $</strong></div>
-    </div>
-  `;
+      
+  ;
 
   window.print();
 }
