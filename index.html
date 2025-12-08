@@ -1695,11 +1695,24 @@ function openInvoiceEditModal(invoiceNumber){
   };
 
   $('printInvoiceEditBtn').onclick = () => {
-  const inv = window.editInvoiceObj;
-  if (!inv) {
-    alert("Impossible de charger la facture.");
-    return;
-  }
+    if (!window.editInvoiceObj) {
+        alert("Impossible de charger la facture.");
+        return;
+    }
+
+    const inv = window.editInvoiceObj;
+
+    // Charger la facture dans la page Factures
+    $("customerName").value = inv.customer || "";
+    $("jobDesc").value = inv.job || "";
+    $("invoiceNumber").value = inv.number;
+
+    items = JSON.parse(JSON.stringify(inv.items || []));
+    renderItems();
+
+    showPage("page-invoices");
+    window.print();
+};
 
   const area = $("printArea");
   area.innerHTML = `
