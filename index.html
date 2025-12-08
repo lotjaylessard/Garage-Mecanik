@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Garage-Atelier Mécanique J.L — Gestion</title>
+
   <style>
     :root{
       --bg:#1b1b1b;
@@ -63,6 +64,7 @@
       opacity:0.5;
       cursor:not-allowed;
     }
+
     table{
       width:100%;
       border-collapse:collapse;
@@ -81,7 +83,6 @@
       color:var(--accent);
     }
 
-    /* --- Layout --- */
     #sidebar{
       position:fixed;
       left:0;
@@ -101,14 +102,8 @@
       margin-bottom:20px;
       font-size:20px;
     }
-    .navBtn{
-      width:100%;
-      text-align:left;
-    }
-    .navBtn.active{
-      background:var(--accent);
-      color:#000;
-    }
+    .navBtn{width:100%;text-align:left;}
+    .navBtn.active{background:var(--accent);color:#000;}
 
     .topbar{
       position:fixed;
@@ -124,6 +119,7 @@
       padding:10px 20px;
       z-index:9;
     }
+
     #appPages{
       margin-left:220px;
       margin-top:70px;
@@ -131,22 +127,6 @@
     }
     .page{display:none;}
 
-    /* Dashboard cards */
-    .stats-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:12px;
-    }
-    .stat-card{
-      background:var(--card);
-      border-radius:10px;
-      border:1px solid var(--border);
-      padding:12px;
-    }
-    .stat-label{font-size:0.85rem;color:var(--muted);}
-    .stat-value{font-size:1.3rem;font-weight:700;margin-top:4px;}
-
-    /* Modal base */
     .modal-backdrop{
       display:none;
       position:fixed;
@@ -168,117 +148,34 @@
       overflow-y:auto;
     }
 
-    @media(max-width:800px){
-      #sidebar{
-        position:static;
+    /* STYLE IMPRESSION PRO */
+    @media print {
+      body * { visibility: hidden !important; }
+
+      #printArea, #printArea * {
+        visibility: visible !important;
+      }
+
+      #printArea{
+        position:absolute;
+        top:0;left:0;
         width:100%;
-        height:auto;
-        flex-direction:row;
-        flex-wrap:wrap;
+        background:#fff !important;
+        color:#000 !important;
+        padding:25px;
+        font-family:Arial,sans-serif;
       }
-      .topbar{
-        position:static;
-        margin-left:0;
+
+      table th{
+        background:#f0f0f0 !important;
+        color:#000 !important;
       }
-      #appPages{
-        margin-left:0;
-        margin-top:0;
-      }
+      table td{color:#000 !important;}
     }
-  
-/* ======== FACTURE PRO (Impression) ======== */
-.invoice-pro {
-  font-family: Arial, sans-serif;
-  color: #000;
-  padding: 20px;
-}
-
-.inv-title {
-  text-align: center;
-  font-size: 26px;
-  margin-bottom: 4px;
-}
-
-.inv-sub {
-  text-align: center;
-  font-size: 16px;
-  color: #444;
-  margin-bottom: 18px;
-}
-
-.inv-section h3 {
-  margin: 0;
-  font-size: 15px;
-  margin-top: 14px;
-  color: #000;
-}
-
-.inv-section p {
-  margin: 4px 0 8px 0;
-  color: #222;
-}
-
-.inv-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 14px;
-}
-
-.inv-table th {
-  border-bottom: 2px solid #000;
-  padding: 6px;
-  text-align: left;
-  font-size: 14px;
-}
-
-.inv-table td {
-  border-bottom: 1px solid #ccc;
-  padding: 6px;
-  font-size: 14px;
-}
-
-.inv-totals {
-  width: 260px;
-  margin-left: auto;
-  margin-top: 18px;
-  font-size: 15px;
-}
-
-.inv-totals div {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.inv-total-final {
-  margin-top: 6px;
-  border-top: 2px solid #333;
-  padding-top: 6px;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-.invoice-notes {
-  margin-top: 18px;
-  font-size: 12px;
-  color: #444;
-}
-
-/* Impression : ne montrer que #printArea */
-@media print {
-  body * { visibility: hidden !important; }
-  #printArea, #printArea * { visibility: visible !important; }
-  #printArea {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    background: #fff;
-  }
-}
-
-</style>
+  </style>
 </head>
-<body>
+
+  <body>
 
   <!-- SIDEBAR -->
   <div id="sidebar">
@@ -297,10 +194,11 @@
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px;">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFD400">
-        <path d="M12 15.5A3.5 3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm8.94-2.81-1.35-.1a6.94 6.94 0 0 0-.54-1.3l.84-1.07a.5.5 0 0 0-.04-.66l-1.42-1.42a.5.5 0 0 0-.66-.04l-1.07.84c-.42-.25-.86-.45-1.3-.54l-.1-1.35a.5.5 0 0 0-.5-.46h-2a.5.5 0 0 0-.5.46l-.1 1.35c-.45.1-.88.3-1.3.54l-1.07-.84a.5.5 0 0 0-.66.04L5.15 8.56a.5.5 0 0 0-.04.66l.84 1.07c-.25.42-.45.86-.54 1.3l-1.35.1a.5.5 0 0 0-.46.5v2c0 .26.2.48.46.5l1.35.1c.1.45.3.88.54 1.3l-.84 1.07a.5.5 0 0 0 .04.66l1.42 1.42c.18.18.46.2.66.04l1.07-.84c.42.25.86.45 1.3.54l.1 1.35c.02.26.24.46.5.46h2c.26 0 .48-.2.5-.46l.1-1.35c.45-.1.88-.3 1.3-.54l1.07.84c.2.16.48.14.66-.04l1.42-1.42a.5.5 0 0 0 .04-.66l-.84-1.07c.25-.42.45-.86.54-1.3l1.35-.1c.26-.02.46-.24.46-.5v-2a.5.5 0 0 0-.46-.5z"/>
+        <path d="M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm8.94-2.81-1.35-.1a6.94 6.94 0 0 0-.54-1.3l.84-1.07a.5.5 0 0 0-.04-.66l-1.42-1.42a.5.5 0 0 0-.66-.04l-1.07.84c-.42-.25-.86-.45-1.3-.54l-.1-1.35a.5.5 0 0 0-.5-.46h-2a.5.5 0 0 0-.5.46l-.1 1.35c-.45.1-.88.3-1.3.54l-1.07-.84a.5.5 0 0 0-.66.04L5.15 8.56a.5.5 0 0 0-.04.66l.84 1.07c-.25.42-.45.86-.54 1.3l-1.35.1a.5.5 0 0 0-.46.5v2c0 .26.2.48.46.5l1.35.1c.1.45.3.88.54 1.3l-.84 1.07a.5.5 0 0 0 .04.66l1.42 1.42c.18.18.46.2.66.04l1.07-.84c.42.25.86.45 1.3.54l.1 1.35c.02.26.24.46.5.46h2c.26 0 .48-.2.5-.46l.1-1.35c.45-.1.88-.3 1.3-.54l1.07.84c.2.16.48.14.66-.04l1.42-1.42a.5.5 0 0 0 .04-.66l-.84-1.07c.25-.42.45-.86.54-1.3l1.35-.1c.26-.02.46-.24.46-.5v-2a.5.5 0 0 0-\46-.5z"/>
       </svg>
       <h1 style="font-size:18px;">Garage-Atelier Mécanique J.L — Gestion</h1>
     </div>
+
     <div style="display:flex;gap:10px;">
       <button id="btnPrint">Imprimer facture</button>
     </div>
@@ -309,9 +207,10 @@
   <!-- PAGES -->
   <div id="appPages">
 
-    <!-- DASHBOARD -->
+        <!-- DASHBOARD -->
     <div class="page" id="page-dashboard" style="display:block;">
       <h2>Tableau de bord</h2>
+
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Factures totales</div>
@@ -334,7 +233,7 @@
           <div class="stat-value" id="statParts">0</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Pièces stock faible (≤2)</div>
+          <div class="stat-label">Stock faible (≤ 2)</div>
           <div class="stat-value" id="statLowStock">0</div>
         </div>
       </div>
@@ -350,10 +249,11 @@
       </div>
     </div>
 
-    <!-- FACTURES (création seulement) -->
+    <!-- FACTURES (création) -->
     <div class="page" id="page-invoices">
       <div class="card">
         <h2>Créer Devis / Travail</h2>
+
         <label>Client</label>
         <input id="customerName" />
 
@@ -363,6 +263,7 @@
         <label>Description / Véhicule</label>
         <input id="jobDesc" />
 
+        <!-- Ajouter une pièce manuellement -->
         <h3>Ajouter une pièce (manuel)</h3>
         <label>Nom pièce / description</label>
         <input id="partName" />
@@ -372,6 +273,7 @@
         <input id="partPrice" type="number" />
         <button id="addPart">Ajouter pièce</button>
 
+        <!-- Main d'oeuvre -->
         <h3>Ajouter main-d'œuvre</h3>
         <label>Description</label>
         <input id="laborDesc" />
@@ -381,6 +283,7 @@
         <input id="laborRate" type="number" step="0.01" />
         <button id="addLabor">Ajouter main-d'œuvre</button>
 
+        <!-- Ajouter service enregistré -->
         <button id="openServicePicker" class="ghost" style="margin-top:8px;">
           ➕ Ajouter un service enregistré
         </button>
@@ -402,8 +305,8 @@
 
         <h3>Totaux</h3>
         <div>Sous-total: <span id="subTotal">0.00</span> $</div>
-        <div>TPS: <span id="gstAmount">0.00</span> $</div>
-        <div>TVQ: <span id="qstAmount">0.00</span> $</div>
+        <div>TPS (5%): <span id="gstAmount">0.00</span> $</div>
+        <div>TVQ (9.975%): <span id="qstAmount">0.00</span> $</div>
         <div><strong>Total: <span id="totalAmount">0.00</span> $</strong></div>
 
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -412,18 +315,21 @@
         </div>
       </div>
 
+      <!-- Zone utilisée pour l’impression -->
       <div id="printArea" style="display:none"></div>
     </div>
 
-    <!-- CLIENTS -->
+        <!-- CLIENTS -->
     <div class="page" id="page-clients">
       <h2>Gestion des clients</h2>
+
       <div class="card">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
           <input id="clientSearch" placeholder="Rechercher un client..." style="flex:1;min-width:200px;" />
           <button id="btnAddClient">Ajouter client</button>
         </div>
       </div>
+
       <div class="card">
         <table id="clientsTable">
           <thead>
@@ -505,10 +411,13 @@
       </div>
 
       <h3>Services enregistrés</h3>
-      <div id="servicesList" style="display:flex;flex-wrap:wrap;gap:15px;"></div>
+
+      <div id="servicesList"
+           style="display:flex;flex-wrap:wrap;gap:15px;">
+      </div>
     </div>
 
-    <!-- PIÈCES -->
+        <!-- PIÈCES -->
     <div class="page" id="page-parts">
       <h2>Inventaire des pièces</h2>
 
@@ -550,31 +459,36 @@
         <button id="partInvAddBtn" style="margin-top:8px;">Ajouter dans l’inventaire</button>
       </div>
 
-      <select id="partInvFilter" style="margin-bottom:10px;">
-        <option value="">Toutes catégories</option>
-        <option value="Moteur">Moteur</option>
-        <option value="Transmission">Transmission</option>
-        <option value="Suspension">Suspension</option>
-        <option value="Direction">Direction</option>
-        <option value="Freins">Freins</option>
-        <option value="Échappement">Échappement</option>
-        <option value="Électrique">Électrique</option>
-        <option value="Tuning">Tuning</option>
-        <option value="Fabrication">Fabrication</option>
-        <option value="Hybride">Hybride</option>
-        <option value="Carrosserie">Carrosserie</option>
-        <option value="Pneus">Pneus</option>
-        <option value="Divers">Divers</option>
-      </select>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <select id="partInvFilter">
+          <option value="">Toutes catégories</option>
+          <option value="Moteur">Moteur</option>
+          <option value="Transmission">Transmission</option>
+          <option value="Suspension">Suspension</option>
+          <option value="Direction">Direction</option>
+          <option value="Freins">Freins</option>
+          <option value="Échappement">Échappement</option>
+          <option value="Électrique">Électrique</option>
+          <option value="Tuning">Tuning</option>
+          <option value="Fabrication">Fabrication</option>
+          <option value="Hybride">Hybride</option>
+          <option value="Carrosserie">Carrosserie</option>
+          <option value="Pneus">Pneus</option>
+          <option value="Divers">Divers</option>
+        </select>
 
-      <input id="partInvSearch" placeholder="Rechercher une pièce (nom, # ou catégorie)..." style="margin-bottom:15px;" />
+        <input id="partInvSearch" placeholder="Rechercher une pièce..." style="flex:1;min-width:200px;" />
+      </div>
 
-      <div id="partsInventoryList" style="display:flex;flex-wrap:wrap;gap:15px;"></div>
+      <div id="partsInventoryList"
+           style="display:flex;flex-wrap:wrap;gap:15px;">
+      </div>
     </div>
 
     <!-- HISTORIQUE GLOBAL -->
     <div class="page" id="page-history">
       <h2>Historique des factures</h2>
+
       <div class="card">
         <table id="historyTable">
           <thead>
@@ -582,8 +496,9 @@
               <th>#</th>
               <th>Date</th>
               <th>Client</th>
-              <th>Véhicule / Job</th>
+              <th>Description</th>
               <th>Total</th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -593,241 +508,114 @@
 
     <!-- PARAMÈTRES -->
     <div class="page" id="page-settings">
-      <h2>Paramètres</h2>
+      <h2>Paramètres système</h2>
       <div class="card">
-        <label>Nom du garage</label>
-        <input id="settingGarageName" />
-
-        <label>TPS (%)</label>
-        <input id="settingGST" type="number" step="0.01" />
-
-        <label>TVQ (%)</label>
-        <input id="settingQST" type="number" step="0.01" />
-
-        <button id="saveSettings" style="margin-top:10px;">Enregistrer les paramètres</button>
-        <div class="muted" style="margin-top:6px;">Les nouvelles factures utiliseront ces taux de taxes.</div>
-
-        <hr style="margin:20px 0; border-color:var(--border);">
-
-        <h3>Sauvegarde / Restauration</h3>
-        <button id="btnExportData">📤 Exporter toutes les données</button>
-        <br><br>
-        <input type="file" id="importBackupFile" style="display:none;" />
-        <button id="btnImportData" class="ghost">📥 Importer un backup (.json)</button>
-
-        <div class="muted" style="margin-top:10px;">
-          Sauvegarde toutes vos données (factures, clients, pièces, services, paramètres, etc.)
-          dans un fichier .json que vous pouvez restaurer plus tard.
-        </div>
+        <p>Ici tu pourras éventuellement :</p>
+        <ul>
+          <li>Changer taux TPS / TVQ</li>
+          <li>Modifier le nom du garage</li>
+          <li>Exporter / importer sauvegarde</li>
+          <li>Réinitialiser certaines données</li>
+        </ul>
       </div>
     </div>
 
-  </div>
-
-  <!-- MODAL CLIENT -->
-  <div id="clientModal" class="modal-backdrop">
-    <div class="modal-panel">
-      <h2>Fiche Client</h2>
-      <div id="clientModalContent">Chargement...</div>
-      <div style="text-align:right;margin-top:15px;">
-        <button id="closeClientModal" class="ghost">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL SERVICES PICKER -->
-  <div id="servicePickerModal" class="modal-backdrop">
-    <div class="modal-panel" style="width:700px;">
-      <h2>Choisir un service</h2>
-
-      <label style="margin-top:10px;">Filtrer par catégorie :</label>
-      <select id="servicePickerFilter" style="margin-bottom:15px;">
-        <option value="">Toutes les catégories</option>
-        <option value="Entretien">Entretien</option>
-        <option value="Mécanique générale">Mécanique générale</option>
-        <option value="Freins">Freins</option>
-        <option value="Suspension">Suspension</option>
-        <option value="Direction">Direction</option>
-        <option value="Refroidissement">Refroidissement</option>
-        <option value="Diagnostic">Diagnostic</option>
-        <option value="Électricité">Électricité</option>
-        <option value="Pneus">Pneus</option>
-        <option value="Échappement">Échappement</option>
-        <option value="Transmission">Transmission</option>
-        <option value="Moteur">Moteur</option>
-        <option value="Divers">Divers</option>
-      </select>
-
-      <div id="servicePickerList">Chargement...</div>
-
-      <div style="text-align:right;margin-top:15px;">
-        <button id="closeServicePicker" class="ghost">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL EDIT FACTURE -->
-  <div id="invoiceEditModal" class="modal-backdrop">
-    <div class="modal-panel" style="width:900px;">
-      <h2>Modifier Facture</h2>
-      <div id="invoiceEditContent">Chargement...</div>
-
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:15px;">
-        <button id="printInvoiceEditBtn" class="ghost">Imprimer</button>
-        <button id="deleteInvoiceBtn" class="ghost">Supprimer</button>
-        <button id="saveInvoiceEditBtn">Enregistrer</button>
-        <button id="closeInvoiceEditModal" class="ghost">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-/* ===================== HELPERS & STORAGE ===================== */
-const STORAGE = {
-  invoices:'ar_invoices_v2',
-  settings:'ar_settings_v1',
-  invoiceCounter:'ar_invoice_counter_v1',
-  clients:'ar_clients_v1',
-  parts:'ar_parts_inventory_v1',
-  services:'ar_services_v1'
-};
+    <script>
+/* ============================================================
+   SELECTEURS RAPIDES
+============================================================ */
 const $ = id => document.getElementById(id);
-function money(n){return Number(n||0).toFixed(2);}
 
-/* ===================== NAVIGATION ===================== */
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-  const pg = $(id);
-  if(pg) pg.style.display='block';
-  document.querySelectorAll('.navBtn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.page===id);
-  });
+/* ============================================================
+   NAVIGATION ENTRE PAGES
+============================================================ */
+function showPage(pageId){
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  const pg = $(pageId);
+  if (pg) pg.style.display = "block";
+
+  document.querySelectorAll(".navBtn").forEach(btn =>
+    btn.classList.toggle("active", btn.dataset.page === pageId)
+  );
 }
-document.querySelectorAll('.navBtn').forEach(btn=>{
-  btn.addEventListener('click',()=>showPage(btn.dataset.page));
-});
 
-/* ===================== GLOBAL DATA ===================== */
-let SETTINGS = {garageName:'Garage-Atelier Mécanique J.L', gst:5, qst:9.975};
-let INVOICES = [];
-let items = [];
-let CLIENTS = [];
-let PARTS = [];
-let SERVICES = [];
+// activer dashboard au départ
+showPage("page-dashboard");
 
-/* ===================== SETTINGS ===================== */
-function loadSettings(){
+/* ============================================================
+   LOCAL STORAGE — KEYS
+============================================================ */
+const STORAGE = {
+  invoices: "ar_invoices_v2",
+  invoiceCounter: "ar_invoice_counter_v2",
+  clients: "ar_clients_v2",
+  services: "ar_services_v2",
+  parts: "ar_parts_v2"
+};
+
+/* ============================================================
+   OUTILS GÉNÉRAUX
+============================================================ */
+function money(n){ return Number(n||0).toFixed(2); }
+
+function loadLS(key, fallback){
   try{
-    SETTINGS = JSON.parse(localStorage.getItem(STORAGE.settings) || 'null') || SETTINGS;
-  }catch(e){}
-}
-function saveSettings(){
-  localStorage.setItem(STORAGE.settings, JSON.stringify(SETTINGS));
-}
-function initSettings(){
-  loadSettings();
-  if($('settingGarageName')) $('settingGarageName').value = SETTINGS.garageName;
-  if($('settingGST')) $('settingGST').value = SETTINGS.gst;
-  if($('settingQST')) $('settingQST').value = SETTINGS.qst;
-
-  if($('saveSettings')){
-    $('saveSettings').addEventListener('click',()=>{
-      SETTINGS.garageName = $('settingGarageName').value.trim() || SETTINGS.garageName;
-      SETTINGS.gst = Number($('settingGST').value)||SETTINGS.gst;
-      SETTINGS.qst = Number($('settingQST').value)||SETTINGS.qst;
-      saveSettings();
-      alert('Paramètres enregistrés.');
-      renderTotals();
-    });
-  }
+    const val = JSON.parse(localStorage.getItem(key));
+    return val ?? fallback;
+  }catch(e){ return fallback; }
 }
 
-/* ===================== INVOICES CORE ===================== */
-function loadInvoices(){
-  try{
-    INVOICES = JSON.parse(localStorage.getItem(STORAGE.invoices) || '[]');
-    if(!Array.isArray(INVOICES)) INVOICES=[];
-  }catch(e){INVOICES=[];}
-}
-function saveInvoices(){
-  localStorage.setItem(STORAGE.invoices, JSON.stringify(INVOICES));
+function saveLS(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
-/* STOCK & INVENTAIRE */
-function loadParts(){
-  try{
-    PARTS = JSON.parse(localStorage.getItem(STORAGE.parts) || '[]');
-    if(!Array.isArray(PARTS)) PARTS=[];
-  }catch(e){PARTS=[];}
-}
-function saveParts(){
-  localStorage.setItem(STORAGE.parts, JSON.stringify(PARTS));
-}
-function findInventoryPartFromText(text){
-  text = (text||'').toLowerCase();
-  for(const p of PARTS){
-    const num = String(p.number||'').toLowerCase();
-    if(num && text.includes(num)) return p;
-  }
-  return null;
-}
-function adjustStockForLinkedItem(item, deltaQty){
-  if(!item || !item.invNumber) return;
-  const num = String(item.invNumber);
-  const part = PARTS.find(p=>String(p.number)===num);
-  if(!part) return;
-  const current = Number(part.qty||0);
-  part.qty = current + deltaQty;
-  if(part.qty<0) part.qty=0;
-  saveParts();
-  renderParts();
-  renderDashboard();
-}
-function linkNewItemToInventory(item){
-  if(!item || !item.desc || !item.type || !item.type.toLowerCase().includes('pièce')) return;
-  const part = findInventoryPartFromText(item.desc);
-  if(!part) return;
-  const qty = Number(item.qty)||1;
-  const currentQty = Number(part.qty||0);
-  if(currentQty<qty){
-    alert("Stock insuffisant pour cette pièce en inventaire.");
-    return false;
-  }
-  part.qty = currentQty - qty;
-  item.invNumber = part.number;
-  saveParts();
-  renderParts();
-  renderDashboard();
-  return true;
+/* ============================================================
+   FACTURES — VARIABLES GLOBALES
+============================================================ */
+let INVOICES = loadLS(STORAGE.invoices, []);
+let INVOICE_COUNTER = loadLS(STORAGE.invoiceCounter, 1);
+let items = [];  // articles de la facture en cours
+
+/* ============================================================
+   CLIENTS / VÉHICULES
+============================================================ */
+let CLIENTS = loadLS(STORAGE.clients, []);
+
+/* ============================================================
+   SERVICES
+============================================================ */
+let SERVICES = loadLS(STORAGE.services, []);
+
+/* ============================================================
+   INVENTAIRE — PIÈCES
+============================================================ */
+let PARTS = loadLS(STORAGE.parts, []);
+
+      /* ============================================================
+   FACTURES — GÉNÉRATION NUMÉRO
+============================================================ */
+function getNextInvoiceNumber(){
+  const num = INVOICE_COUNTER;
+  INVOICE_COUNTER++;
+  saveLS(STORAGE.invoiceCounter, INVOICE_COUNTER);
+  return num;
 }
 
-/* RENDER ITEMS & TOTALS */
-function renderTotals(subTotalOverride){
-  const sub = (typeof subTotalOverride === 'number') ? subTotalOverride
-               : items.reduce((s,it)=>s+it.qty*it.rate,0);
-  const gstRate = Number(SETTINGS.gst||5)/100;
-  const qstRate = Number(SETTINGS.qst||9.975)/100;
-
-  const gst = sub * gstRate;
-  const qst = (sub + gst) * qstRate;
-  const total = sub + gst + qst;
-
-  if($('subTotal')) $('subTotal').innerText = money(sub);
-  if($('gstAmount')) $('gstAmount').innerText = money(gst);
-  if($('qstAmount')) $('qstAmount').innerText = money(qst);
-  if($('totalAmount')) $('totalAmount').innerText = money(total);
-}
-
+/* ============================================================
+   ARTICLES — RENDU TABLE DES LIGNES
+============================================================ */
 function renderItems(){
-  const tbody = document.querySelector('#itemsTable tbody');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  let sub=0;
-  items.forEach((it,i)=>{
-    const total=it.qty*it.rate;
-    sub+=total;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
+  const tbody = document.querySelector("#itemsTable tbody");
+  tbody.innerHTML = "";
+
+  let sub = 0;
+
+  items.forEach((it, i) => {
+    const total = it.qty * it.rate;
+    sub += total;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
       <td>${it.type}</td>
       <td>${it.desc}</td>
       <td>${it.qty}</td>
@@ -837,1245 +625,1054 @@ function renderItems(){
     `;
     tbody.appendChild(tr);
   });
-  renderTotals(sub);
+
+  // Mise à jour des totaux
+  const gst = sub * 0.05;
+  const qst = (sub + gst) * 0.09975;
+  const total = sub + gst + qst;
+
+  $("subTotal").innerText = money(sub);
+  $("gstAmount").innerText = money(gst);
+  $("qstAmount").innerText = money(qst);
+  $("totalAmount").innerText = money(total);
 }
 
+/* ============================================================
+   ARTICLES — SUPPRESSION
+============================================================ */
 function removeItem(i){
-  const item = items[i];
-  if(item && item.invNumber){
-    const qty = Number(item.qty)||1;
-    adjustStockForLinkedItem(item, qty);
+  items.splice(i, 1);
+  renderItems();
+}
+
+/* ============================================================
+   AJOUT : PIÈCE MANUELLE
+============================================================ */
+$("addPart").onclick = () => {
+  const name = $("partName").value.trim();
+  const qty = Number($("partQty").value);
+  const price = Number($("partPrice").value);
+
+  if(!name || qty <= 0 || price <= 0){
+    alert("Données invalides pour la pièce.");
+    return;
   }
-  items.splice(i,1);
+
+  items.push({
+    type:"Pièce",
+    desc:name,
+    qty:qty,
+    rate:price
+  });
+
+  $("partName").value="";
+  $("partQty").value=1;
+  $("partPrice").value="";
   renderItems();
+};
+
+/* ============================================================
+   AJOUT : MAIN-D’ŒUVRE
+============================================================ */
+$("addLabor").onclick = () => {
+  const desc = $("laborDesc").value.trim();
+  const hrs = Number($("laborHours").value);
+  const rate = Number($("laborRate").value);
+
+  if(!desc || hrs <= 0 || rate <= 0){
+    alert("Données invalides pour la main-d’œuvre.");
+    return;
+  }
+
+  items.push({
+    type:"Main-d’œuvre",
+    desc:desc,
+    qty:hrs,
+    rate:rate
+  });
+
+  $("laborDesc").value="";
+  $("laborHours").value="";
+  $("laborRate").value="";
+  renderItems();
+};
+
+/* ============================================================
+   AJOUT : SERVICE ENREGISTRÉ
+============================================================ */
+$("openServicePicker").onclick = () => openServicePicker();
+
+function openServicePicker(){
+  let list = SERVICES.map((s, i) => `
+    <button class="ghost" onclick="addSavedService(${i})" 
+            style="width:100%;text-align:left;margin-bottom:6px;">
+      <b>${s.name}</b> — <span class="muted">${s.category}</span>
+    </button>
+  `).join("");
+
+  alert("👇 Sélectionne un service dans la fenêtre suivante.");
+
+  const wrapper = document.createElement("div");
+  wrapper.style.padding = "20px";
+  wrapper.innerHTML = `
+    <h3>Services disponibles</h3>
+    ${list}
+  `;
+
+  document.body.appendChild(wrapper);
 }
 
-if($('clearItems')){
-  $('clearItems').addEventListener('click',()=>{
-    if(!items.length) return;
-    if(!confirm("Vider tous les articles de la facture ?")) return;
-    items.forEach(it=>{
-      if(it.invNumber){
-        const qty = Number(it.qty)||1;
-        adjustStockForLinkedItem(it, qty);
-      }
+function addSavedService(i){
+  const s = SERVICES[i];
+  if(!s) return;
+
+  if(s.price){
+    items.push({
+      type:"Service",
+      desc:s.name,
+      qty:1,
+      rate:s.price
     });
-    items=[];
-    renderItems();
-  });
-}
+  } else {
+    const hrs = Number(s.hours || 1);
+    const rt = Number(s.rate || 90);
+    items.push({
+      type:"Service",
+      desc:s.name,
+      qty:hrs,
+      rate:rt
+    });
+  }
 
-/* ADD PART & LABOR */
-if($('addPart')){
-  $('addPart').addEventListener('click',()=>{
-    const name = $('partName').value.trim();
-    const qty = Number($('partQty').value)||0;
-    const price = Number($('partPrice').value)||0;
-    if(!name || qty<=0) return alert("Informations pièce incomplètes");
-    const newItem = {type:'Pièce',desc:name,qty,rate:price};
-    const linkedOk = linkNewItemToInventory(newItem);
-    if(linkedOk===false) return;
-    items.push(newItem);
-    $('partName').value='';
-    $('partPrice').value='';
-    $('partQty').value=1;
-    renderItems();
-  });
-}
-if($('addLabor')){
-  $('addLabor').addEventListener('click',()=>{
-    const desc=$('laborDesc').value.trim();
-    const hours=Number($('laborHours').value)||0;
-    const rate=Number($('laborRate').value)||0;
-    if(!desc || hours<=0 || rate<=0) return alert("Infos main-d'œuvre incomplètes");
-    items.push({type:"Main-d'œuvre",desc,qty:hours,rate});
-    $('laborDesc').value='';
-    $('laborHours').value='';
-    $('laborRate').value='';
-    renderItems();
-  });
-}
-
-/* INVOICE NUMBERS */
-function nextInvoiceNumber(){
-  let num = Number(localStorage.getItem(STORAGE.invoiceCounter)||0);
-  num++;
-  localStorage.setItem(STORAGE.invoiceCounter, String(num));
-  return num;
-}
-function resetInvoiceForm(){
-  $('customerName').value='';
-  $('jobDesc').value='';
-  items=[];
   renderItems();
-  $('invoiceNumber').value = nextInvoiceNumber();
+  alert("Service ajouté !");
 }
 
-/* SAVE INVOICE (NEW) */
-function renderInvoicesTable(){
-  // plus de table sur la page Factures; on met à jour Historique + Dashboard
-  renderHistoryTable();
-  renderDashboard();
+/* ============================================================
+   SAUVEGARDE FACTURE
+============================================================ */
+$("saveInvoice").onclick = () => {
+  const customer = $("customerName").value.trim();
+  if(!customer){
+    alert("Le nom du client est requis.");
+    return;
+  }
+  if(items.length === 0){
+    alert("Aucun article dans la facture.");
+    return;
+  }
+
+  const sub = Number($("subTotal").innerText);
+  const gst = Number($("gstAmount").innerText);
+  const qst = Number($("qstAmount").innerText);
+  const total = Number($("totalAmount").innerText);
+
+  const invoice = {
+    id: Date.now(),
+    number: getNextInvoiceNumber(),
+    date: new Date().toLocaleString("fr-CA"),
+    customer: customer,
+    job: $("jobDesc").value.trim(),
+    items: structuredClone(items),
+    subTotal: sub,
+    gst: gst,
+    qst: qst,
+    total: total
+  };
+
+  INVOICES.push(invoice);
+  saveLS(STORAGE.invoices, INVOICES);
+
+  alert("Facture enregistrée !");
+  items = [];
+  renderItems();
+  $("customerName").value="";
+  $("jobDesc").value="";
+};
+
+/* ============================================================
+   IMPRESSION — MODE PROFESSIONNEL
+============================================================ */
+function printInvoiceObject(inv){
+  if(!inv) return;
+
+  const area = $("printArea");
+
+  area.innerHTML = `
+    <div class="invoice-header">
+      <h1>Garage-Atelier Mécanique J.L</h1>
+      <div class="muted">Facture #${inv.number}</div>
+      <div class="muted">${inv.date}</div>
+    </div>
+
+    <h3>Client</h3>
+    <p><strong>${inv.customer}</strong><br>${inv.job || ""}</p>
+
+    <h3>Articles</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th><th>Description</th>
+          <th>Qté/Hrs</th><th>Prix</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${inv.items.map(it=>`
+          <tr>
+            <td>${it.type}</td>
+            <td>${it.desc}</td>
+            <td>${it.qty}</td>
+            <td>${money(it.rate)}$</td>
+            <td>${money(it.qty * it.rate)}$</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+
+    <div class="invoice-totals">
+      <div><span>Sous-total</span><span>${money(inv.subTotal)} $</span></div>
+      <div><span>TPS</span><span>${money(inv.gst)} $</span></div>
+      <div><span>TVQ</span><span>${money(inv.qst)} $</span></div>
+      <div><strong>Total</strong><strong>${money(inv.total)} $</strong></div>
+    </div>
+  `;
+
+  window.print();
 }
 
-if($('saveInvoice')){
-  $('saveInvoice').addEventListener('click',()=>{
-    if(!items.length) return alert("Aucun article dans la facture.");
-    const cust = $('customerName').value.trim();
-    if(!cust) return alert("Le nom du client est requis.");
-    const job = $('jobDesc').value.trim();
-    const number = $('invoiceNumber').value || nextInvoiceNumber();
-    const dateStr = new Date().toLocaleDateString('fr-CA');
+// bouton d’impression principal
+$("btnPrint").onclick = () => {
+  if(INVOICES.length === 0){
+    alert("Aucune facture à imprimer.");
+    return;
+  }
+  const last = INVOICES[INVOICES.length - 1];
+  printInvoiceObject(last);
+};
 
-    const sub = items.reduce((s,it)=>s+it.rate*it.qty,0);
-    const gstRate = Number(SETTINGS.gst||5)/100;
-    const qstRate = Number(SETTINGS.qst||9.975)/100;
-    const gst = sub*gstRate;
-    const qst = (sub+gst)*qstRate;
-    const total = sub+gst+qst;
+      /* ============================================================
+   CLIENTS — TABLE
+============================================================ */
+function renderClientsTable(){
+  const tbody = document.querySelector("#clientsTable tbody");
+  tbody.innerHTML = "";
 
-    const inv = {number,date:dateStr,customer:cust,job,items:[...items],subTotal:sub,gst,qst,total};
-    INVOICES.push(inv);
-    saveInvoices();
-    alert("Facture enregistrée.");
-    resetInvoiceForm();
-    renderInvoicesTable();
+  const q = $("clientSearch").value.trim().toLowerCase();
+
+  CLIENTS.forEach(c => {
+    const str = `${c.name} ${c.phone} ${c.email} ${c.address}`.toLowerCase();
+    if(q && !str.includes(q)) return;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${c.name}</td>
+      <td>${c.phone || ""}</td>
+      <td>${c.email || ""}</td>
+      <td>${c.address || ""}</td>
+      <td>${(c.vehicles||[]).length}</td>
+      <td><button class="ghost" onclick="openClientModal(${c.id})">Voir</button></td>
+    `;
+    tbody.appendChild(tr);
   });
 }
 
-/* INIT INVOICES */
-function initInvoices(){
-  loadInvoices();
-  loadParts();
-  resetInvoiceForm();
-  renderInvoicesTable();
+/* ============================================================
+   CLIENT — MODAL (fiche client)
+============================================================ */
+function openClientModal(id){
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.style.display="flex";
+
+  const client = CLIENTS.find(c => c.id === id);
+
+  modal.innerHTML = `
+    <div class="modal-panel">
+      <h2>Fiche client</h2>
+
+      <label>Nom</label>
+      <input id="cName" value="${client.name}" />
+
+      <label>Téléphone</label>
+      <input id="cPhone" value="${client.phone||""}" />
+
+      <label>Email</label>
+      <input id="cEmail" value="${client.email||""}" />
+
+      <label>Adresse</label>
+      <input id="cAddr" value="${client.address||""}" />
+
+      <h3>Véhicules</h3>
+      <div id="vehList"></div>
+
+      <h4>Ajouter un véhicule</h4>
+      <label>Marque</label>
+      <input id="vehMake" />
+      <label>Modèle</label>
+      <input id="vehModel" />
+      <label>Année</label>
+      <input id="vehYear" />
+      <label>Plaque</label>
+      <input id="vehPlate" />
+      <label>VIN</label>
+      <input id="vehVin" />
+      <label>KM</label>
+      <input id="vehKm" />
+
+      <button onclick="addVehicle(${id})">Ajouter véhicule</button>
+
+      <div style="margin-top:15px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="ghost" onclick="deleteClient(${id})">Supprimer</button>
+        <button onclick="saveClient(${id})">Enregistrer</button>
+      </div>
+
+      <div style="text-align:right;margin-top:10px;">
+        <button class="ghost" onclick="this.closest('.modal-backdrop').remove()">Fermer</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  renderClientVehicles(id);
 }
 
-/* ===================== CLIENTS ===================== */
-function loadClients(){
-  try{
-    CLIENTS = JSON.parse(localStorage.getItem(STORAGE.clients) || '[]');
-    if(!Array.isArray(CLIENTS)) CLIENTS=[];
-  }catch(e){CLIENTS=[];}
-}
-function saveClients(){
-  localStorage.setItem(STORAGE.clients, JSON.stringify(CLIENTS));
+/* ============================================================
+   CLIENT : RENDRE VÉHICULES
+============================================================ */
+function renderClientVehicles(id){
+  const client = CLIENTS.find(c => c.id === id);
+  const wrap = document.querySelector("#vehList");
+
+  wrap.innerHTML = "";
+
+  (client.vehicles||[]).forEach((v, idx) => {
+    const div = document.createElement("div");
+    div.style.border = "1px solid var(--border)";
+    div.style.borderRadius = "8px";
+    div.style.padding = "8px";
+    div.style.marginBottom = "6px";
+
+    div.innerHTML = `
+      <b>${v.make} ${v.model} (${v.year})</b><br>
+      Plaque: ${v.plate || ""}<br>
+      VIN: ${v.vin || ""}<br>
+      KM: ${v.km || ""}<br>
+      <button class="ghost" onclick="deleteVehicle(${id}, ${idx})">Supprimer</button>
+    `;
+
+    wrap.appendChild(div);
+  });
 }
 
-function renderVehiclesPage(){
-  const tbody = document.querySelector('#vehiclesTable tbody');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  CLIENTS.forEach(c=>{
-    (c.vehicles||[]).forEach(v=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td>${c.name||''}</td>
-        <td>${v.make||''}</td>
-        <td>${v.model||''}</td>
-        <td>${v.year||''}</td>
-        <td>${v.plate||''}</td>
-        <td>${v.vin||''}</td>
-        <td>${v.km||''}</td>
+/* ============================================================
+   CLIENT : SAUVEGARDE
+============================================================ */
+function saveClient(id){
+  const c = CLIENTS.find(c => c.id === id);
+  if(!c) return;
+
+  c.name = $("cName").value.trim();
+  c.phone = $("cPhone").value.trim();
+  c.email = $("cEmail").value.trim();
+  c.address = $("cAddr").value.trim();
+
+  saveLS(STORAGE.clients, CLIENTS);
+  renderClientsTable();
+  document.querySelector(".modal-backdrop").remove();
+}
+
+/* ============================================================
+   CLIENT : SUPPRESSION
+============================================================ */
+function deleteClient(id){
+  if(!confirm("Supprimer ce client ?")) return;
+  CLIENTS = CLIENTS.filter(c => c.id !== id);
+  saveLS(STORAGE.clients, CLIENTS);
+  renderClientsTable();
+  document.querySelector(".modal-backdrop").remove();
+}
+
+/* ============================================================
+   VÉHICULE : AJOUT
+============================================================ */
+function addVehicle(id){
+  const c = CLIENTS.find(c => c.id === id);
+  if(!c) return;
+
+  const v = {
+    make:$("vehMake").value.trim(),
+    model:$("vehModel").value.trim(),
+    year:$("vehYear").value.trim(),
+    plate:$("vehPlate").value.trim(),
+    vin:$("vehVin").value.trim(),
+    km:$("vehKm").value.trim()
+  };
+
+  if(!v.make || !v.model){
+    alert("Marque ou modèle manquant.");
+    return;
+  }
+
+  c.vehicles = c.vehicles || [];
+  c.vehicles.push(v);
+
+  saveLS(STORAGE.clients, CLIENTS);
+  renderClientVehicles(id);
+  renderVehiclesTable();
+}
+
+/* ============================================================
+   VÉHICULE : SUPPRESSION
+============================================================ */
+function deleteVehicle(id, idx){
+  const c = CLIENTS.find(c => c.id === id);
+  if(!c) return;
+
+  c.vehicles.splice(idx, 1);
+  saveLS(STORAGE.clients, CLIENTS);
+
+  renderClientVehicles(id);
+  renderVehiclesTable();
+}
+
+/* ============================================================
+   TABLEAU GLOBAL DES VÉHICULES
+============================================================ */
+function renderVehiclesTable(){
+  const tbody = document.querySelector("#vehiclesTable tbody");
+  tbody.innerHTML = "";
+
+  CLIENTS.forEach(c => {
+    (c.vehicles||[]).forEach(v => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${c.name}</td>
+        <td>${v.make}</td>
+        <td>${v.model}</td>
+        <td>${v.year}</td>
+        <td>${v.plate||""}</td>
+        <td>${v.vin||""}</td>
+        <td>${v.km||""}</td>
       `;
       tbody.appendChild(tr);
     });
   });
 }
 
-function renderClientsTable(){
-  const tbody = document.querySelector('#clientsTable tbody');
-  if(!tbody) return;
-  const q = ($('clientSearch')?.value || '').toLowerCase();
-  tbody.innerHTML='';
-  CLIENTS.forEach(c=>{
-    const hay = `${c.name||''} ${c.phone||''} ${c.email||''} ${c.address||''}`.toLowerCase();
-    if(q && !hay.includes(q)) return;
-    const vehicleCount = Array.isArray(c.vehicles)?c.vehicles.length:0;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${c.name||''}</td>
-      <td>${c.phone||''}</td>
-      <td>${c.email||''}</td>
-      <td>${c.address||''}</td>
-      <td>${vehicleCount}</td>
-      <td><button class="ghost" data-action="open-client" data-id="${c.id}">Fiche</button></td>
+      /* ============================================================
+   SERVICES — AFFICHAGE DES CARTES
+============================================================ */
+function renderServices(){
+  const wrap = $("servicesList");
+  wrap.innerHTML = "";
+
+  SERVICES.forEach((s, i) => {
+    const priceText = s.price
+      ? `${money(s.price)} $`
+      : `${s.hours} h × ${money(s.rate)} $`;
+
+    const card = document.createElement("div");
+    card.style = `
+      background:var(--card);
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:10px;
+      width:260px;
     `;
-    tbody.appendChild(tr);
+
+    card.innerHTML = `
+      <h3 style="margin:0 0 6px;">${s.name}</h3>
+      <div class="muted">${s.category}</div>
+      <div class="small" style="margin-top:4px;">${s.desc || ""}</div>
+
+      <div style="margin-top:8px;">
+        <b>Prix :</b> ${priceText}
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="ghost" onclick="editService(${i})" style="flex:1;">Modifier</button>
+        <button class="ghost" onclick="deleteService(${i})" style="flex:1;">Supprimer</button>
+      </div>
+    `;
+
+    wrap.appendChild(card);
   });
-  tbody.querySelectorAll('button[data-action="open-client"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id = btn.dataset.id;
-      openClientModal(id);
-    });
-  });
-  renderVehiclesPage();
-  renderDashboard();
 }
 
-function findClientById(id){
-  return CLIENTS.find(c=>String(c.id)===String(id));
-}
+/* ============================================================
+   SERVICES — AJOUT
+============================================================ */
+$("srvAddBtn").onclick = () => {
+  const name = $("srvName").value.trim();
+  const category = $("srvCategory").value;
+  const desc = $("srvDesc").value.trim();
 
-function openClientModal(id){
-  const modal=$('clientModal');
-  if(!modal) return;
-  modal.style.display='flex';
-  renderClientModal(id);
-}
-function closeClientModal(){
-  const modal=$('clientModal');
-  if(modal) modal.style.display='none';
-}
-if($('closeClientModal')){
-  $('closeClientModal').addEventListener('click',closeClientModal);
-}
+  const priceFixed = Number($("srvPriceFixed").value);
+  const hours = Number($("srvHours").value);
+  const rate = Number($("srvRate").value);
 
-function renderClientModal(id){
-  loadClients();
-  const content=$('clientModalContent');
-  if(!content) return;
-  const isNew = !id;
-  let client;
-  if(isNew){
-    client={id:Date.now(),name:'',phone:'',email:'',address:'',notes:'',vehicles:[]};
-  }else{
-    client=findClientById(id);
-    if(!client){
-      alert('Client introuvable');
-      closeClientModal();
-      return;
-    }
+  if(!name){
+    alert("Le nom du service est requis.");
+    return;
   }
-  const invoices=INVOICES;
-  const clientInvoices=invoices.filter(inv=>(inv.customer||'').toLowerCase()===(client.name||'').toLowerCase());
 
-  content.innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div>
-        <h3 style="margin:0 0 6px;color:var(--accent);">Informations client</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:200px;">
-            <label>Nom</label>
-            <input id="clientFormName" value="${client.name||''}" />
-          </div>
-          <div style="flex:1;min-width:160px;">
-            <label>Téléphone</label>
-            <input id="clientFormPhone" value="${client.phone||''}" />
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-          <div style="flex:1;min-width:200px;">
-            <label>Email</label>
-            <input id="clientFormEmail" value="${client.email||''}" />
-          </div>
-          <div style="flex:1;min-width:200px;">
-            <label>Adresse</label>
-            <input id="clientFormAddress" value="${client.address||''}" />
-          </div>
-        </div>
-        <label style="margin-top:8px;">Notes</label>
-        <textarea id="clientFormNotes">${client.notes||''}</textarea>
-      </div>
+  let entry = {
+    id: Date.now(),
+    name,
+    category,
+    desc
+  };
 
-      <div>
-        <h3 style="margin:10px 0 6px;color:var(--accent);">Véhicules</h3>
-        <div id="clientVehiclesList" class="small"></div>
-        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:120px;"><label>Marque</label><input id="vehMake" /></div>
-          <div style="flex:1;min-width:120px;"><label>Modèle</label><input id="vehModel" /></div>
-          <div style="flex:1;min-width:80px;"><label>Année</label><input id="vehYear" /></div>
-        </div>
-        <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:120px;"><label>Plaque</label><input id="vehPlate" /></div>
-          <div style="flex:1;min-width:150px;"><label>VIN</label><input id="vehVin" /></div>
-          <div style="flex:1;min-width:80px;"><label>KM</label><input id="vehKm" type="number" /></div>
-        </div>
-        <label style="margin-top:6px;">Notes véhicule</label>
-        <textarea id="vehNotes"></textarea>
-        <button id="clientAddVehicleBtn" style="margin-top:6px;">Ajouter véhicule</button>
-      </div>
+  if(priceFixed > 0){
+    entry.price = priceFixed;
+  } else if(hours > 0 && rate > 0){
+    entry.hours = hours;
+    entry.rate = rate;
+  } else {
+    alert("Dois contenir un prix fixe ou heures + taux horaire.");
+    return;
+  }
 
-      <div>
-        <h3 style="margin:10px 0 6px;color:var(--accent);">Historique (factures)</h3>
-        <div id="clientHistory" class="small"></div>
-      </div>
+  SERVICES.push(entry);
+  saveLS(STORAGE.services, SERVICES);
 
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
-        ${isNew ? '' : '<button id="clientDeleteBtn" class="ghost">Supprimer client</button>'}
-        <button id="clientSaveBtn">Enregistrer</button>
+  $("srvName").value="";
+  $("srvDesc").value="";
+  $("srvPriceFixed").value="";
+  $("srvHours").value="";
+  $("srvRate").value="";
+
+  renderServices();
+  alert("Service ajouté !");
+};
+
+/* ============================================================
+   SERVICES — SUPPRESSION
+============================================================ */
+function deleteService(i){
+  if(!confirm("Supprimer ce service ?")) return;
+  SERVICES.splice(i, 1);
+  saveLS(STORAGE.services, SERVICES);
+  renderServices();
+}
+
+/* ============================================================
+   SERVICES — MODIFICATION
+============================================================ */
+function editService(i){
+  const s = SERVICES[i];
+  if(!s) return;
+
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.style.display = "flex";
+
+  modal.innerHTML = `
+    <div class="modal-panel">
+      <h2>Modifier service</h2>
+
+      <label>Nom</label>
+      <input id="esName" value="${s.name}" />
+
+      <label>Catégorie</label>
+      <select id="esCategory">
+        ${[
+          "Entretien","Mécanique générale","Freins","Suspension","Direction",
+          "Refroidissement","Diagnostic","Électricité","Pneus","Échappement",
+          "Transmission","Moteur","Divers"
+        ].map(c => `<option ${s.category===c?"selected":""}>${c}</option>`).join("")}
+      </select>
+
+      <label>Description</label>
+      <textarea id="esDesc">${s.desc||""}</textarea>
+
+      <h4>Prix fixe OU heures/taux :</h4>
+      <input id="esPrice" type="number" step="0.01" placeholder="Prix fixe" value="${s.price||""}" />
+
+      <label>Heures</label>
+      <input id="esHours" type="number" step="0.1" value="${s.hours||""}" />
+
+      <label>Taux horaire ($/h)</label>
+      <input id="esRate" type="number" step="0.01" value="${s.rate||""}" />
+
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="ghost" onclick="this.closest('.modal-backdrop').remove()">Annuler</button>
+        <button onclick="saveServiceEdition(${i})">Enregistrer</button>
       </div>
     </div>
   `;
 
-  function renderVehiclesList(){
-    const wrap=$('clientVehiclesList');
-    if(!wrap) return;
-    if(!client.vehicles || client.vehicles.length===0){
-      wrap.innerHTML='<div class="muted">Aucun véhicule pour ce client.</div>';
-      return;
-    }
-    wrap.innerHTML=client.vehicles.map((v,idx)=>`
-      <div style="border:1px solid var(--border);border-radius:6px;padding:6px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div><strong>${v.make||''} ${v.model||''} ${v.year||''}</strong></div>
-          <div class="small">Plaque: ${v.plate||''} | VIN: ${v.vin||''} | KM: ${v.km||''}</div>
-          <div class="small">${v.notes||''}</div>
-        </div>
-        <button class="ghost" data-index="${idx}" data-role="del-veh">Suppr</button>
-      </div>
-    `).join('');
-    wrap.querySelectorAll('button[data-role="del-veh"]').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const idx=Number(btn.dataset.index);
-        client.vehicles.splice(idx,1);
-        renderVehiclesList();
-      });
-    });
-  }
-  renderVehiclesList();
-
-  const histWrap=$('clientHistory');
-  if(histWrap){
-    if(clientInvoices.length===0){
-      histWrap.innerHTML='<div class="muted">Aucune facture associée pour ce client pour le moment.</div>';
-    }else{
-      histWrap.innerHTML=clientInvoices.map(inv=>`
-        <div style="border-bottom:1px solid var(--border);padding:4px 0;">
-          <div><strong>#${inv.number}</strong> - ${inv.date}</div>
-          <div class="small">${inv.job||''}</div>
-          <div class="small">Total: ${money(inv.total||0)} $</div>
-        </div>
-      `).join('');
-    }
-  }
-
-  if($('clientSaveBtn')){
-    $('clientSaveBtn').addEventListener('click',()=>{
-      const name=$('clientFormName').value.trim();
-      if(!name){alert('Le nom du client est requis.');return;}
-      client.name=name;
-      client.phone=$('clientFormPhone').value.trim();
-      client.email=$('clientFormEmail').value.trim();
-      client.address=$('clientFormAddress').value.trim();
-      client.notes=$('clientFormNotes').value.trim();
-      const idx=CLIENTS.findIndex(c=>String(c.id)===String(client.id));
-      if(idx===-1) CLIENTS.push(client);
-      else CLIENTS[idx]=client;
-      saveClients();
-      renderClientsTable();
-      closeClientModal();
-    });
-  }
-  if($('clientAddVehicleBtn')){
-    $('clientAddVehicleBtn').addEventListener('click',()=>{
-      const make=$('vehMake').value.trim();
-      const model=$('vehModel').value.trim();
-      const year=$('vehYear').value.trim();
-      if(!make && !model){
-        alert('Au moins marque ou modèle requis pour le véhicule.');
-        return;
-      }
-      const v={
-        id:Date.now(),
-        make,
-        model,
-        year,
-        plate:$('vehPlate').value.trim(),
-        vin:$('vehVin').value.trim(),
-        km:$('vehKm').value.trim(),
-        notes:$('vehNotes').value.trim()
-      };
-      if(!Array.isArray(client.vehicles)) client.vehicles=[];
-      client.vehicles.push(v);
-      $('vehMake').value='';
-      $('vehModel').value='';
-      $('vehYear').value='';
-      $('vehPlate').value='';
-      $('vehVin').value='';
-      $('vehKm').value='';
-      $('vehNotes').value='';
-      renderVehiclesList();
-    });
-  }
-  if($('clientDeleteBtn') && !isNew){
-    $('clientDeleteBtn').addEventListener('click',()=>{
-      if(!confirm('Supprimer ce client ?')) return;
-      CLIENTS=CLIENTS.filter(c=>String(c.id)!==String(client.id));
-      saveClients();
-      renderClientsTable();
-      closeClientModal();
-    });
-  }
+  document.body.appendChild(modal);
 }
 
-function initClientsModule(){
-  loadClients();
-  if($('clientSearch')){
-    $('clientSearch').addEventListener('input',renderClientsTable);
+function saveServiceEdition(i){
+  const s = SERVICES[i];
+
+  s.name = $("esName").value.trim();
+  s.category = $("esCategory").value;
+  s.desc = $("esDesc").value.trim();
+
+  const price = Number($("esPrice").value);
+  const hours = Number($("esHours").value);
+  const rate = Number($("esRate").value);
+
+  delete s.price;
+  delete s.hours;
+  delete s.rate;
+
+  if(price > 0){
+    s.price = price;
+  } else if(hours > 0 && rate > 0){
+    s.hours = hours;
+    s.rate = rate;
+  } else {
+    alert("Dois contenir un prix fixe ou heures + taux horaire.");
+    return;
   }
-  if($('btnAddClient')){
-    $('btnAddClient').addEventListener('click',()=>openClientModal(null));
-  }
-  renderClientsTable();
+
+  saveLS(STORAGE.services, SERVICES);
+  renderServices();
+  document.querySelector(".modal-backdrop").remove();
 }
 
-/* ===================== INVENTAIRE PIÈCES ===================== */
+/* ============================================================
+   INTÉGRATION — Ajout service → facture
+============================================================ */
+function addSavedService(i){
+  const s = SERVICES[i];
+  if(!s) return;
+
+  if(s.price){
+    items.push({
+      type:"Service",
+      desc:s.name,
+      qty:1,
+      rate:s.price
+    });
+  } else {
+    items.push({
+      type:"Service",
+      desc:s.name,
+      qty:s.hours,
+      rate:s.rate
+    });
+  }
+
+  renderItems();
+  alert("Service ajouté à la facture !");
+}
+
+      /* ============================================================
+   INVENTAIRE PIÈCES — RENDRE LISTE
+============================================================ */
 function renderParts(){
-  const wrap=$('partsInventoryList');
-  if(!wrap) return;
-  wrap.innerHTML='';
-  const q=($('partInvSearch')?.value || '').toLowerCase();
-  const filterCat=($('partInvFilter')?.value || '');
-  PARTS.forEach((p,i)=>{
-    const hay = `${p.name||''} ${p.number||''} ${p.category||''}`.toLowerCase();
+  const wrap = $("partsInventoryList");
+  wrap.innerHTML = "";
+
+  const q = $("partInvSearch").value.trim().toLowerCase();
+  const filter = $("partInvFilter").value;
+
+  PARTS.forEach((p, i) => {
+
+    const hay = `${p.name} ${p.number}`.toLowerCase();
     if(q && !hay.includes(q)) return;
-    if(filterCat && p.category && p.category!==filterCat) return;
-    const profit = p.price>0 ? ((p.price-p.cost)/p.price*100).toFixed(0) : 0;
-    const card=document.createElement('div');
-    card.style=`
+    if(filter && p.category !== filter) return;
+
+    const profit = p.price ? ((p.price - p.cost) / p.price * 100).toFixed(0) : 0;
+
+    const card = document.createElement("div");
+    card.style = `
       background:var(--card);
       border:1px solid var(--border);
       border-radius:10px;
       padding:12px;
       width:260px;
     `;
-    card.innerHTML=`
-      <h3 style="margin-bottom:10px;color:var(--accent);">${p.name}</h3>
-      <div class="small"># Pièce : <b>${p.number||''}</b></div>
-      <div class="small">Catégorie : <b>${p.category||'Divers'}</b></div>
-      <div class="small">Stock : <b>${p.qty}</b></div>
-      <div class="small">Coût : <b>${money(p.cost)} $</b></div>
-      <div class="small">Prix : <b>${money(p.price)} $</b></div>
-      <div class="small">Marge : <b>${profit}%</b></div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="ghost" data-action="edit" data-id="${i}" style="flex:1;">Modifier</button>
-        <button class="ghost" data-action="del" data-id="${i}" style="flex:1;">Supprimer</button>
-      </div>
-      <button class="ghost" data-action="addToInvoice" data-id="${i}" style="margin-top:10px;width:100%;">➕ Ajouter à la facture</button>
-    `;
-    wrap.appendChild(card);
-  });
 
-  wrap.querySelectorAll('button[data-action="del"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=Number(btn.dataset.id);
-      if(!confirm('Supprimer cette pièce ?')) return;
-      PARTS.splice(id,1);
-      saveParts();
-      renderParts();
-      renderDashboard();
-    });
-  });
-  wrap.querySelectorAll('button[data-action="edit"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=Number(btn.dataset.id);
-      const p=PARTS[id];
-      if(!p) return;
-      const newName=prompt("Nom de la pièce :",p.name)||p.name;
-      const newNumber=prompt("Numéro de pièce :",p.number||"")||p.number;
-      const newCat=prompt("Catégorie :",p.category||'Divers')||p.category||'Divers';
-      const newQty=Number(prompt("Quantité :",p.qty)||p.qty);
-      const newCost=Number(prompt("Prix coûtant :",p.cost)||p.cost);
-      const newPrice=Number(prompt("Prix de vente :",p.price)||p.price);
-      PARTS[id]={name:newName,number:newNumber,category:newCat,qty:newQty,cost:newCost,price:newPrice};
-      saveParts();
-      renderParts();
-      renderDashboard();
-    });
-  });
-  wrap.querySelectorAll('button[data-action="addToInvoice"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=Number(btn.dataset.id);
-      const p=PARTS[id];
-      if(!p) return;
-      const currentQty=Number(p.qty||0);
-      if(currentQty<=0){
-        alert("Stock insuffisant pour cette pièce.");
-        return;
-      }
-      p.qty=currentQty-1;
-      saveParts();
-      renderParts();
-      renderDashboard();
-      const newItem={
-        type:"Pièce (Inventaire)",
-        desc:`${p.name} (#${p.number})`,
-        qty:1,
-        rate:p.price,
-        invNumber:p.number
-      };
-      items.push(newItem);
-      renderItems();
-    });
+    card.innerHTML = `
+      <h3 style="margin:0 0 8px;">${p.name}</h3>
+      <div class="small"># Pièce : <b>${p.number || "-"}</b></div>
+      <div class="small">Catégorie : <b>${p.category}</b></div>
+      <div class="small">Stock : <b>${p.qty}</b></div>
+      <div class="small">Coût : <b>${money(p.cost)}$</b></div>
+      <div class="small">Prix : <b>${money(p.price)}$</b></div>
+      <div class="small">Marge : <b>${profit}%</b></div>
+
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button class="ghost" style="flex:1;" onclick="editPart(${i})">Modifier</button>
+        <button class="ghost" style="flex:1;" onclick="deletePart(${i})">Supprimer</button>
+      </div>
+
+      <button class="ghost" 
+              style="margin-top:10px;width:100%;" 
+              onclick="addPartToInvoice(${i})">
+        ➕ Ajouter à la facture
+      </button>
+    `;
+
+    wrap.appendChild(card);
   });
 }
 
-function initPartsModule(){
-  loadParts();
-  if($('partInvAddBtn')){
-    $('partInvAddBtn').addEventListener('click',()=>{
-      const name=$('partInvName').value.trim();
-      const number=$('partInvNumber').value.trim();
-      const qty=Number($('partInvQty').value)||0;
-      const cost=Number($('partInvCost').value)||0;
-      const price=Number($('partInvPrice').value)||0;
-      const category=$('partInvCategory')?.value || 'Divers';
-      if(!name){alert("Nom obligatoire");return;}
-      if(qty<0){alert("Quantité invalide");return;}
-      PARTS.push({name,number,qty,cost,price,category});
-      saveParts();
-      renderParts();
-      renderDashboard();
-      $('partInvName').value='';
-      $('partInvNumber').value='';
-      $('partInvQty').value=1;
-      $('partInvCost').value='';
-      $('partInvPrice').value='';
-    });
+/* ============================================================
+   INVENTAIRE — AJOUT
+============================================================ */
+$("partInvAddBtn").onclick = () => {
+  const name = $("partInvName").value.trim();
+  const number = $("partInvNumber").value.trim();
+  const category = $("partInvCategory").value;
+  const qty = Number($("partInvQty").value);
+  const cost = Number($("partInvCost").value);
+  const price = Number($("partInvPrice").value);
+
+  if(!name || qty <= 0 || cost <= 0 || price <= 0){
+    alert("Informations invalides.");
+    return;
   }
-  if($('partInvSearch')) $('partInvSearch').addEventListener('input',renderParts);
-  if($('partInvFilter')) $('partInvFilter').addEventListener('change',renderParts);
+
+  PARTS.push({
+    id: Date.now(),
+    name, number, category,
+    qty, cost, price
+  });
+
+  saveLS(STORAGE.parts, PARTS);
+  renderParts();
+
+  $("partInvName").value="";
+  $("partInvNumber").value="";
+  $("partInvQty").value=1;
+  $("partInvCost").value="";
+  $("partInvPrice").value="";
+};
+
+/* ============================================================
+   INVENTAIRE — SUPPRESSION
+============================================================ */
+function deletePart(i){
+  if(!confirm("Supprimer cette pièce ?")) return;
+  PARTS.splice(i,1);
+  saveLS(STORAGE.parts, PARTS);
   renderParts();
 }
 
-/* ===================== SERVICES ===================== */
-function loadServices(){
-  try{
-    SERVICES = JSON.parse(localStorage.getItem(STORAGE.services) || '[]');
-    if(!Array.isArray(SERVICES)) SERVICES=[];
-  }catch(e){SERVICES=[];}
-}
-function saveServices(){
-  localStorage.setItem(STORAGE.services, JSON.stringify(SERVICES));
-}
-const SERVICE_ICONS = {
-  "Entretien":"🛢️",
-  "Mécanique générale":"🧰",
-  "Freins":"🛑",
-  "Suspension":"🦾",
-  "Direction":"🛞",
-  "Refroidissement":"❄️",
-  "Diagnostic":"🔎",
-  "Électricité":"🔌",
-  "Pneus":"🚗",
-  "Échappement":"🔩",
-  "Transmission":"⚙️",
-  "Moteur":"🚀",
-  "Divers":"📦"
-};
+/* ============================================================
+   INVENTAIRE — MODIFICATION
+============================================================ */
+function editPart(i){
+  const p = PARTS[i];
+  if(!p) return;
 
-function addServiceToInvoice(s){
-  let desc=s.name;
-  if(s.desc) desc+=" — "+s.desc;
-  let item;
-  if(s.priceFixed>0){
-    item={type:"Service",desc,qty:1,rate:s.priceFixed};
-  }else if(s.hours>0 && s.rate>0){
-    item={type:"Service (horaire)",desc,qty:s.hours,rate:s.rate};
-  }else{
-    item={type:"Service",desc,qty:1,rate:0};
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.style.display = "flex";
+
+  modal.innerHTML = `
+    <div class="modal-panel">
+      <h2>Modifier pièce</h2>
+
+      <label>Nom</label>
+      <input id="epName" value="${p.name}" />
+
+      <label># Pièce</label>
+      <input id="epNumber" value="${p.number || ""}" />
+
+      <label>Catégorie</label>
+      <select id="epCategory">
+        ${[
+          "Moteur","Transmission","Suspension","Direction","Freins",
+          "Échappement","Électrique","Tuning","Fabrication",
+          "Hybride","Carrosserie","Pneus","Divers"
+        ].map(c => `<option ${c===p.category?"selected":""}>${c}</option>`).join("")}
+      </select>
+
+      <label>Quantité</label>
+      <input id="epQty" type="number" value="${p.qty}" />
+
+      <label>Coût</label>
+      <input id="epCost" type="number" value="${p.cost}" />
+
+      <label>Prix</label>
+      <input id="epPrice" type="number" value="${p.price}" />
+
+      <div style="margin-top:15px;display:flex;gap:10px;justify-content:flex-end;">
+        <button class="ghost" onclick="this.closest('.modal-backdrop').remove()">Annuler</button>
+        <button onclick="savePartEdition(${i})">Enregistrer</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function savePartEdition(i){
+  const p = PARTS[i];
+
+  p.name = $("epName").value.trim();
+  p.number = $("epNumber").value.trim();
+  p.category = $("epCategory").value;
+  p.qty = Number($("epQty").value);
+  p.cost = Number($("epCost").value);
+  p.price = Number($("epPrice").value);
+
+  saveLS(STORAGE.parts, PARTS);
+  renderParts();
+  document.querySelector(".modal-backdrop").remove();
+}
+
+/* ============================================================
+   AJOUT D'UNE PIÈCE D'INVENTAIRE → FACTURE
+============================================================ */
+function addPartToInvoice(i){
+  const p = PARTS[i];
+  if(!p) return;
+
+  if(p.qty <= 0){
+    alert("Stock épuisé !");
+    return;
   }
-  items.push(item);
+
+  p.qty--;
+  saveLS(STORAGE.parts, PARTS);
+
+  items.push({
+    type:"Pièce (Inventaire)",
+    desc:`${p.name} (#${p.number})`,
+    qty:1,
+    rate:p.price
+  });
+
+  renderParts();
   renderItems();
 }
 
-function renderServices(){
-  const wrap=$('servicesList');
-  if(!wrap) return;
-  wrap.innerHTML='';
-  if(!SERVICES.length){
-    wrap.innerHTML='<div class="muted">Aucun service enregistré pour le moment.</div>';
-    return;
-  }
-  SERVICES.forEach(s=>{
-    const typeLabel = s.priceFixed>0
-      ? `Forfait: ${money(s.priceFixed)} $`
-      : (s.hours>0 && s.rate>0
-        ? `${s.hours} h x ${money(s.rate)} $/h`
-        : `Non défini`);
-    const icon = SERVICE_ICONS[s.category] || "⚙️";
-    const card=document.createElement('div');
-    card.style=`
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:10px;
-      padding:12px;
-      width:260px;
-    `;
-    card.innerHTML=`
-      <h3 style="margin-bottom:6px;color:var(--accent);">${icon} ${s.name}</h3>
-      <div class="small">Catégorie : <b>${s.category}</b></div>
-      <div class="small">Tarification : <b>${typeLabel}</b></div>
-      ${s.desc ? `<div class="small" style="margin-top:6px;">${s.desc}</div>` : ""}
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="ghost" data-action="edit-srv" data-id="${s.id}" style="flex:1;">Modifier</button>
-        <button class="ghost" data-action="del-srv" data-id="${s.id}" style="flex:1;">Supprimer</button>
-      </div>
-      <button class="ghost" data-action="add-to-invoice" data-id="${s.id}" style="margin-top:8px;width:100%;">➕ Ajouter à la facture</button>
-    `;
-    wrap.appendChild(card);
-  });
+/* ============================================================
+   HISTORIQUE — RENDRE TABLE
+============================================================ */
+function renderHistory(){
+  const tbody = document.querySelector("#historyTable tbody");
+  tbody.innerHTML = "";
 
-  wrap.querySelectorAll('button[data-action="del-srv"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=btn.dataset.id;
-      if(!confirm('Supprimer ce service ?')) return;
-      SERVICES=SERVICES.filter(s=>String(s.id)!==String(id));
-      saveServices();
-      renderServices();
-    });
-  });
-  wrap.querySelectorAll('button[data-action="edit-srv"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=btn.dataset.id;
-      const s=SERVICES.find(x=>String(x.id)===String(id));
-      if(!s) return;
-      const newName=prompt("Nom du service :",s.name)||s.name;
-      const newCat=prompt("Catégorie :",s.category)||s.category;
-      const newDesc=prompt("Description :",s.desc||"") ?? s.desc;
-      const newFixed=Number(prompt("Prix fixe (0 si aucun):",s.priceFixed||0)||s.priceFixed||0);
-      const newHours=Number(prompt("Heures (0 si aucun):",s.hours||0)||s.hours||0);
-      const newRate=Number(prompt("Taux horaire (0 si aucun):",s.rate||0)||s.rate||0);
-      Object.assign(s,{name:newName,category:newCat,desc:newDesc,priceFixed:newFixed,hours:newHours,rate:newRate});
-      saveServices();
-      renderServices();
-    });
-  });
-  wrap.querySelectorAll('button[data-action="add-to-invoice"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=btn.dataset.id;
-      const s=SERVICES.find(x=>String(x.id)===String(id));
-      if(!s) return;
-      addServiceToInvoice(s);
-      alert("Service ajouté à la facture en cours.");
-    });
-  });
-}
-
-function initServicesModule(){
-  loadServices();
-  renderServices();
-
-  if($('srvAddBtn')){
-    $('srvAddBtn').addEventListener('click',()=>{
-      const name=$('srvName').value.trim();
-      const category=$('srvCategory')?.value || 'Divers';
-      const desc=$('srvDesc').value.trim();
-      const priceFixed=Number($('srvPriceFixed').value)||0;
-      const hours=Number($('srvHours').value)||0;
-      const rate=Number($('srvRate').value)||0;
-      if(!name){alert("Nom du service requis.");return;}
-      if(priceFixed<=0 && (hours<=0 || rate<=0)){
-        alert("Définir soit un prix fixe, soit heures + taux.");
-        return;
-      }
-      const srv={id:Date.now(),name,category,desc,priceFixed,hours,rate};
-      SERVICES.push(srv);
-      saveServices();
-      renderServices();
-      $('srvName').value='';
-      $('srvDesc').value='';
-      $('srvPriceFixed').value='';
-      $('srvHours').value='';
-      $('srvRate').value='';
-    });
-  }
-
-  const modal=$('servicePickerModal');
-  const list=$('servicePickerList');
-  const btnOpen=$('openServicePicker');
-  const btnClose=$('closeServicePicker');
-  const filterSelect=$('servicePickerFilter');
-
-  function renderPicker(){
-    loadServices();
-    if(!SERVICES.length){
-      list.innerHTML='<div class="muted">Aucun service enregistré pour le moment.</div>';
-      return;
-    }
-    const filter=filterSelect?.value || '';
-    const grouped={};
-    SERVICES.forEach(s=>{
-      if(filter && s.category!==filter) return;
-      if(!grouped[s.category]) grouped[s.category]=[];
-      grouped[s.category].push(s);
-    });
-    let html='';
-    Object.keys(grouped).sort().forEach(cat=>{
-      const icon=SERVICE_ICONS[cat] || "⚙️";
-      html+=`
-        <h3 style="color:var(--accent);margin-top:15px;">${icon} ${cat}</h3>
-        <div style="margin-bottom:10px;border-bottom:1px solid var(--border);"></div>
-      `;
-      grouped[cat].forEach(s=>{
-        const label = s.priceFixed>0
-          ? `${s.name} — ${money(s.priceFixed)} $`
-          : `${s.name} — ${s.hours} h × ${money(s.rate)} $/h`;
-        html+=`
-          <div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;">
-            <div><b>${label}</b></div>
-            ${s.desc ? `<div class="small">${s.desc}</div>` : ""}
-            <button class="ghost" data-action="pick-service" data-id="${s.id}" style="margin-top:4px;">Ajouter à la facture</button>
-          </div>
-        `;
-      });
-    });
-    list.innerHTML=html;
-    list.querySelectorAll('button[data-action="pick-service"]').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const id=btn.dataset.id;
-        const s=SERVICES.find(x=>String(x.id)===String(id));
-        if(!s) return;
-        addServiceToInvoice(s);
-        modal.style.display='none';
-      });
-    });
-  }
-
-  if(btnOpen && modal && list){
-    btnOpen.addEventListener('click',()=>{
-      renderPicker();
-      modal.style.display='flex';
-    });
-  }
-  if(btnClose && modal){
-    btnClose.addEventListener('click',()=>modal.style.display='none');
-  }
-  if(filterSelect){
-    filterSelect.addEventListener('change',renderPicker);
-  }
-}
-
-/* ===================== HISTORIQUE & DASHBOARD ===================== */
-function renderHistoryTable(){
-  const tbody=document.querySelector('#historyTable tbody');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  INVOICES.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(inv=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
+  INVOICES.forEach((inv, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${inv.number}</td>
       <td>${inv.date}</td>
-      <td>${inv.customer||''}</td>
-      <td>${inv.job||''}</td>
-      <td>${money(inv.total||0)} $</td>
+      <td>${inv.customer}</td>
+      <td>${inv.job || "-"}</td>
+      <td>${money(inv.total)} $</td>
+      <td>
+        <button class="ghost" onclick="openInvoiceEditor(${inv.id})">Ouvrir</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function renderDashboard(){
-  const invoicesCount=INVOICES.length;
-  const revenue=INVOICES.reduce((s,inv)=>s+Number(inv.total||0),0);
-  const clientsCount=CLIENTS.length;
-  let vehiclesCount=0;
-  CLIENTS.forEach(c=>vehiclesCount+=(c.vehicles||[]).length);
-  const partsCount=PARTS.reduce((s,p)=>s+Number(p.qty||0),0);
-  const lowStock=PARTS.filter(p=>Number(p.qty||0)<=2).length;
-  if($('statInvoices')) $('statInvoices').innerText=invoicesCount;
-  if($('statRevenue')) $('statRevenue').innerText=money(revenue)+' $';
-  if($('statClients')) $('statClients').innerText=clientsCount;
-  if($('statVehicles')) $('statVehicles').innerText=vehiclesCount;
-  if($('statParts')) $('statParts').innerText=partsCount;
-  if($('statLowStock')) $('statLowStock').innerText=lowStock;
-}
-
-/* ===================== EDIT EXISTING INVOICE ===================== */
-function openInvoiceEditModal(invoiceNumber){
-  const modal=$('invoiceEditModal');
-  const content=$('invoiceEditContent');
-  if(!modal || !content) return;
-  const inv=INVOICES.find(x=>String(x.number)===String(invoiceNumber));
+/* ============================================================
+   HISTORIQUE — ÉDITION FACTURE
+============================================================ */
+function openInvoiceEditor(id){
+  const inv = INVOICES.find(x => x.id === id);
   if(!inv){
     alert("Facture introuvable.");
     return;
   }
-  let editItems=JSON.parse(JSON.stringify(inv.items||[]));
 
-  function renderEditUI(){
-    content.innerHTML=`
-      <label>Client</label>
-      <input id="editInvCustomer" value="${inv.customer||''}" />
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.style.display = "flex";
 
-      <label>Description / Véhicule</label>
-      <input id="editInvJob" value="${inv.job||''}" />
+  modal.innerHTML = `
+    <div class="modal-panel">
+      <h2>Facture #${inv.number}</h2>
 
-      <h3>Articles</h3>
-      <table style="margin-top:10px;width:100%;">
+      <div><b>Date :</b> ${inv.date}</div>
+      <div><b>Client :</b> ${inv.customer}</div>
+      <div><b>Description :</b> ${inv.job}</div>
+
+      <h3 style="margin-top:12px;">Articles</h3>
+      <table>
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Qté</th>
-            <th>Prix</th>
-            <th>Total</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="editItemsBody"></tbody>
-      </table>
-
-      <div style="margin-top:10px;">
-  <button id="addEditItemBtn" class="ghost">+ Ajouter un article</button>
-
-  <div id="editItemMenu" 
-       style="display:none;background:#333;padding:10px;border-radius:8px;border:1px solid var(--border);margin-top:6px;">
-    <button class="ghost" id="editAddInventory">➕ Pièce (inventaire)</button>
-    <button class="ghost" id="editAddManualPart">➕ Pièce manuelle</button>
-    <button class="ghost" id="editAddService">🛠️ Service enregistré</button>
-    <button class="ghost" id="editAddLabor">👨‍🔧 Main-d’œuvre</button>
-  </div>
-</div>
-
-      <h3 style="margin-top:20px;">Totaux</h3>
-      <div>Sous-total : <span id="editSubTotal">0.00</span> $</div>
-      <div>TPS : <span id="editGST">0.00</span> $</div>
-      <div>TVQ : <span id="editQST">0.00</span> $</div>
-      <div style="font-weight:700;">Total : <span id="editTotal">0.00</span> $</div>
-    `;
-    renderEditItems();
-  }
-
-  function renderEditItems(){
-    const tbody=$('editItemsBody');
-    if(!tbody) return;
-    tbody.innerHTML='';
-    let sub=0;
-    editItems.forEach((it,i)=>{
-      const total=it.qty*it.rate;
-      sub+=total;
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td><input value="${it.type||''}" data-field="type" data-i="${i}" /></td>
-        <td><input value="${it.desc||''}" data-field="desc" data-i="${i}" /></td>
-        <td><input type="number" value="${it.qty||0}" data-field="qty" data-i="${i}" /></td>
-        <td><input type="number" value="${it.rate||0}" data-field="rate" data-i="${i}" /></td>
-        <td>${money(total)}</td>
-        <td><button class="ghost" data-del="${i}">X</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
-    const gst=sub*(SETTINGS.gst/100);
-    const qst=(sub+gst)*(SETTINGS.qst/100);
-    const total=sub+gst+qst;
-    $('editSubTotal').innerText=money(sub);
-    $('editGST').innerText=money(gst);
-    $('editQST').innerText=money(qst);
-    $('editTotal').innerText=money(total);
-
-    tbody.querySelectorAll('input').forEach(inp=>{
-      inp.addEventListener('input',()=>{
-        const idx=Number(inp.dataset.i);
-        const field=inp.dataset.field;
-        let val=inp.value;
-        if(field==="qty" || field==="rate") val=Number(val);
-        editItems[idx][field]=val;
-        renderEditItems();
-      });
-    });
-    tbody.querySelectorAll('button[data-del]').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const idx=Number(btn.dataset.del);
-        editItems.splice(idx,1);
-        renderEditItems();
-      });
-    });
-  }
-
-  document.addEventListener('click',function handler(e){
-    if(e.target && e.target.id==="addEditItemBtn"){
-      editItems.push({type:"Autre",desc:"Nouvel article",qty:1,rate:0});
-      renderEditItems();
-    }
-  },{once:true});
-
-  $('saveInvoiceEditBtn').onclick=()=>{
-    inv.customer=$('editInvCustomer').value.trim();
-    inv.job=$('editInvJob').value.trim();
-    inv.items=editItems;
-    const sub=editItems.reduce((s,it)=>s+it.qty*it.rate,0);
-    const gst=sub*(SETTINGS.gst/100);
-    const qst=(sub+gst)*(SETTINGS.qst/100);
-    inv.subTotal=sub;
-    inv.gst=gst;
-    inv.qst=qst;
-    inv.total=sub+gst+qst;
-    saveInvoices();
-    alert("Facture mise à jour!");
-    modal.style.display='none';
-    renderHistoryTable();
-    renderDashboard();
-  };
-
-  $('deleteInvoiceBtn').onclick=()=>{
-    if(!confirm("Supprimer cette facture ?")) return;
-    INVOICES=INVOICES.filter(x=>String(x.number)!==String(inv.number));
-    saveInvoices();
-    modal.style.display='none';
-    renderHistoryTable();
-    renderDashboard();
-  };
-
-  $('printInvoiceEditBtn').onclick=()=>{
-    // Imprimer directement cette facture en mode professionnel
-    printInvoiceObject(inv);
-  };
-
-  $('closeInvoiceEditModal').onclick=()=>{
-    modal.style.display='none';
-  };
-
-  modal.style.display='flex';
-  renderEditUI();
-  
-  // Ouvrir/fermer le menu
-$('addEditItemBtn').onclick = () => {
-  const menu = $('editItemMenu');
-  menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
-};
-
-  $('editAddInventory').onclick = () => {
-  if (!PARTS.length) {
-    alert("Aucune pièce dans l’inventaire.");
-    return;
-  }
-
-  // Choisir la pièce
-  let list = "Choisir une pièce :\n\n";
-  PARTS.forEach((p, i) => {
-    list += `${i+1}) ${p.name} (#${p.number}) — ${money(p.price)}$\n`;
-  });
-
-  const choice = Number(prompt(list)) - 1;
-  if (choice < 0 || choice >= PARTS.length) return;
-
-  const p = PARTS[choice];
-
-  if (p.qty <= 0) return alert("Stock insuffisant.");
-
-  p.qty--;
-  saveParts();
-
-  editItems.push({
-    type: "Pièce (Inventaire)",
-    desc: `${p.name} (#${p.number})`,
-    qty: 1,
-    rate: p.price,
-    invNumber: p.number
-  });
-
-  renderEditItems();
-  renderDashboard();
-};
-
-  $('editAddInventory').onclick = () => {
-  if (!PARTS.length) {
-    alert("Aucune pièce dans l’inventaire.");
-    return;
-  }
-
-  // Choisir la pièce
-  let list = "Choisir une pièce :\n\n";
-  PARTS.forEach((p, i) => {
-    list += `${i+1}) ${p.name} (#${p.number}) — ${money(p.price)}$\n`;
-  });
-
-  const choice = Number(prompt(list)) - 1;
-  if (choice < 0 || choice >= PARTS.length) return;
-
-  const p = PARTS[choice];
-
-  if (p.qty <= 0) return alert("Stock insuffisant.");
-
-  p.qty--;
-  saveParts();
-
-  editItems.push({
-    type: "Pièce (Inventaire)",
-    desc: `${p.name} (#${p.number})`,
-    qty: 1,
-    rate: p.price,
-    invNumber: p.number
-  });
-
-  renderEditItems();
-  renderDashboard();
-};
-
-  $('editAddService').onclick = () => {
-  if (!SERVICES.length) {
-    alert("Aucun service enregistré.");
-    return;
-  }
-
-  let list = "Choisir un service :\n\n";
-  SERVICES.forEach((s, i) => {
-    list += `${i+1}) ${s.name} — ${s.category}\n`;
-  });
-
-  const idx = Number(prompt(list)) - 1;
-  if (idx < 0 || idx >= SERVICES.length) return;
-
-  const s = SERVICES[idx];
-
-  let item;
-  if (s.priceFixed > 0) {
-    item = {type:"Service", desc:s.name, qty:1, rate:s.priceFixed};
-  } else {
-    item = {type:"Service (horaire)", desc:s.name, qty:s.hours, rate:s.rate};
-  }
-
-  editItems.push(item);
-  renderEditItems();
-};
-
-  $('editAddLabor').onclick = () => {
-  const desc = prompt("Description :");
-  if (!desc) return;
-
-  const hours = Number(prompt("Heures :", 1));
-  const rate = Number(prompt("Taux / h :", 90));
-
-  editItems.push({
-    type: "Main-d'œuvre",
-    desc,
-    qty: hours,
-    rate
-  });
-
-  renderEditItems();
-};
-
-  $('editAddManualPart').onclick = () => {
-  const name = prompt("Nom de la pièce :");
-  if (!name) return;
-
-  const qty = Number(prompt("Quantité :", 1));
-  if (!qty || qty <= 0) return;
-
-  const price = Number(prompt("Prix unitaire :", 0));
-  if (price < 0) return;
-
-  editItems.push({
-    type: "Pièce (manuelle)",
-    desc: name,
-    qty: qty,
-    rate: price
-  });
-
-  renderEditItems();
-};
-
-}
-
-
-/* ===================== PRINT PRO (Garage-Atelier Mécanique J.L) ===================== */
-
-/**
- * Construit une facture prête à imprimer à partir d'un objet de facture.
- * inv: { number, date, customer, job, items[], subTotal, gst, qst, total }
- */
-function buildPrintableInvoice(inv){
-  if(!inv) return '';
-
-  const itemsRows = (inv.items || []).map(it=>{
-    const qty = Number(it.qty||0);
-    const rate = Number(it.rate||0);
-    const lineTotal = qty * rate;
-    return `
-      <tr>
-        <td>${it.type || ''}</td>
-        <td>${it.desc || ''}</td>
-        <td>${qty}</td>
-        <td>${rate.toFixed(2)} $</td>
-        <td><strong>${lineTotal.toFixed(2)} $</strong></td>
-      </tr>
-    `;
-  }).join('');
-
-  const sub = Number(inv.subTotal||0);
-  const gst = Number(inv.gst||0);
-  const qst = Number(inv.qst||0);
-  const total = Number(inv.total|| (sub+gst+qst));
-
-  const safeDate = inv.date || new Date().toLocaleDateString('fr-CA');
-
-  return `
-    <div class="invoice-pro">
-      <h1 class="inv-title">${SETTINGS.garageName || 'Garage-Atelier Mécanique J.L'}</h1>
-      <h2 class="inv-sub">Facture #${inv.number || ''} — ${safeDate}</h2>
-
-      <div class="inv-section">
-        <h3>Client</h3>
-        <p>${inv.customer || '-'}</p>
-      </div>
-
-      <div class="inv-section">
-        <h3>Description / Véhicule</h3>
-        <p>${inv.job || '-'}</p>
-      </div>
-
-      <table class="inv-table">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Qté/Hrs</th>
-            <th>Prix</th>
-            <th>Total</th>
+            <th>Type</th><th>Description</th><th>Qté</th><th>Prix</th><th>Total</th>
           </tr>
         </thead>
         <tbody>
-          ${itemsRows}
+          ${inv.items.map(it => `
+            <tr>
+              <td>${it.type}</td>
+              <td>${it.desc}</td>
+              <td>${it.qty}</td>
+              <td>${money(it.rate)}</td>
+              <td>${money(it.qty * it.rate)}</td>
+            </tr>
+          `).join("")}
         </tbody>
       </table>
 
-      <div class="inv-totals">
-        <div><span>Sous-total :</span><span>${sub.toFixed(2)} $</span></div>
-        <div><span>TPS :</span><span>${gst.toFixed(2)} $</span></div>
-        <div><span>TVQ :</span><span>${qst.toFixed(2)} $</span></div>
-        <div class="inv-total-final">
-          <span>Total :</span><strong>${total.toFixed(2)} $</strong>
-        </div>
-      </div>
+      <h3>Totaux</h3>
+      <div>Sous-total : ${money(inv.subTotal)} $</div>
+      <div>TPS : ${money(inv.gst)} $</div>
+      <div>TVQ : ${money(inv.qst)} $</div>
+      <div><b>Total : ${money(inv.total)} $</b></div>
 
-      <div class="invoice-notes">
-        Merci de faire confiance à Garage-Atelier Mécanique J.L.
+      <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="printInvoiceObject(INVOICES.find(x=>x.id===${id}))">Imprimer</button>
+        <button class="ghost" onclick="this.closest('.modal-backdrop').remove()">Fermer</button>
       </div>
     </div>
   `;
+
+  document.body.appendChild(modal);
 }
 
-/**
- * Injecte la facture dans #printArea et lance window.print().
- */
+      /* ============================================================
+   DASHBOARD — ACTUALISATION
+============================================================ */
+function refreshDashboard(){
+  // Nombre de factures
+  $("statInvoices").innerText = INVOICES.length;
+
+  // Revenus totaux
+  let totalRevenue = 0;
+  INVOICES.forEach(inv => totalRevenue += Number(inv.total || 0));
+  $("statRevenue").innerText = money(totalRevenue) + " $";
+
+  // Nombre de clients
+  $("statClients").innerText = CLIENTS.length;
+
+  // Nombre de véhicules
+  let vCount = 0;
+  CLIENTS.forEach(c => {
+    if(c.vehicles) vCount += c.vehicles.length;
+  });
+  $("statVehicles").innerText = vCount;
+
+  // Pieces totales en stock
+  let pCount = 0, lowStock = 0;
+  PARTS.forEach(p => {
+    pCount += Number(p.qty);
+    if(Number(p.qty) <= 2) lowStock++;
+  });
+
+  $("statParts").innerText = pCount;
+  $("statLowStock").innerText = lowStock;
+}
+
+
+/* ============================================================
+   IMPRESSION FACTURE — MODE PRO
+============================================================ */
 function printInvoiceObject(inv){
-  const printArea = $('printArea');
-  if(!printArea || !inv) return;
-  printArea.style.display = 'block';
-  printArea.innerHTML = buildPrintableInvoice(inv);
+  if(!inv) return alert("Erreur : facture introuvable.");
+
+  const area = $("printArea");
+  area.innerHTML = `
+    <div class="invoice-header">
+      <h1>Garage-Atelier Mécanique J.L</h1>
+      <div class="muted">Facture #${inv.number}<br>${inv.date}</div>
+    </div>
+
+    <div><b>Client :</b> ${inv.customer}</div>
+    <div><b>Description :</b> ${inv.job}</div>
+
+    <h3 style="margin-top:15px;">Articles</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th><th>Description</th><th>Qté</th><th>Prix</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${inv.items.map(it => `
+          <tr>
+            <td>${it.type}</td>
+            <td>${it.desc}</td>
+            <td>${it.qty}</td>
+            <td>${money(it.rate)}$</td>
+            <td>${money(it.qty * it.rate)}$</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+
+    <div class="invoice-totals">
+      <div><span>Sous-total :</span><span>${money(inv.subTotal)}$</span></div>
+      <div><span>TPS :</span><span>${money(inv.gst)}$</span></div>
+      <div><span>TVQ :</span><span>${money(inv.qst)}$</span></div>
+      <div><strong>Total :</strong><strong>${money(inv.total)}$</strong></div>
+    </div>
+  `;
+
   window.print();
-  // on laisse le contenu dans printArea pour que l'utilisateur puisse voir si besoin
 }
 
-/**
- * Construit un objet facture à partir de la facture en cours (écran factures).
- */
-function buildCurrentInvoiceFromForm(){
-  const cust = ($('customerName')?.value || '').trim();
-  const job = ($('jobDesc')?.value || '').trim();
-  const number = $('invoiceNumber')?.value || '';
-  if(!items || !items.length) return null;
 
-  const sub = items.reduce((s,it)=>s + (Number(it.rate||0) * Number(it.qty||0)), 0);
-  const gstRate = Number(SETTINGS.gst||5) / 100;
-  const qstRate = Number(SETTINGS.qst||9.975) / 100;
-  const gst = sub * gstRate;
-  const qst = (sub + gst) * qstRate;
-  const total = sub + gst + qst;
+/* ============================================================
+   CHANGEMENT DE PAGE (sidebar)
+============================================================ */
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p => p.style.display="none");
+  document.querySelectorAll(".navBtn").forEach(b => b.classList.remove("active"));
 
-  return {
-    number: number || '(non enregistrée)',
-    date: new Date().toLocaleDateString('fr-CA'),
-    customer: cust,
-    job,
-    items: JSON.parse(JSON.stringify(items)),
-    subTotal: sub,
-    gst,
-    qst,
-    total
-  };
+  const pg = $(id);
+  if(pg) pg.style.display = "block";
+
+  const btn = document.querySelector(`.navBtn[data-page="${id}"]`);
+  if(btn) btn.classList.add("active");
 }
 
-/* Bouton "Imprimer facture" (facture en cours) */
-if($('btnPrint')){
-  $('btnPrint').addEventListener('click',()=>{
-    const inv = buildCurrentInvoiceFromForm();
-    if(!inv){
-      alert("Aucun article à imprimer.");
-      return;
-    }
-    printInvoiceObject(inv);
+
+/* ============================================================
+   INITIALISATION COMPLÈTE
+============================================================ */
+function initApp(){
+
+  /* — Charger les données — */
+  loadFromLS();
+
+  /* — Rendre interfaces — */
+  renderItems();
+  renderParts();
+  renderHistory();
+  renderClientsTable();
+  renderVehiclesTable();
+  renderServices();
+
+  /* — Statistiques — */
+  refreshDashboard();
+
+  /* — Navigation Sidebar — */
+  document.querySelectorAll(".navBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const pg = btn.dataset.page;
+      showPage(pg);
+    });
   });
-}
-/* ===================== BACKUP EXPORT / IMPORT ===================== */
-function exportAllData(){
-  const data={
-    settings:SETTINGS,
-    invoices:INVOICES,
-    clients:CLIENTS,
-    parts:PARTS,
-    services:SERVICES
-  };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  const date=new Date().toISOString().split("T")[0];
-  a.href=url;
-  a.download=`garage_backup_${date}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
-function importAllData(json){
-  try{
-    if(json.settings) SETTINGS=json.settings;
-    if(json.invoices) INVOICES=json.invoices;
-    if(json.clients) CLIENTS=json.clients;
-    if(json.parts) PARTS=json.parts;
-    if(json.services) SERVICES=json.services;
-    saveSettings();
-    saveInvoices();
-    saveClients();
-    saveParts();
-    saveServices();
-    initSettings();
-    renderInvoicesTable();
-    renderClientsTable();
-    renderParts();
-    renderServices();
-    renderDashboard();
-    alert("Backup importé avec succès !");
-  }catch(e){
-    alert("Erreur lors de l’importation du fichier.");
-  }
-}
-
-if($("btnExportData")){
-  $("btnExportData").addEventListener("click", exportAllData);
-}
-if($("btnImportData")){
-  $("btnImportData").addEventListener("click",()=>{
-    $("importBackupFile").click();
-  });
-}
-if($("importBackupFile")){
-  $("importBackupFile").addEventListener("change",(e)=>{
-    const file=e.target.files[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=function(evt){
-      try{
-        const json=JSON.parse(evt.target.result);
-        importAllData(json);
-      }catch(err){
-        alert("Fichier invalide.");
-      }
+  /* — Bouton "Imprimer facture" (page facture) — */
+  $("btnPrint").onclick = () => {
+    const tmp = {
+      number:$("invoiceNumber").value,
+      date:new Date().toLocaleDateString("fr-CA"),
+      customer:$("customerName").value,
+      job:$("jobDesc").value,
+      items:[...items],
+      subTotal:Number($("subTotal").innerText),
+      gst:Number($("gstAmount").innerText),
+      qst:Number($("qstAmount").innerText),
+      total:Number($("totalAmount").innerText)
     };
-    reader.readAsText(file);
-  });
+    printInvoiceObject(tmp);
+  };
+
+  console.log("Garage-Atelier Mécanique J.L — Application chargée ✓");
 }
 
-/* ===================== INIT ALL ===================== */
-window.addEventListener('load',()=>{
-  initSettings();
-  initInvoices();
-  initClientsModule();
-  initPartsModule();
-  initServicesModule();
-  renderDashboard();
-});
+/* Démarrage automatique */
+initApp();
+
 </script>
 </body>
 </html>
