@@ -185,7 +185,65 @@
         margin-top:0;
       }
     }
-  </style>
+  
+/* ===================== PRINT STYLING ===================== */
+@media print {
+
+  #sidebar,
+  .topbar,
+  button,
+  .navBtn,
+  .modal-backdrop,
+  #servicePickerModal,
+  #invoiceEditModal {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  #page-invoices {
+    display: block !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  #printArea, #page-invoices {
+    width: 100%;
+    max-width: 750px;
+    margin: auto;
+    padding: 20px;
+    color: black !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 1px solid #444 !important;
+    padding: 6px !important;
+    color: black !important;
+  }
+
+  h1, h2, h3 {
+    color: black !important;
+  }
+
+  #printArea .garage-title {
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+}
+
+</style>
 </head>
 <body>
 
