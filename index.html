@@ -1694,16 +1694,53 @@ function openInvoiceEditModal(invoiceNumber){
     renderDashboard();
   };
 
-  $('printInvoiceEditBtn').onclick=()=>{
-    // Charger cette facture dans la page factures puis imprimer
-    $('customerName').value=inv.customer||'';
-    $('jobDesc').value=inv.job||'';
-    $('invoiceNumber').value=inv.number;
-    items=JSON.parse(JSON.stringify(inv.items||[]));
-    renderItems();
-    showPage('page-invoices');
-    window.print();
-  };
+  $('printInvoiceEditBtn').onclick = () => {
+  const inv = window.editInvoiceObj;
+  if (!inv) {
+    alert("Impossible de charger la facture.");
+    return;
+  }
+
+  const area = $("printArea");
+  area.innerHTML = `
+    <h2 style="color:black;">Facture #${inv.number}</h2>
+    <p><strong>Date :</strong> ${inv.date}</p>
+    <p><strong>Client :</strong> ${inv.customer || ""}</p>
+    <p><strong>Description :</strong> ${inv.job || ""}</p>
+
+    <h3>Articles</h3>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Qté</th>
+          <th>Prix</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${editItems.map(it => `
+          <tr>
+            <td>${it.type}</td>
+            <td>${it.desc}</td>
+            <td>${it.qty}</td>
+            <td>${money(it.rate)} $</td>
+            <td>${money(it.qty * it.rate)} $</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+
+    <h3>Totaux</h3>
+    <p><strong>Sous-total :</strong> ${money(inv.subTotal)} $</p>
+    <p><strong>TPS :</strong> ${money(inv.gst)} $</p>
+    <p><strong>TVQ :</strong> ${money(inv.qst)} $</p>
+    <p><strong>Total :</strong> ${money(inv.total)} $</p>
+  `;
+
+  window.print();
+};
 
   $('closeInvoiceEditModal').onclick=()=>{
     modal.style.display='none';
