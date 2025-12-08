@@ -1597,22 +1597,6 @@ function printInvoiceObject(inv){
   window.print();
 }
 
-
-/* ============================================================
-   CHANGEMENT DE PAGE (sidebar)
-============================================================ */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p => p.style.display="none");
-  document.querySelectorAll(".navBtn").forEach(b => b.classList.remove("active"));
-
-  const pg = $(id);
-  if(pg) pg.style.display = "block";
-
-  const btn = document.querySelector(`.navBtn[data-page="${id}"]`);
-  if(btn) btn.classList.add("active");
-}
-
-
 /* ============================================================
    INITIALISATION COMPLÈTE
 ============================================================ */
