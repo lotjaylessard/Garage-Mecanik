@@ -1762,6 +1762,26 @@ $('addEditItemBtn').onclick = () => {
   renderEditItems();
 };
 
+  $('editAddManualPart').onclick = () => {
+  const desc = prompt("Nom de la pièce :");
+  if (!desc) return;
+
+  const qty = Number(prompt("Quantité :", 1));
+  if (!qty || qty <= 0) return;
+
+  const price = Number(prompt("Prix unitaire :", 0));
+  if (price < 0) return;
+
+  editItems.push({
+    type: "Pièce",
+    desc,
+    qty,
+    rate: price
+  });
+
+  renderEditItems();
+};
+
 }
 
 /* ===================== PRINT SIMPLE ===================== */
