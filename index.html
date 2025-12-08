@@ -536,6 +536,20 @@
         <input id="settingQST" type="number" step="0.01" />
 
         <button id="saveSettings" style="margin-top:10px;">Enregistrer les paramètres</button>
+        <hr style="margin:20px 0; border-color:var(--border);">
+
+<h3>Sauvegarde / Restauration</h3>
+
+<button id="btnExportData">📤 Exporter toutes les données</button>
+<br><br>
+<input type="file" id="importBackupFile" style="display:none;" />
+<button id="btnImportData" class="ghost">📥 Importer un backup (.json)</button>
+
+<div class="muted" style="margin-top:10px;">
+  Cette fonction permet de sauvegarder toutes vos données (factures, clients, pièces, services, paramètres, etc.)
+  et de les restaurer en cas de besoin.
+</div>
+
         <div class="muted" style="margin-top:6px;">Les nouvelles factures utiliseront ces taux de taxes.</div>
       </div>
     </div>
@@ -1545,6 +1559,92 @@ if($('btnPrint')){
   $('btnPrint').addEventListener('click',()=>{
     if(!items.length){alert("Aucun article à imprimer.");return;}
     window.print();
+  });
+}
+
+/* ===================== BACKUP EXPORT ===================== */
+
+function exportAllData(){
+  const data = {
+    settings: SETTINGS,
+    invoices: INVOICES,
+    clients: CLIENTS,
+    parts: PARTS,
+    services: SERVICES
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const date = new Date().toISOString().split("T")[0];
+
+  a.href = url;
+  a.download = `garage_backup_${date}.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/* ===================== BACKUP IMPORT ===================== */
+
+function importAllData(json){
+  try{
+    if(json.settings) SETTINGS = json.settings;
+    if(json.invoices) INVOICES = json.invoices;
+    if(json.clients) CLIENTS = json.clients;
+    if(json.parts) PARTS = json.parts;
+    if(json.services) SERVICES = json.services;
+
+    // save to localStorage
+    saveSettings();
+    saveInvoices();
+    saveClients();
+    saveParts();
+    saveServices();
+
+    // Refresh UI
+    initSettings();
+    renderInvoicesTable();
+    renderClientsTable();
+    renderParts();
+    renderServices();
+    renderDashboard();
+
+    alert("Backup importé avec succès !");
+  }catch(e){
+    alert("Erreur lors de l’importation du fichier.");
+  }
+}
+
+/* ========== LISTENERS ============ */
+if($("btnExportData")){
+  $("btnExportData").addEventListener("click", exportAllData);
+}
+
+if($("btnImportData")){
+  $("btnImportData").addEventListener("click",()=>{
+    $("importBackupFile").click();
+  });
+}
+
+if($("importBackupFile")){
+  $("importBackupFile").addEventListener("change",(e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt){
+      try{
+        const json = JSON.parse(evt.target.result);
+        importAllData(json);
+      }catch(err){
+        alert("Fichier invalide.");
+      }
+    };
+    reader.readAsText(file);
   });
 }
 
