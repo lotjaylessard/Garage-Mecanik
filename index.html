@@ -242,14 +242,6 @@
           <div class="stat-label">Véhicules</div>
           <div class="stat-value" id="statVehicles">0</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Pièces en stock</div>
-          <div class="stat-value" id="statParts">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pièces stock faible (≤2)</div>
-          <div class="stat-value" id="statLowStock">0</div>
-        </div>
       </div>
 
       <div class="card" style="margin-top:20px;">
@@ -1559,8 +1551,6 @@ function renderDashboard(){
   if($('statRevenue')) $('statRevenue').innerText=money(revenue)+' $';
   if($('statClients')) $('statClients').innerText=clientsCount;
   if($('statVehicles')) $('statVehicles').innerText=vehiclesCount;
-  if($('statParts')) $('statParts').innerText=partsCount;
-  if($('statLowStock')) $('statLowStock').innerText=lowStock;
 }
 
 /* ===================== EDIT EXISTING INVOICE ===================== */
