@@ -1529,21 +1529,26 @@ function initServicesModule(){
 
 /* ===================== HISTORIQUE & DASHBOARD ===================== */
 function renderHistoryTable(){
-  const tbody=document.querySelector('#historyTable tbody');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  INVOICES.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(inv=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
-      <td>${inv.date}</td>
-      <td>${inv.customer||''}</td>
-      <td>${inv.job||''}</td>
-      <td>${money(inv.total||0)} $</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  const tbody = document.querySelector('#historyTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  INVOICES
+    .slice()
+    .sort((a, b) => Number(b.number) - Number(a.number)) // ORDRE PAR # DE FACTURE
+    .forEach(inv => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
+        <td>${inv.date}</td>
+        <td>${inv.customer || ''}</td>
+        <td>${inv.job || ''}</td>
+        <td>${money(inv.total || 0)} $</td>
+      `;
+      tbody.appendChild(tr);
+    });
 }
+
 
 function renderDashboard(){
   const invoicesCount=INVOICES.length;
