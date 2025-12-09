@@ -1767,16 +1767,10 @@ $("exportPdfEditBtn").onclick = async () => {
 
   pdfContainer.innerHTML = `
   <!-- HEADER -->
-  <div style="display:flex;align-items:center;margin-bottom:20px;">
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoAAAAHgCAYAAAB5L3C9AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAL+wAAC/sBtcYv2gAAGDZJREFUeJzt3VuMXOWV5vFv+q7pmrZt27Zt27Zt27Zt26Zt2zbttttttm2bNm3btm2btttttt2bNm3btm2bttttttn3RWpxUTSBLKDQMSuEoH4qToIIopShIkg8vEYgoCCEkSZPUmkkmruPwkhQipLvSZWul333XvOec+5zn/P+55xzvnPOd87u9B+XWvPTfeeec45xzPnPPOSGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgjhCdlh6AIAAAAASUVORK5CYII=" style="height:70px;margin-right:15px;border-radius:8px;">
-    
-    <div style="color:#000;">
-      <div style="font-size:22px;font-weight:bold;color:#FFD000;">J.L. Garage</div>
-      <div style="font-size:13px;">Téléphone : 581-309-6481</div>
-    </div>
-  </div>
+  <h2 style="color:#FFD000; margin:0; padding:0;">J.L. Garage</h2>
+<p style="margin:0 0 10px 0; font-size:13px; color:#000;">Téléphone : 581-309-6481</p>
 
-  <hr style="border:0;border-top:2px solid #FFD000;margin:10px 0;">
+<hr style="border:0;border-top:2px solid #FFD000;margin:10px 0;">
 
   <h2 style="color:#000;margin-top:10px;">Facture #${inv.number}</h2>
 
