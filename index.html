@@ -1562,10 +1562,9 @@ function renderDashboard(){
 if ($("lastInvoicesBox")) {
 
     const lastFive = [...INVOICES]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .sort((a, b) => new Date(b.date) - new Date(a.date)) // plus récent → plus ancien
         .slice(0, 5);
 
-    // IMPORTANT : vider la boîte avant d'insérer
     $("lastInvoicesBox").innerHTML = "";
 
     let html = "";
@@ -1575,6 +1574,7 @@ if ($("lastInvoicesBox")) {
     } else {
         html += `<div style="display:flex;flex-direction:column;gap:6px;">`;
 
+        // ICI : affichage direct dans l’ordre trié
         lastFive.forEach(inv => {
             html += `
                 <div 
