@@ -873,6 +873,7 @@ const cust = clientObj ? clientObj.name : "Client inconnu";
 function initInvoices(){
   loadInvoices();
   loadParts();
+  loadClients();
   resetInvoiceForm();
   renderInvoicesTable();
   refreshInvoiceClientSelect();
