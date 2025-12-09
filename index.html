@@ -1749,12 +1749,86 @@ window.editItems = editItems;     // ← nécessaire pour afficher les items mod
   window.print();
 };
 
-  $("exportPdfEditBtn").onclick = async () => {
-    const inv = window.editInvoiceObj;
-    if (!inv) {
-        alert("Impossible de charger la facture.");
-        return;
-    }
+$("exportPdfEditBtn").onclick = async () => {
+  const inv = window.editInvoiceObj;
+  if (!inv) {
+    alert("Impossible de charger la facture.");
+    return;
+  }
+
+  // On crée un conteneur PDF indépendant, sans aucun SVG externe
+  const pdfContainer = document.createElement("div");
+  pdfContainer.id = "pdfContent";
+  pdfContainer.style.padding = "20px";
+  pdfContainer.style.fontFamily = "Arial";
+  pdfContainer.style.color = "#000";
+  pdfContainer.style.background = "#fff";
+  pdfContainer.style.width = "800px"; // format A4 largeur
+
+  pdfContainer.innerHTML = `
+    <h2>Facture #${inv.number}</h2>
+    <p><strong>Date :</strong> ${inv.date}</p>
+    <p><strong>Client :</strong> ${inv.customer}</p>
+    <p><strong>Description :</strong> ${inv.job || ""}</p>
+
+    <h3>Articles</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <thead>
+        <tr>
+          <th style="border-bottom:1px solid #999;">Type</th>
+          <th style="border-bottom:1px solid #999;">Description</th>
+          <th style="border-bottom:1px solid #999;">Qté</th>
+          <th style="border-bottom:1px solid #999;">Prix</th>
+          <th style="border-bottom:1px solid #999;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${window.editItems
+          .map(
+            (it) => `
+          <tr>
+            <td>${it.type}</td>
+            <td>${it.desc}</td>
+            <td>${it.qty}</td>
+            <td>${money(it.rate)} $</td>
+            <td>${money(it.qty * it.rate)} $</td>
+          </tr>
+        `
+          )
+          .join("")}
+      </tbody>
+    </table>
+
+    <h3>Totaux</h3>
+    <p><strong>Sous-total :</strong> ${money(inv.subTotal)} $</p>
+    <p><strong>TPS :</strong> ${money(inv.gst)} $</p>
+    <p><strong>TVQ :</strong> ${money(inv.qst)} $</p>
+    <p><strong>Total :</strong> ${money(inv.total)} $</p>
+  `;
+
+  // On ajoute TEMPORAIREMENT ce conteneur à la page
+  document.body.appendChild(pdfContainer);
+
+  // Conversion en canvas
+  const canvas = await html2canvas(pdfContainer, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+  });
+
+  // Suppression du conteneur après capture
+  document.body.removeChild(pdfContainer);
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`facture_${inv.number}.pdf`);
+};
 
     const area = $("printArea");
     area.innerHTML = `
