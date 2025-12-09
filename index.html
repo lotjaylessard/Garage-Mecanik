@@ -242,6 +242,8 @@
           <div class="stat-label">Véhicules</div>
           <div class="stat-value" id="statVehicles">0</div>
         </div>
+        <h3 style="margin-top:25px;">🧾 5 dernières factures</h3>
+<div id="lastInvoicesList" class="card" style="padding:15px;"></div>
       </div>
 
       <div class="card" style="margin-top:20px;">
@@ -1553,6 +1555,36 @@ function renderDashboard(){
   if($('statRevenue')) $('statRevenue').innerText=money(revenue)+' $';
   if($('statClients')) $('statClients').innerText=clientsCount;
   if($('statVehicles')) $('statVehicles').innerText=vehiclesCount;
+  
+  // ===========================
+// 5 DERNIÈRES FACTURES
+// ===========================
+if ($('lastInvoicesList')) {
+    // Copier + trier par date descendante
+    const recent = [...INVOICES]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+    let html = "";
+
+    if (recent.length === 0) {
+        html = "<div class='muted'>Aucune facture enregistrée.</div>";
+    } else {
+        recent.forEach(inv => {
+            html += `
+                <div style="padding:8px 0; border-bottom:1px solid var(--border);">
+                    <b>Facture #${inv.number}</b><br>
+                    Client : ${inv.customer || "—"}<br>
+                    Total : ${money(inv.total)} $<br>
+                    <span class="muted">${inv.date}</span>
+                </div>
+            `;
+        });
+    }
+
+    $('lastInvoicesList').innerHTML = html;
+}
+
 }
 
 /* ===================== EDIT EXISTING INVOICE ===================== */
