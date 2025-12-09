@@ -486,6 +486,23 @@
     <div class="page" id="page-history">
       <h2>Historique des factures</h2>
       <div class="card">
+        <div style="display:flex; gap:15px; margin:10px 0;">
+  
+  <div>
+    <label>Filtrer par client :</label><br>
+    <select id="filterClient">
+      <option value="">Tous les clients</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Filtrer par véhicule :</label><br>
+    <select id="filterVehicle">
+      <option value="">Tous les véhicules</option>
+    </select>
+  </div>
+
+</div>
         <table id="historyTable">
           <thead>
             <tr>
@@ -1533,21 +1550,33 @@ function renderHistoryTable(){
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  INVOICES
-    .slice()
-    .sort((a, b) => Number(b.number) - Number(a.number)) // ORDRE PAR # DE FACTURE
-    .forEach(inv => {
-      const tr = document.createElement('tr');
+  const filterClient = $("filterClient")?.value || "";
+const filterVehicle = $("filterVehicle")?.value || "";
+
+INVOICES
+  .slice()
+  .sort((a, b) => Number(b.number) - Number(a.number))
+  .filter(inv => {
+      if (filterClient && inv.customer !== filterClient) return false;
+      if (filterVehicle && !(inv.job || "").includes(filterVehicle)) return false;
+      return true;
+  })
+  .forEach(inv => {
+      const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
         <td>${inv.date}</td>
-        <td>${inv.customer || ''}</td>
-        <td>${inv.job || ''}</td>
+        <td>${inv.customer || ""}</td>
+        <td>${inv.job || ""}</td>
         <td>${money(inv.total || 0)} $</td>
       `;
       tbody.appendChild(tr);
-    });
+  });
 }
+
+  // === Activation des filtres historique ===
+if ($("filterClient")) $("filterClient").onchange = renderHistoryTable;
+if ($("filterVehicle")) $("filterVehicle").onchange = renderHistoryTable;
 
 
 function renderDashboard(){
@@ -1596,6 +1625,25 @@ if ($("lastInvoicesBox")) {
     }
 
     $("lastInvoicesBox").innerHTML = html;
+}
+
+  /* === Mettre à jour les filtres (client & véhicule) === */
+if ($("filterClient")) {
+    const clients = [...new Set(CLIENTS.map(c => c.name))].sort();
+    $("filterClient").innerHTML =
+      `<option value="">Tous les clients</option>` +
+      clients.map(c => `<option value="${c}">${c}</option>`).join("");
+}
+
+if ($("filterVehicle")) {
+    const vehicles = [];
+    CLIENTS.forEach(c => (c.vehicles || []).forEach(v => vehicles.push(v)));
+
+    const uniqueVehicles = [...new Set(vehicles)].sort();
+
+    $("filterVehicle").innerHTML =
+      `<option value="">Tous les véhicules</option>` +
+      uniqueVehicles.map(v => `<option value="${v}">${v}</option>`).join("");
 }
 }
 
