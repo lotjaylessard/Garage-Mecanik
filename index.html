@@ -1766,45 +1766,45 @@ $("exportPdfEditBtn").onclick = async () => {
   pdfContainer.style.width = "800px"; // format A4 largeur
 
   pdfContainer.innerHTML = `
-    <h2>Facture #${inv.number}</h2>
-    <p><strong>Date :</strong> ${inv.date}</p>
-    <p><strong>Client :</strong> ${inv.customer}</p>
-    <p><strong>Description :</strong> ${inv.job || ""}</p>
+    <h2 style="color:#000;">Facture #${inv.number}</h2>
 
-    <h3>Articles</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    <p style="color:#000;"><strong>Date :</strong> ${inv.date}</p>
+    <p style="color:#000;"><strong>Client :</strong> ${inv.customer}</p>
+    <p style="color:#000;"><strong>Description :</strong> ${inv.job || ""}</p>
+
+    <h3 style="color:var(--accent-yellow); margin-top:20px;">Articles</h3>
+
+    <table style="width:100%; border-collapse:collapse; font-size:14px; color:#000;">
       <thead>
-        <tr>
-          <th style="border-bottom:1px solid #999;">Type</th>
-          <th style="border-bottom:1px solid #999;">Description</th>
-          <th style="border-bottom:1px solid #999;">Qté</th>
-          <th style="border-bottom:1px solid #999;">Prix</th>
-          <th style="border-bottom:1px solid #999;">Total</th>
+        <tr style="color:#000;">
+          <th style="border-bottom:2px solid #000;">Type</th>
+          <th style="border-bottom:2px solid #000;">Description</th>
+          <th style="border-bottom:2px solid #000;">Qté</th>
+          <th style="border-bottom:2px solid #000;">Prix</th>
+          <th style="border-bottom:2px solid #000;">Total</th>
         </tr>
       </thead>
+
       <tbody>
-        ${window.editItems
-          .map(
-            (it) => `
-          <tr>
+        ${window.editItems.map(it => `
+          <tr style="color:#000;">
             <td>${it.type}</td>
             <td>${it.desc}</td>
             <td>${it.qty}</td>
             <td>${money(it.rate)} $</td>
             <td>${money(it.qty * it.rate)} $</td>
           </tr>
-        `
-          )
-          .join("")}
+        `).join("")}
       </tbody>
     </table>
 
-    <h3>Totaux</h3>
-    <p><strong>Sous-total :</strong> ${money(inv.subTotal)} $</p>
-    <p><strong>TPS :</strong> ${money(inv.gst)} $</p>
-    <p><strong>TVQ :</strong> ${money(inv.qst)} $</p>
-    <p><strong>Total :</strong> ${money(inv.total)} $</p>
-  `;
+    <h3 style="color:var(--accent-yellow); margin-top:20px;">Totaux</h3>
+
+    <p style="color:#000;"><strong>Sous-total :</strong> ${money(inv.subTotal)} $</p>
+    <p style="color:#000;"><strong>TPS :</strong> ${money(inv.gst)} $</p>
+    <p style="color:#000;"><strong>TVQ :</strong> ${money(inv.qst)} $</p>
+    <p style="color:#000; font-size:18px;"><strong>Total :</strong> ${money(inv.total)} $</p>
+`;
 
   // On ajoute TEMPORAIREMENT ce conteneur à la page
   document.body.appendChild(pdfContainer);
