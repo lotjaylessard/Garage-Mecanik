@@ -1647,8 +1647,16 @@ INVOICES
 }
 
   // === Activation des filtres historique ===
-if ($("filterClient")) $("filterClient").onchange = renderHistoryTable;
-if ($("filterVehicle")) $("filterVehicle").onchange = renderHistoryTable;
+if ($("filterClient")) {
+  $("filterClient").onchange = () => {
+    renderDashboard();     // Met à jour la liste des véhicules selon le client
+    renderHistoryTable();  // Rafraîchit le tableau
+  };
+}
+
+if ($("filterVehicle")) {
+  $("filterVehicle").onchange = renderHistoryTable;
+}
 
 
 function renderDashboard(){
@@ -1699,45 +1707,62 @@ if ($("lastInvoicesBox")) {
     $("lastInvoicesBox").innerHTML = html;
 }
 
-  /* === Mettre à jour les filtres (client & véhicule) === */
-if ($("filterClient")) {
-    const clients = [...new Set(CLIENTS.map(c => c.name))].sort();
-    $("filterClient").innerHTML =
-      `<option value="">Tous les clients</option>` +
-      clients.map(c => `<option value="${c}">${c}</option>`).join("");
-}
+    /* === Mettre à jour les filtres (client & véhicule) === */
+  if ($("filterClient")) {
+      const selClient = $("filterClient");
+      const currentClient = selClient.value || "";
 
-// === Filtre véhicule dynamique selon le client ===
-if ($("filterVehicle")) {
-    const filterClientValue = $("filterClient")?.value || "";
-    let vehicleList = [];
+      const clients = [...new Set(CLIENTS.map(c => c.name))].sort();
+      selClient.innerHTML =
+        `<option value="">Tous les clients</option>` +
+        clients.map(c => `<option value="${c}">${c}</option>`).join("");
 
-    if (!filterClientValue) {
-        // Tous les clients → tous les véhicules
-        CLIENTS.forEach(c => (c.vehicles || []).forEach(v => vehicleList.push(v)));
-    } else {
-        // Client choisi → seulement SES véhicules
-        const clientObj = CLIENTS.find(c => c.name === filterClientValue);
-        if (clientObj && clientObj.vehicles) {
-            vehicleList = clientObj.vehicles;
-        }
-    }
+      // On garde la sélection si possible
+      if (currentClient && clients.includes(currentClient)) {
+        selClient.value = currentClient;
+      }
+  }
 
-    // Construire et nettoyer les options
-    const labels = [];
-    vehicleList.forEach(v => {
-        const label = `${v.make || ""} ${v.model || ""} ${v.year || ""}`.trim();
-        if (label && !labels.includes(label)) labels.push(label);
-    });
+  if ($("filterVehicle")) {
+      const selVeh = $("filterVehicle");
+      const currentVeh = selVeh.value || "";
 
-    labels.sort();
+      // Quel client est sélectionné dans le filtre ?
+      const selectedClientName = $("filterClient")?.value || "";
 
-    $("filterVehicle").innerHTML =
+      let vehicles = [];
+
+      if (selectedClientName) {
+          // ➜ Seulement les véhicules de CE client
+          const clientObj = CLIENTS.find(c => c.name === selectedClientName);
+          if (clientObj && Array.isArray(clientObj.vehicles)) {
+              vehicles = clientObj.vehicles;
+          }
+      } else {
+          // ➜ Aucun client filtré ➜ tous les véhicules de tous les clients
+          CLIENTS.forEach(c => (c.vehicles || []).forEach(v => vehicles.push(v)));
+      }
+
+      const unique = [];
+      vehicles.forEach(v => {
+          const label = `${v.make || ""} ${v.model || ""} ${v.year || ""}`.trim();
+          if (label && !unique.includes(label)) unique.push(label);
+      });
+
+      unique.sort();
+
+      selVeh.innerHTML =
         `<option value="">Tous les véhicules</option>` +
-        labels.map(l => `<option value="${l}">${l}</option>`).join("");
-}
+        unique.map(label => `<option value="${label}">${label}</option>`).join("");
+
+      // Si l'ancien véhicule existe encore dans la liste, on le remet
+      if (currentVeh && unique.includes(currentVeh)) {
+        selVeh.value = currentVeh;
+      }
+  }
 }
 
+  
   function openFromDashboard(number){
     showPage("page-history");
     const row = document.querySelector(`[data-invoice-number="${number}"]`);
