@@ -1630,7 +1630,24 @@ INVOICES
   .sort((a, b) => Number(b.number) - Number(a.number))
   .filter(inv => {
       if (filterClient && inv.customer !== filterClient) return false;
-      if (filterVehicle && !(inv.job || "").includes(filterVehicle)) return false;
+      if (filterVehicle) {
+    const job = (inv.job || "").toLowerCase();
+    const v = filterVehicle.toLowerCase();
+
+    // Essaye de trouver la marque, modèle ou année dans la description du job
+    if (!job.includes(v)) {
+        // Ex.: "Honda Civic 2014" devrait matcher même si la plaque est différente
+        const parts = v.split(" ").filter(x => x.trim().length > 0);
+        let allMatch = true;
+
+        parts.forEach(p => {
+            if (!job.includes(p)) allMatch = false;
+        });
+
+        if (!allMatch) return false;
+    }
+}
+
       return true;
   })
   .forEach(inv => {
