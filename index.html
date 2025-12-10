@@ -203,6 +203,7 @@
     <button class="navBtn" data-page="page-services">🛠️ Services</button>
     <button class="navBtn" data-page="page-parts">🔩 Pièces</button>
     <button class="navBtn" data-page="page-history">📜 Historique</button>
+    <button class="navBtn" data-page="page-notes">📝 Notes</button>
     <button class="navBtn" data-page="page-settings">⚙️ Paramètres</button>
   </div>
 
@@ -526,6 +527,23 @@
       </div>
     </div>
 
+    <!-- NOTES -->
+<div class="page" id="page-notes">
+  <h2>Notes</h2>
+
+  <div class="card">
+    <h3>Ajouter une note</h3>
+    <textarea id="noteInput" placeholder="Écris ta note ici..." style="min-height:90px;"></textarea>
+    <button id="addNoteBtn" style="margin-top:8px;">Ajouter la note</button>
+  </div>
+
+  <div class="card">
+    <h3>Historique des notes</h3>
+    <div id="notesList"></div>
+  </div>
+</div>
+
+    
     <!-- PARAMÈTRES -->
     <div class="page" id="page-settings">
       <h2>Paramètres</h2>
@@ -659,6 +677,7 @@ const STORAGE = {
   clients:'ar_clients_v1',
   parts:'ar_parts_inventory_v1',
   services:'ar_services_v1'
+  notes: 'ar_notes_v1'
 };
 const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
@@ -2429,6 +2448,75 @@ if($("importBackupFile")){
   });
 }
 
+/* ===================== NOTES ===================== */
+
+let NOTES = [];
+
+/* Charger les notes */
+function loadNotes() {
+    try {
+        NOTES = JSON.parse(localStorage.getItem(STORAGE.notes) || '[]');
+        if (!Array.isArray(NOTES)) NOTES = [];
+    } catch (e) { NOTES = []; }
+}
+
+/* Sauver les notes */
+function saveNotes() {
+    localStorage.setItem(STORAGE.notes, JSON.stringify(NOTES));
+}
+
+/* Ajouter une note */
+function addNote(text) {
+    const now = new Date();
+    const stamp = now.toLocaleString("fr-CA");
+
+    NOTES.push({
+        id: Date.now(),
+        text,
+        date: stamp
+    });
+
+    // Trier du plus récent au plus vieux
+    NOTES.sort((a, b) => b.id - a.id);
+
+    saveNotes();
+    renderNotes();
+}
+
+/* Afficher les notes */
+function renderNotes() {
+    const wrap = $("notesList");
+    if (!wrap) return;
+
+    if (NOTES.length === 0) {
+        wrap.innerHTML = `<div class="muted">Aucune note enregistrée.</div>`;
+        return;
+    }
+
+    wrap.innerHTML = NOTES.map(n => `
+        <div style="border:1px solid var(--border);padding:10px;border-radius:8px;margin-bottom:8px;">
+            <div class="muted" style="font-size:0.8rem;">${n.date}</div>
+            <div style="margin-top:6px;">${n.text.replace(/\n/g, '<br>')}</div>
+        </div>
+    `).join('');
+}
+
+/* Initialisation */
+function initNotesModule() {
+    loadNotes();
+    renderNotes();
+
+    if ($("addNoteBtn")) {
+        $("addNoteBtn").onclick = () => {
+            const text = $("noteInput").value.trim();
+            if (!text) return alert("Entrez une note.");
+            addNote(text);
+            $("noteInput").value = "";
+        };
+    }
+}
+
+  
 /* ===================== INIT ALL ===================== */
 window.addEventListener('load',()=>{
   initSettings();
@@ -2436,8 +2524,10 @@ window.addEventListener('load',()=>{
   initClientsModule();
   initPartsModule();
   initServicesModule();
+  initNotesModule();
   renderDashboard();
 });
+  
 </script>
 </body>
 </html>
