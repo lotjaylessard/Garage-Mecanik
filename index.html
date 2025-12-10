@@ -249,6 +249,7 @@
   <div id="sidebar">
     <h2>Menu</h2>
     <button class="navBtn" data-page="page-dashboard">📊 Dashboard</button>
+    <button class="navBtn" data-page="page-workorders">📋 Work Order</button>
     <button class="navBtn" data-page="page-invoices">🧾 Factures</button>
     <button class="navBtn" data-page="page-clients">👤 Clients</button>
     <button class="navBtn" data-page="page-vehicles">🚗 Véhicules</button>
@@ -312,6 +313,56 @@
         </div>
       </div>
     </div>
+
+
+        <!-- WORK ORDERS -->
+    <div class="page" id="page-workorders">
+      <h2>Bons de travail</h2>
+
+      <div class="card">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+          <button id="btnNewWorkOrder">➕ Nouveau bon de travail</button>
+
+          <select id="woStatusFilter" style="max-width:200px;">
+            <option value="">Tous les statuts</option>
+            <option value="draft">Brouillon</option>
+            <option value="in_progress">En cours</option>
+            <option value="waiting_parts">En attente de pièces</option>
+            <option value="completed">Terminé</option>
+            <option value="billed">Facturé</option>
+          </select>
+
+          <input id="woSearch"
+                 placeholder="Rechercher (client, véhicule, # BT...)"
+                 style="flex:1;min-width:200px;">
+        </div>
+
+        <table id="woTable">
+          <thead>
+            <tr>
+              <th># BT</th>
+              <th>Date</th>
+              <th>Client</th>
+              <th>Véhicule</th>
+              <th>Statut</th>
+              <th>Total estimé</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card" id="woDetailCard">
+        <h3>Détail du bon de travail</h3>
+        <div class="muted">
+          Sélectionne un bon de travail dans la liste ci-dessus
+          ou clique sur <strong>“Nouveau bon de travail”</strong> pour en créer un.
+        </div>
+        <div id="woDetailContent"></div>
+      </div>
+    </div>
+
 
     <!-- FACTURES (création seulement) -->
     <div class="page" id="page-invoices">
@@ -801,8 +852,10 @@ const STORAGE = {
   clients:'ar_clients_v1',
   parts:'ar_parts_inventory_v1',
   services:'ar_services_v1',
-  notes: 'ar_notes_v1'
+  notes: 'ar_notes_v1',
+  workorders: 'ar_workorders_v1'
 };
+
 const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
 
@@ -822,10 +875,93 @@ document.querySelectorAll('.navBtn').forEach(btn=>{
 /* ===================== GLOBAL DATA ===================== */
 let SETTINGS = {garageName:'Garage-Atelier Mécanique J.L', gst:5, qst:9.975};
 let INVOICES = [];
+let WORKORDERS = [];
 let items = [];
 let CLIENTS = [];
 let PARTS = [];
 let SERVICES = [];
+
+  
+  /* ===================== WORK ORDERS (Bons de travail) ===================== */
+
+function loadWorkOrders(){
+  try{
+    WORKORDERS = JSON.parse(localStorage.getItem(STORAGE.workorders) || '[]');
+    if (!Array.isArray(WORKORDERS)) WORKORDERS = [];
+  }catch(e){
+    WORKORDERS = [];
+  }
+}
+
+function saveWorkOrders(){
+  localStorage.setItem(STORAGE.workorders, JSON.stringify(WORKORDERS));
+}
+
+function renderWorkOrders(){
+  const table = $("woTable");
+  const tbody = table ? table.querySelector("tbody") : null;
+  if (!tbody) return;
+
+  if (!WORKORDERS.length){
+    tbody.innerHTML = `<tr>
+        <td colspan="7" class="muted">Aucun bon de travail pour le moment.</td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = "";
+
+  WORKORDERS.forEach(wo => {
+    const tr = document.createElement("tr");
+    tr.dataset.id = wo.id;
+    tr.innerHTML = `
+      <td>${wo.number || ""}</td>
+      <td>${wo.date || ""}</td>
+      <td>${wo.clientName || ""}</td>
+      <td>${wo.vehicleLabel || ""}</td>
+      <td>${wo.status || ""}</td>
+      <td>${money(wo.estimateTotal || 0)} $</td>
+      <td><button class="ghost" data-action="open">Ouvrir</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function initWorkOrdersModule(){
+  loadWorkOrders();
+  renderWorkOrders();
+
+  const btnNew = $("btnNewWorkOrder");
+  if (btnNew){
+    btnNew.onclick = () => {
+      alert("Module Work Order — la création détaillée sera ajoutée à la prochaine étape 😉");
+    };
+  }
+
+  const table = $("woTable");
+  if (table){
+    table.onclick = (e) => {
+      const btn = e.target.closest("button[data-action='open']");
+      if (!btn) return;
+
+      const tr = btn.closest("tr");
+      const id = tr?.dataset.id;
+      const wo = WORKORDERS.find(w => String(w.id) === String(id));
+      const detail = $("woDetailContent");
+      if (!detail || !wo) return;
+
+      detail.innerHTML = `
+        <div>
+          <div><b>Bon de travail #${wo.number || ""}</b></div>
+          <div class="muted" style="margin-top:4px;">
+            (Le détail complet sera géré dans une prochaine étape.)
+          </div>
+        </div>
+      `;
+    };
+  }
+}
+
 
   // === Mise à jour automatique du menu véhicule selon le client ===
 $("customerSelect").onchange = () => {
@@ -2999,6 +3135,7 @@ window.addEventListener('load',()=>{
   initServicesModule();
   initNotesModule();
   initLinksModule();
+  initWorkOrdersModule();
   renderDashboard();
 });
   
