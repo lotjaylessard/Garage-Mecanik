@@ -1707,21 +1707,34 @@ if ($("filterClient")) {
       clients.map(c => `<option value="${c}">${c}</option>`).join("");
 }
 
+// === Filtre véhicule dynamique selon le client ===
 if ($("filterVehicle")) {
-    const vehicles = [];
-    CLIENTS.forEach(c => (c.vehicles || []).forEach(v => vehicles.push(v)));
+    const filterClientValue = $("filterClient")?.value || "";
+    let vehicleList = [];
 
-    const unique = [];
-    vehicles.forEach(v => {
+    if (!filterClientValue) {
+        // Tous les clients → tous les véhicules
+        CLIENTS.forEach(c => (c.vehicles || []).forEach(v => vehicleList.push(v)));
+    } else {
+        // Client choisi → seulement SES véhicules
+        const clientObj = CLIENTS.find(c => c.name === filterClientValue);
+        if (clientObj && clientObj.vehicles) {
+            vehicleList = clientObj.vehicles;
+        }
+    }
+
+    // Construire et nettoyer les options
+    const labels = [];
+    vehicleList.forEach(v => {
         const label = `${v.make || ""} ${v.model || ""} ${v.year || ""}`.trim();
-        if (label && !unique.includes(label)) unique.push(label);
+        if (label && !labels.includes(label)) labels.push(label);
     });
 
-    unique.sort();
+    labels.sort();
 
     $("filterVehicle").innerHTML =
-      `<option value="">Tous les véhicules</option>` +
-      unique.map(label => `<option value="${label}">${label}</option>`).join("");
+        `<option value="">Tous les véhicules</option>` +
+        labels.map(l => `<option value="${l}">${l}</option>`).join("");
 }
 }
 
