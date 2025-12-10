@@ -201,6 +201,42 @@
   text-decoration:underline;
 }
 
+    .quick-tile {
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#111;
+}
+
+.qt-left {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.qt-icon {
+  font-size:1.6rem;
+}
+
+.qt-name {
+  font-size:1.1rem;
+  font-weight:700;
+}
+
+.qt-url {
+  font-size:0.8rem;
+  color:var(--muted);
+}
+
+.qt-actions button {
+  font-size:1.1rem;
+}
+
+
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -580,28 +616,51 @@
 </div>
 
 
-    <!-- LIENS RAPIDES -->
+<!-- LIENS RAPIDES -->
 <div class="page" id="page-links">
   <h2>Liens Rapides</h2>
 
+  <!-- Ajout d’un lien -->
   <div class="card">
-    <h3>Ressources principales</h3>
+    <h3>Ajouter un lien</h3>
 
-    <div class="quick-links">
-      <a href="https://www.rockauto.com/" target="_blank">🔧 RockAuto – Pièces automobiles</a>
-      <a href="https://www.napaonline.com/" target="_blank">🔩 NAPA – Pièces et références</a>
-      <a href="https://parts.toyota.com" target="_blank">🚗 Toyota OEM Parts</a>
-      <a href="https://parts.honda.com" target="_blank">🚙 Honda OEM Parts</a>
-      <a href="https://www.kia.parts" target="_blank">🚘 Kia OEM Parts</a>
-      <a href="https://www.hyundaipartsdeal.com" target="_blank">🚘 Hyundai OEM Parts</a>
-      <a href="https://www.autozone.com" target="_blank">🔧 AutoZone – Guides de réparation</a>
-      <a href="https://cardiagn.com" target="_blank">📘 CarDiagn – Manuels techniques</a>
-      <a href="https://www.eautorepair.net" target="_blank">📙 EAutoRepair – Manuel mécanique pro</a>
-      <a href="https://www.electricalschematics.com/" target="_blank">⚡ Schémas électriques automobiles</a>
-      <a href="https://workshop-manuals.com" target="_blank">📚 Workshop Manuals – Réparations et diagnostics</a>
-      <a href="https://www.sae.org" target="_blank">📐 SAE – Normes mécaniques</a>
+    <label>Nom du site :</label>
+    <input id="linkName" placeholder="Ex: RockAuto">
+
+    <label>URL :</label>
+    <input id="linkURL" placeholder="https://...">
+
+    <label>Catégorie :</label>
+    <select id="linkCategory">
+      <option value="pieces">🔧 Pièces</option>
+      <option value="manuels">📘 Manuels</option>
+      <option value="electricite">⚡ Électricité</option>
+      <option value="diagnostic">🩺 Diagnostic</option>
+      <option value="tuning">🔥 Tuning</option>
+      <option value="general">📎 Général</option>
+    </select>
+
+    <label>Icône :</label>
+    <input id="linkIcon" placeholder="Ex: 🔧">
+
+    <button id="addLinkBtn" style="margin-top:8px;">Ajouter le lien</button>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="card">
+    <h3>Liens enregistrés</h3>
+
+    <input id="linkSearch" placeholder="Rechercher un lien..." style="width:100%;margin-bottom:10px;padding:6px;">
+
+    <div id="linksList"></div>
+
+    <div style="text-align:right;margin-top:15px;">
+      <button id="exportLinksBtn" class="ghost">Exporter</button>
+      <button id="importLinksBtn" class="ghost">Importer</button>
+      <input type="file" id="importLinksFile" accept=".json" style="display:none;">
     </div>
   </div>
+</div>
 
   <div class="card">
     <h3>Liens personnalisés</h3>
@@ -2759,6 +2818,178 @@ function initNotesModule() {
     }
 }
 
+
+  /* ===================== LIENS RAPIDES ===================== */
+
+let LINKS = [];
+
+/* Charger */
+function loadLinks() {
+    try {
+        LINKS = JSON.parse(localStorage.getItem("ar_links_v1") || "[]");
+        if (!Array.isArray(LINKS)) LINKS = [];
+    } catch (e) { LINKS = []; }
+}
+
+/* Sauver */
+function saveLinks() {
+    localStorage.setItem("ar_links_v1", JSON.stringify(LINKS));
+}
+
+/* Ajouter lien */
+function addLink(name, url, cat, icon) {
+    LINKS.push({
+        id: Date.now(),
+        name,
+        url,
+        category: cat,
+        icon,
+        fav: false
+    });
+
+    renderLinks();
+    saveLinks();
+}
+
+/* Supprimer */
+function deleteLink(id) {
+    if (!confirm("Supprimer ce lien ?")) return;
+    LINKS = LINKS.filter(l => l.id !== id);
+    saveLinks();
+    renderLinks();
+}
+
+/* Modifier */
+function editLink(id) {
+    const link = LINKS.find(l => l.id === id);
+    if (!link) return;
+
+    const newName = prompt("Nom :", link.name);
+    if (!newName) return;
+
+    const newURL = prompt("URL :", link.url);
+    if (!newURL) return;
+
+    const newIcon = prompt("Icône :", link.icon);
+    if (!newIcon) return;
+
+    link.name = newName;
+    link.url = newURL;
+    link.icon = newIcon;
+
+    saveLinks();
+    renderLinks();
+}
+
+/* Favori */
+function toggleFav(id) {
+    const link = LINKS.find(l => l.id === id);
+    if (!link) return;
+    link.fav = !link.fav;
+    saveLinks();
+    renderLinks();
+}
+
+/* Rendu */
+function renderLinks() {
+    const wrap = $("linksList");
+    if (!wrap) return;
+
+    const search = ($("linkSearch")?.value || "").toLowerCase();
+
+    // Filtre par recherche
+    let filtered = LINKS.filter(l =>
+        l.name.toLowerCase().includes(search) ||
+        l.url.toLowerCase().includes(search) ||
+        l.category.toLowerCase().includes(search)
+    );
+
+    // Tri intelligent : favoris en haut
+    filtered.sort((a, b) => {
+        if (a.fav && !b.fav) return -1;
+        if (!a.fav && b.fav) return 1;
+        return a.name.localeCompare(b.name);
+    });
+
+    wrap.innerHTML = filtered.map(l => `
+        <div class="quick-tile">
+            <div class="qt-left">
+                <div class="qt-icon">${l.icon || "🔗"}</div>
+                <div class="qt-info">
+                    <div class="qt-name">${l.name}</div>
+                    <div class="qt-url">${l.url}</div>
+                </div>
+            </div>
+
+            <div class="qt-actions">
+                <button class="ghost" onclick="window.open('${l.url}','_blank')">🌐</button>
+                <button class="ghost" onclick="editLink(${l.id})">✏️</button>
+                <button class="ghost" onclick="deleteLink(${l.id})">🗑️</button>
+                <button class="ghost" onclick="toggleFav(${l.id})">${l.fav ? "⭐" : "☆"}</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+/* Export */
+function exportLinks() {
+    const blob = new Blob([JSON.stringify(LINKS, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "liens_rapides_export.json";
+    a.click();
+}
+
+/* Import */
+function importLinks(evt) {
+    const file = evt.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (!Array.isArray(data)) throw "Format invalide";
+
+            LINKS = data;
+            saveLinks();
+            renderLinks();
+            alert("Import complété !");
+        } catch {
+            alert("Erreur : fichier invalide.");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+function initLinksModule() {
+    loadLinks();
+    renderLinks();
+
+    $("addLinkBtn").onclick = () => {
+        const name = $("linkName").value.trim();
+        const url = $("linkURL").value.trim();
+        const cat = $("linkCategory").value;
+        const icon = $("linkIcon").value.trim() || "🔗";
+
+        if (!name || !url) return alert("Nom et URL obligatoires.");
+
+        addLink(name, url, cat, icon);
+
+        $("linkName").value = "";
+        $("linkURL").value = "";
+        $("linkIcon").value = "";
+    };
+
+    $("linkSearch").oninput = renderLinks;
+
+    $("exportLinksBtn").onclick = exportLinks;
+    $("importLinksBtn").onclick = () => $("importLinksFile").click();
+    $("importLinksFile").onchange = importLinks;
+}
+
   
 /* ===================== INIT ALL ===================== */
 window.addEventListener('load',()=>{
@@ -2768,6 +2999,7 @@ window.addEventListener('load',()=>{
   initPartsModule();
   initServicesModule();
   initNotesModule();
+  initLinksModule();
   renderDashboard();
 });
   
