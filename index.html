@@ -601,6 +601,39 @@
     </div>
   </div>
 
+  
+  <!-- MODAL PART PICKER -->
+<div id="partPickerModal" class="modal-backdrop">
+  <div class="modal-panel" style="width:700px;">
+    <h2>Choisir une pièce</h2>
+
+    <label style="margin-top:10px;">Filtrer par catégorie :</label>
+    <select id="partPickerFilter" style="margin-bottom:15px;">
+      <option value="">Toutes catégories</option>
+      <option value="Moteur">Moteur</option>
+      <option value="Transmission">Transmission</option>
+      <option value="Suspension">Suspension</option>
+      <option value="Direction">Direction</option>
+      <option value="Freins">Freins</option>
+      <option value="Échappement">Échappement</option>
+      <option value="Électrique">Électrique</option>
+      <option value="Tuning">Tuning</option>
+      <option value="Fabrication">Fabrication</option>
+      <option value="Hybride">Hybride</option>
+      <option value="Carrosserie">Carrosserie</option>
+      <option value="Pneus">Pneus</option>
+      <option value="Divers">Divers</option>
+    </select>
+
+    <div id="partPickerList">Chargement...</div>
+
+    <div style="text-align:right;margin-top:15px;">
+      <button id="closePartPicker" class="ghost">Fermer</button>
+    </div>
+  </div>
+</div>
+
+  
   <!-- MODAL EDIT FACTURE -->
   <div id="invoiceEditModal" class="modal-backdrop">
     <div class="modal-panel" style="width:900px;">
@@ -1619,6 +1652,95 @@ function initServicesModule(){
   }
 }
 
+  /* ===================== PART PICKER ===================== */
+
+const partPickerModal = $("partPickerModal");
+const partPickerList = $("partPickerList");
+const partPickerFilter = $("partPickerFilter");
+const btnOpenPartPicker = $("openPartPicker");
+const btnClosePartPicker = $("closePartPicker");
+
+/* Rendu du modal */
+function renderPartPicker() {
+    loadParts(); // recharge à jour
+    let filter = partPickerFilter?.value || "";
+    let html = "";
+
+    let partsToShow = PARTS.filter(p => !filter || p.category === filter);
+
+    if (partsToShow.length === 0) {
+        partPickerList.innerHTML = `<div class="muted">Aucune pièce dans cette catégorie.</div>`;
+        return;
+    }
+
+    partsToShow.forEach(p => {
+        html += `
+            <div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;">
+                <b>${p.name}</b> (#${p.number})<br>
+                Catégorie : ${p.category}<br>
+                Prix : ${money(p.price)} $<br>
+                Stock : ${p.qty}
+                <button class="ghost" data-number="${p.number}" style="margin-top:6px;">
+                  ➕ Ajouter
+                </button>
+            </div>
+        `;
+    });
+
+    partPickerList.innerHTML = html;
+
+    // Événement pour chaque bouton Ajouter
+    partPickerList.querySelectorAll("button[data-number]").forEach(btn => {
+        btn.onclick = () => {
+            const num = btn.dataset.number;
+            const part = PARTS.find(x => String(x.number) === String(num));
+            if (!part) return;
+
+            if (part.qty <= 0) {
+                alert("Stock insuffisant pour cette pièce.");
+                return;
+            }
+
+            // Décrémente stock
+            part.qty--;
+            saveParts();
+            renderParts();
+            renderDashboard();
+
+            // Ajoute la pièce à la facture
+            items.push({
+                type: "Pièce (Inventaire)",
+                desc: `${part.name} (#${part.number})`,
+                qty: 1,
+                rate: part.price,
+                invNumber: part.number
+            });
+
+            renderItems();
+            partPickerModal.style.display = "none";
+        };
+    });
+}
+
+/* Ouvrir le PartPicker */
+if (btnOpenPartPicker) {
+    btnOpenPartPicker.onclick = () => {
+        renderPartPicker();
+        partPickerModal.style.display = "flex";
+    };
+}
+
+/* Fermer */
+if (btnClosePartPicker) {
+    btnClosePartPicker.onclick = () => {
+        partPickerModal.style.display = "none";
+    };
+}
+
+/* Filtre catégorie */
+partPickerFilter.onchange = renderPartPicker;
+
+  
 /* ===================== HISTORIQUE & DASHBOARD ===================== */
 function renderHistoryTable(){
   const tbody = document.querySelector('#historyTable tbody');
