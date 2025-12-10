@@ -729,6 +729,7 @@
     Tu veux que j'ajoute un système pour ajouter tes propres liens?
   </p>
 </div>
+  </div>
 
     
     <!-- PARAMÈTRES -->
@@ -1290,42 +1291,47 @@ woRenderLines(wo);
 
 
   // === Mise à jour automatique du menu véhicule selon le client ===
-$("customerSelect").onchange = () => {
-    const clientName = $("customerSelect").value;
-    const client = CLIENTS.find(c => c.name === clientName);
-    const vehicleMenu = $("vehicleSelect");
+function initInvoiceVehicleBindings() {
+  const customerSelect = $("customerSelect");
+  const vehicleSelect  = $("vehicleSelect");
+  const jobDesc        = $("jobDesc");
 
-    // Vider l'ancien contenu
+  if (!customerSelect || !vehicleSelect || !jobDesc) {
+    // Si un des éléments manque, on ne fait rien : on évite de planter tout le script
+    return;
+  }
+
+  customerSelect.onchange = () => {
+    const clientId = customerSelect.value;
+    const client = CLIENTS.find(c => String(c.id) === String(clientId));
+    const vehicleMenu = vehicleSelect;
+
     vehicleMenu.innerHTML = "";
 
-    // Aucun client choisi
     if (!client) {
         vehicleMenu.innerHTML = `<option value="">— Sélectionnez un client —</option>`;
-        $("jobDesc").value = "";
+        jobDesc.value = "";
         return;
     }
 
-    // Si client sans véhicule
     if (!client.vehicles || client.vehicles.length === 0) {
         vehicleMenu.innerHTML = `<option value="">— Aucun véhicule enregistré —</option>`;
-        $("jobDesc").value = "";
+        jobDesc.value = "";
         return;
     }
 
-    // Sinon : remplir avec les véhicules du client
     client.vehicles.forEach(v => {
         const label = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim();
         vehicleMenu.innerHTML += `<option value="${label}">${label}</option>`;
     });
 
-    // mettre la valeur du premier véhicule dans jobDesc
-    $("jobDesc").value = vehicleMenu.value;
-};
+    jobDesc.value = vehicleMenu.value;
+  };
 
-// Quand un véhicule est sélectionné → mettre la valeur dans jobDesc
-$("vehicleSelect").onchange = () => {
-    $("jobDesc").value = $("vehicleSelect").value;
-};
+  vehicleSelect.onchange = () => {
+    jobDesc.value = vehicleSelect.value;
+  };
+}
 
 
 /* ===================== SETTINGS ===================== */
@@ -3601,6 +3607,7 @@ window.addEventListener('load',()=>{
   initNotesModule();
   initLinksModule();
   initWorkOrdersModule();
+  initInvoiceVehicleBindings();
   renderDashboard();
 });
   
