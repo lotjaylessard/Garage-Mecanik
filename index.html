@@ -271,7 +271,12 @@
         <input id="invoiceNumber" disabled />
 
         <label>Description / Véhicule</label>
-        <input id="jobDesc" />
+<select id="vehicleSelect" style="width:100%; padding:8px; margin-top:6px;">
+    <option value="">— Sélectionnez un client —</option>
+</select>
+
+<!-- ON GARDE jobDesc CACHÉ pour compatibilité interne -->
+<input id="jobDesc" style="display:none;" />
 
         <h3>Ajouter une pièce (manuel)</h3>
         <label>Nom pièce / description</label>
@@ -642,6 +647,45 @@ let items = [];
 let CLIENTS = [];
 let PARTS = [];
 let SERVICES = [];
+
+  // === Mise à jour automatique du menu véhicule selon le client ===
+$("customerSelect").onchange = () => {
+    const clientName = $("customerSelect").value;
+    const client = CLIENTS.find(c => c.name === clientName);
+    const vehicleMenu = $("vehicleSelect");
+
+    // Vider l'ancien contenu
+    vehicleMenu.innerHTML = "";
+
+    // Aucun client choisi
+    if (!client) {
+        vehicleMenu.innerHTML = `<option value="">— Sélectionnez un client —</option>`;
+        $("jobDesc").value = "";
+        return;
+    }
+
+    // Si client sans véhicule
+    if (!client.vehicles || client.vehicles.length === 0) {
+        vehicleMenu.innerHTML = `<option value="">— Aucun véhicule enregistré —</option>`;
+        $("jobDesc").value = "";
+        return;
+    }
+
+    // Sinon : remplir avec les véhicules du client
+    client.vehicles.forEach(v => {
+        const label = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim();
+        vehicleMenu.innerHTML += `<option value="${label}">${label}</option>`;
+    });
+
+    // mettre la valeur du premier véhicule dans jobDesc
+    $("jobDesc").value = vehicleMenu.value;
+};
+
+// Quand un véhicule est sélectionné → mettre la valeur dans jobDesc
+$("vehicleSelect").onchange = () => {
+    $("jobDesc").value = $("vehicleSelect").value;
+};
+
 
 /* ===================== SETTINGS ===================== */
 function loadSettings(){
