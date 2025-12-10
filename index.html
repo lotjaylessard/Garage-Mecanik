@@ -185,6 +185,22 @@
         margin-top:0;
       }
     }
+
+    /* ===================== QUICK LINKS ===================== */
+    .quick-links a {
+  display:block;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+  color:var(--accent);
+  font-size:1rem;
+  text-decoration:none;
+}
+
+.quick-links a:hover {
+  color:white;
+  text-decoration:underline;
+}
+
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -204,6 +220,7 @@
     <button class="navBtn" data-page="page-parts">🔩 Pièces</button>
     <button class="navBtn" data-page="page-history">📜 Historique</button>
     <button class="navBtn" data-page="page-notes">📝 Notes</button>
+    <button class="navBtn" data-page="page-links">🔗 Liens Rapides</button>
     <button class="navBtn" data-page="page-settings">⚙️ Paramètres</button>
   </div>
 
@@ -559,6 +576,36 @@
       <button id="importNotesBtn" class="ghost">Importer</button>
       <input type="file" id="importNotesFile" accept=".json" style="display:none;">
     </div>
+  </div>
+</div>
+
+
+    <!-- LIENS RAPIDES -->
+<div class="page" id="page-links">
+  <h2>Liens Rapides</h2>
+
+  <div class="card">
+    <h3>Ressources principales</h3>
+
+    <div class="quick-links">
+      <a href="https://www.rockauto.com/" target="_blank">🔧 RockAuto – Pièces automobiles</a>
+      <a href="https://www.napaonline.com/" target="_blank">🔩 NAPA – Pièces et références</a>
+      <a href="https://parts.toyota.com" target="_blank">🚗 Toyota OEM Parts</a>
+      <a href="https://parts.honda.com" target="_blank">🚙 Honda OEM Parts</a>
+      <a href="https://www.kia.parts" target="_blank">🚘 Kia OEM Parts</a>
+      <a href="https://www.hyundaipartsdeal.com" target="_blank">🚘 Hyundai OEM Parts</a>
+      <a href="https://www.autozone.com" target="_blank">🔧 AutoZone – Guides de réparation</a>
+      <a href="https://cardiagn.com" target="_blank">📘 CarDiagn – Manuels techniques</a>
+      <a href="https://www.eautorepair.net" target="_blank">📙 EAutoRepair – Manuel mécanique pro</a>
+      <a href="https://www.electricalschematics.com/" target="_blank">⚡ Schémas électriques automobiles</a>
+      <a href="https://workshop-manuals.com" target="_blank">📚 Workshop Manuals – Réparations et diagnostics</a>
+      <a href="https://www.sae.org" target="_blank">📐 SAE – Normes mécaniques</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Liens personnalisés</h3>
+    <p class="muted">Tu veux que j'ajoute un système pour ajouter tes propres liens? Dis-moi, je peux te coder ça aussi.</p>
   </div>
 </div>
 
