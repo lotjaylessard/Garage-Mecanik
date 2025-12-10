@@ -2531,46 +2531,103 @@ function renderNotes() {
         n.date.toLowerCase().includes(search)
     );
 
+  // TRI INTELLIGENT : Urgent → À faire → Général, puis date
+const priority = { urgent: 1, todo: 2, general: 3 };
+
+filtered.sort((a, b) => {
+    if (priority[a.category] !== priority[b.category]) {
+        return priority[a.category] - priority[b.category];
+    }
+    return b.id - a.id; // plus récent en premier
+});
+
     if (filtered.length === 0) {
         wrap.innerHTML = `<div class="muted">Aucune note correspondante.</div>`;
         return;
     }
 
-    wrap.innerHTML = filtered.map(n => `
-        <div style="border:1px solid var(--border);padding:10px;border-radius:8px;margin-bottom:8px;">
-            <div style="font-size:0.8rem;color:var(--muted); display:flex; align-items:center; gap:10px;">
-    <span style="font-size:0.8rem;">${n.date}</span>
+    let html = "";
 
-    <span style="
-        padding:3px 8px;
-        border-radius:6px;
-        font-size:0.9rem;
-        font-weight:700;
-        color:white;
-        background:${n.category === 'urgent' 
-            ? '#c62828' 
-            : n.category === 'todo' 
-              ? '#f9a825' 
-              : '#1565c0'};
-    ">
-        ${n.category === 'urgent'
-            ? '🚨 Urgent'
-            : n.category === 'todo'
-                ? '📝 À faire'
-                : '📘 Général'}
-    </span>
-</div>
+// GROUPES PAR CATÉGORIE
+const groups = {
+    urgent: filtered.filter(n => n.category === "urgent"),
+    todo: filtered.filter(n => n.category === "todo"),
+    general: filtered.filter(n => n.category === "general")
+};
 
-            <div id="noteText_${n.id}" style="margin-top:6px;">
-                ${n.text.replace(/\n/g,'<br>')}
+// Fonction pour générer un séparateur propre
+function categoryHeader(cat, count) {
+    const colors = {
+        urgent: "#c62828",
+        todo: "#f9a825",
+        general: "#1565c0"
+    };
+
+    const labels = {
+        urgent: "🚨 Urgent",
+        todo: "📝 À faire",
+        general: "📘 Général"
+    };
+
+    return `
+        <h3 style="
+            margin-top:20px;
+            color:${colors[cat]};
+            border-bottom:2px solid ${colors[cat]};
+            padding-bottom:4px;
+        ">
+            ${labels[cat]} (${count})
+        </h3>
+    `;
+}
+
+// Construction du HTML groupé
+["urgent", "todo", "general"].forEach(cat => {
+    if (groups[cat].length === 0) return;
+
+    html += categoryHeader(cat, groups[cat].length);
+
+    groups[cat].forEach(n => {
+        html += `
+            <div style="border:1px solid var(--border);padding:10px;border-radius:8px;margin-bottom:8px;">
+                
+                <div style="font-size:0.8rem;color:var(--muted); display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:0.8rem;">${n.date}</span>
+
+                    <span style="
+                        padding:3px 8px;
+                        border-radius:6px;
+                        font-size:0.9rem;
+                        font-weight:700;
+                        color:white;
+                        background:${n.category === 'urgent' 
+                            ? '#c62828' 
+                            : n.category === 'todo' 
+                              ? '#f9a825' 
+                              : '#1565c0'};
+                    ">
+                        ${n.category === 'urgent'
+                            ? '🚨 Urgent'
+                            : n.category === 'todo'
+                                ? '📝 À faire'
+                                : '📘 Général'}
+                    </span>
+                </div>
+
+                <div id="noteText_${n.id}" style="margin-top:6px;">
+                    ${n.text.replace(/\n/g,'<br>')}
+                </div>
+
+                <div style="margin-top:8px; display:flex;gap:10px;">
+                    <button class="ghost" onclick="editNote(${n.id})">✏️ Modifier</button>
+                    <button class="ghost" onclick="deleteNote(${n.id})">🗑️ Supprimer</button>
+                </div>
             </div>
+        `;
+    });
+});
 
-            <div style="margin-top:8px; display:flex;gap:10px;">
-                <button class="ghost" onclick="editNote(${n.id})">✏️ Modifier</button>
-                <button class="ghost" onclick="deleteNote(${n.id})">🗑️ Supprimer</button>
-            </div>
-        </div>
-    `).join('');
+wrap.innerHTML = html;
 }
 
 /* Mode édition */
