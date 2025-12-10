@@ -945,6 +945,121 @@ function saveWorkOrders(){
   `;
 }
 
+  
+  /* Ajouter une pièce à un WO */
+function woAddPartLine(wo) {
+  // ouvrir le PartPicker existant
+  renderPartPicker();
+
+  // on remplace le comportement du bouton "Ajouter" du PartPicker
+  partPickerList.querySelectorAll("button[data-number]").forEach(btn => {
+    btn.onclick = () => {
+      const num = btn.dataset.number;
+      const part = PARTS.find(x => String(x.number) === String(num));
+      if (!part) return;
+
+      const qty = 1;
+
+      wo.parts.push({
+        name: part.name,
+        number: part.number,
+        qty,
+        rate: part.price,
+        total: part.price * qty
+      });
+
+      saveWorkOrders();
+      woRenderLines(wo);
+
+      partPickerModal.style.display = "none";
+    };
+  });
+}
+
+/* Ajouter main d’œuvre à un WO */
+function woAddLaborLine(wo) {
+  // Ouvre service picker
+  renderServicePicker();
+
+  servicePickerList.querySelectorAll("button[data-service]").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.service;
+      const srv = SERVICES.find(s => String(s.id) === String(id));
+      if (!srv) return;
+
+      const hours = srv.time || 1;
+      const rate = srv.rate || 60;
+
+      wo.labor.push({
+        description: srv.name,
+        hours,
+        rate,
+        total: hours * rate
+      });
+
+      saveWorkOrders();
+      woRenderLines(wo);
+
+      $("servicePickerModal").style.display = "none";
+    };
+  });
+}
+
+  
+  /* Rendu des lignes d’un WO */
+function woRenderLines(wo) {
+  // pièces
+  const pBody = $("woPartsTable").querySelector("tbody");
+  pBody.innerHTML = wo.parts.map((p,i)=>`
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.qty}</td>
+      <td>${money(p.rate)}$</td>
+      <td>${money(p.qty*p.rate)}$</td>
+      <td><button class="ghost" onclick="woRemovePart(${wo.id},${i})">🗑</button></td>
+    </tr>
+  `).join("");
+
+  // main d’œuvre
+  const lBody = $("woLaborTable").querySelector("tbody");
+  lBody.innerHTML = wo.labor.map((l,i)=>`
+    <tr>
+      <td>${l.description}</td>
+      <td>${l.hours}</td>
+      <td>${money(l.rate)}$</td>
+      <td>${money(l.hours*l.rate)}$</td>
+      <td><button class="ghost" onclick="woRemoveLabor(${wo.id},${i})">🗑</button></td>
+    </tr>
+  `).join("");
+
+  // total estimé
+  const total =
+    wo.parts.reduce((s,p)=>s+p.qty*p.rate,0) +
+    wo.labor.reduce((s,l)=>s+l.hours*l.rate,0);
+
+  wo.estimateTotal = total;
+  $("woEstimateTotal").innerText = money(total) + " $";
+
+  saveWorkOrders();
+}
+
+  
+  function woRemovePart(woId,index){
+  const wo = WORKORDERS.find(w=>w.id==woId);
+  if(!wo) return;
+  wo.parts.splice(index,1);
+  saveWorkOrders();
+  woRenderLines(wo);
+}
+
+function woRemoveLabor(woId,index){
+  const wo = WORKORDERS.find(w=>w.id==woId);
+  if(!wo) return;
+  wo.labor.splice(index,1);
+  saveWorkOrders();
+  woRenderLines(wo);
+}
+
 
 function renderWorkOrders(){
   const table = $("woTable");
@@ -1051,13 +1166,50 @@ function initWorkOrdersModule(){
       if (!detail || !wo) return;
 
       detail.innerHTML = `
-        <div>
-          <div><b>Bon de travail #${wo.number || ""}</b></div>
-          <div class="muted" style="margin-top:4px;">
-            (Le détail complet sera géré dans une prochaine étape.)
-          </div>
-        </div>
-      `;
+  <h3>Bon de travail #${wo.number}</h3>
+
+  <div class="muted" style="margin-bottom:10px;">${wo.date}</div>
+
+  <div style="margin-bottom:20px;">
+    <b>Client :</b> ${wo.clientName}<br>
+    <b>Véhicule :</b> ${wo.vehicleLabel}<br>
+    <b>Description :</b><br>
+    <div class="muted" style="white-space:pre-line;margin-top:4px;">
+      ${wo.description || "(aucune description)"}
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Pièces</h3>
+    <button id="woAddPart" class="ghost">➕ Ajouter une pièce</button>
+    <table id="woPartsTable" style="margin-top:10px;">
+      <thead>
+        <tr><th>Nom</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3>Main d'œuvre</h3>
+    <button id="woAddLabor" class="ghost">➕ Ajouter main d'œuvre</button>
+    <table id="woLaborTable" style="margin-top:10px;">
+      <thead>
+        <tr><th>Description</th><th>Heures</th><th>Rate</th><th>Total</th><th></th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px;text-align:right;">
+    <h3>Total estimé : <span id="woEstimateTotal">0 $</span></h3>
+  </div>
+`;
+      
+      $("woAddPart").onclick = () => woAddPartLine(wo);
+$("woAddLabor").onclick = () => woAddLaborLine(wo);
+woRenderLines(wo);
+
     };
   }
 }
