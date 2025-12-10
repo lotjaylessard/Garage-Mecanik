@@ -1675,16 +1675,23 @@ function renderPartPicker() {
 
     partsToShow.forEach(p => {
         html += `
-            <div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;">
-                <b>${p.name}</b> (#${p.number})<br>
-                Catégorie : ${p.category}<br>
-                Prix : ${money(p.price)} $<br>
-                Stock : ${p.qty}
-                <button class="ghost" data-number="${p.number}" style="margin-top:6px;">
-                  ➕ Ajouter
-                </button>
-            </div>
-        `;
+    <div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;">
+        <b>${p.name}</b> (#${p.number})<br>
+        Catégorie : ${p.category}<br>
+        Prix : ${money(p.price)} $<br>
+        Stock : ${p.qty}<br>
+
+        <label style="font-size:0.8rem; color:var(--muted);">Quantité :</label>
+        <input type="number" min="1" max="${p.qty}" value="1"
+               id="qty_${p.number}"
+               style="width:70px; padding:4px; margin-top:4px; background:#111; color:white; border:1px solid var(--border); border-radius:4px;">
+
+        <button class="ghost" data-number="${p.number}" style="margin-top:6px;">
+          ➕ Ajouter
+        </button>
+    </div>
+`;
+
     });
 
     partPickerList.innerHTML = html;
@@ -1696,28 +1703,34 @@ function renderPartPicker() {
             const part = PARTS.find(x => String(x.number) === String(num));
             if (!part) return;
 
-            if (part.qty <= 0) {
-                alert("Stock insuffisant pour cette pièce.");
-                return;
-            }
+            // Quantité choisie
+const qField = $("qty_" + num);
+let qtyToAdd = Number(qField?.value || 1);
+if (qtyToAdd < 1) qtyToAdd = 1;
 
-            // Décrémente stock
-            part.qty--;
-            saveParts();
-            renderParts();
-            renderDashboard();
+// Vérifie stock
+if (part.qty < qtyToAdd) {
+    alert("Stock insuffisant. Disponible : " + part.qty);
+    return;
+}
 
-            // Ajoute la pièce à la facture
-            items.push({
-                type: "Pièce (Inventaire)",
-                desc: `${part.name} (#${part.number})`,
-                qty: 1,
-                rate: part.price,
-                invNumber: part.number
-            });
+// Décrémente le stock
+part.qty -= qtyToAdd;
+saveParts();
+renderParts();
+renderDashboard();
 
-            renderItems();
-            partPickerModal.style.display = "none";
+// Ajoute dans la facture
+items.push({
+    type: "Pièce (Inventaire)",
+    desc: `${part.name} (#${part.number})`,
+    qty: qtyToAdd,
+    rate: part.price,
+    invNumber: part.number
+});
+
+renderItems();
+partPickerModal.style.display = "none";
         };
     });
 }
