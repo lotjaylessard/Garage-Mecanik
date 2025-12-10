@@ -948,11 +948,12 @@ function saveWorkOrders(){
   
   /* Ajouter une pièce à un WO */
 function woAddPartLine(wo) {
-  // ouvrir le PartPicker existant
   renderPartPicker();
 
-  // on remplace le comportement du bouton "Ajouter" du PartPicker
-  partPickerList.querySelectorAll("button[data-number]").forEach(btn => {
+  const list = $("partPickerList");
+  const modal = $("partPickerModal");
+
+  list.querySelectorAll("button[data-number]").forEach(btn => {
     btn.onclick = () => {
       const num = btn.dataset.number;
       const part = PARTS.find(x => String(x.number) === String(num));
@@ -971,17 +972,20 @@ function woAddPartLine(wo) {
       saveWorkOrders();
       woRenderLines(wo);
 
-      partPickerModal.style.display = "none";
+      modal.style.display = "none";
     };
   });
 }
 
+
 /* Ajouter main d’œuvre à un WO */
 function woAddLaborLine(wo) {
-  // Ouvre service picker
   renderServicePicker();
 
-  servicePickerList.querySelectorAll("button[data-service]").forEach(btn => {
+  const list = $("servicePickerList");
+  const modal = $("servicePickerModal");
+
+  list.querySelectorAll("button[data-service]").forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.service;
       const srv = SERVICES.find(s => String(s.id) === String(id));
@@ -1000,7 +1004,7 @@ function woAddLaborLine(wo) {
       saveWorkOrders();
       woRenderLines(wo);
 
-      $("servicePickerModal").style.display = "none";
+      modal.style.display = "none";
     };
   });
 }
