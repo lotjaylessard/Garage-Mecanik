@@ -236,14 +236,14 @@
   font-size:1.1rem;
 }
 
-    #page-workorders select,
-#page-workorders input,
-#page-workorders textarea {
-  background:#111;
-  color:white;
-  border:1px solid var(--border);
-  border-radius:5px;
-  padding:6px;
+#page-workorders textarea,
+#page-workorders select,
+#page-workorders input {
+    background:#111;
+    border:1px solid var(--border);
+    color:white;
+    border-radius:6px;
+    padding:6px;
 }
 
 
@@ -1004,6 +1004,22 @@ function woAddLaborLine(wo) {
     };
   });
 }
+  
+
+  function woSaveEdits(wo) {
+  const desc  = $("woEditDesc")?.value || "";
+  const stat  = $("woEditStatus")?.value || "draft";
+  const km    = Number($("woEditKM")?.value || 0);
+  const notes = $("woEditNotes")?.value || "";
+
+  wo.description   = desc;
+  wo.status        = stat;
+  wo.km            = km;
+  wo.internalNotes = notes;
+
+  saveWorkOrders();
+  renderWorkOrders();
+}
 
   
   /* Rendu des lignes d’un WO */
@@ -1013,7 +1029,10 @@ function woRenderLines(wo) {
   pBody.innerHTML = wo.parts.map((p,i)=>`
     <tr>
       <td>${p.name}</td>
-      <td>${p.qty}</td>
+      <td><input type="number" min="1" value="${p.qty}" 
+     onchange="woEditPartQty(${wo.id},${i},this.value)"
+     style="width:60px;background:#111;color:white;border:1px solid var(--border);border-radius:4px;text-align:center;">
+</td>
       <td>${money(p.rate)}$</td>
       <td>${money(p.qty*p.rate)}$</td>
       <td><button class="ghost" onclick="woRemovePart(${wo.id},${i})">🗑</button></td>
@@ -1025,7 +1044,10 @@ function woRenderLines(wo) {
   lBody.innerHTML = wo.labor.map((l,i)=>`
     <tr>
       <td>${l.description}</td>
-      <td>${l.hours}</td>
+      <td><input type="number" min="0.1" step="0.1" value="${l.hours}"
+     onchange="woEditLaborHours(${wo.id},${i},this.value)"
+     style="width:70px;background:#111;color:white;border:1px solid var(--border);border-radius:4px;text-align:center;">
+</td>
       <td>${money(l.rate)}$</td>
       <td>${money(l.hours*l.rate)}$</td>
       <td><button class="ghost" onclick="woRemoveLabor(${wo.id},${i})">🗑</button></td>
@@ -1048,6 +1070,34 @@ function woRenderLines(wo) {
   const wo = WORKORDERS.find(w=>w.id==woId);
   if(!wo) return;
   wo.parts.splice(index,1);
+  saveWorkOrders();
+  woRenderLines(wo);
+}
+
+  function woEditPartQty(woId,index,value){
+  const wo = WORKORDERS.find(w=>w.id==woId);
+  if(!wo) return;
+
+  const qty = Number(value);
+  if(qty <= 0) return;
+
+  wo.parts[index].qty = qty;
+  wo.parts[index].total = qty * wo.parts[index].rate;
+
+  saveWorkOrders();
+  woRenderLines(wo);
+}
+
+  function woEditLaborHours(woId,index,value){
+  const wo = WORKORDERS.find(w=>w.id==woId);
+  if(!wo) return;
+
+  const h = Number(value);
+  if(h <= 0) return;
+
+  wo.labor[index].hours = h;
+  wo.labor[index].total = h * wo.labor[index].rate;
+
   saveWorkOrders();
   woRenderLines(wo);
 }
@@ -1171,13 +1221,29 @@ function initWorkOrdersModule(){
   <div class="muted" style="margin-bottom:10px;">${wo.date}</div>
 
   <div style="margin-bottom:20px;">
-    <b>Client :</b> ${wo.clientName}<br>
-    <b>Véhicule :</b> ${wo.vehicleLabel}<br>
-    <b>Description :</b><br>
-    <div class="muted" style="white-space:pre-line;margin-top:4px;">
-      ${wo.description || "(aucune description)"}
-    </div>
-  </div>
+  <b>Client :</b> ${wo.clientName}<br>
+  <b>Véhicule :</b> ${wo.vehicleLabel}<br>
+
+  <label style="margin-top:10px;">Description du problème :</label>
+  <textarea id="woEditDesc" style="min-height:80px;">${wo.description || ""}</textarea>
+
+  <label style="margin-top:10px;">Statut :</label>
+  <select id="woEditStatus">
+    <option value="draft" ${wo.status==="draft"?"selected":""}>Brouillon</option>
+    <option value="in_progress" ${wo.status==="in_progress"?"selected":""}>En cours</option>
+    <option value="waiting_parts" ${wo.status==="waiting_parts"?"selected":""}>En attente de pièces</option>
+    <option value="completed" ${wo.status==="completed"?"selected":""}>Terminé</option>
+    <option value="billed" ${wo.status==="billed"?"selected":""}>Facturé</option>
+  </select>
+
+  <label style="margin-top:10px;">Kilométrage (optionnel) :</label>
+  <input id="woEditKM" type="number" value="${wo.km || ""}" style="width:150px;">
+  
+  <label style="margin-top:10px;">Notes internes :</label>
+  <textarea id="woEditNotes" style="min-height:80px;">${wo.internalNotes || ""}</textarea>
+
+  <button id="woSaveEdits" style="margin-top:12px;">💾 Sauvegarder modifications</button>
+</div>
 
   <div class="card">
     <h3>Pièces</h3>
@@ -1209,6 +1275,12 @@ function initWorkOrdersModule(){
       $("woAddPart").onclick = () => woAddPartLine(wo);
 $("woAddLabor").onclick = () => woAddLaborLine(wo);
 woRenderLines(wo);
+
+      $("woSaveEdits").onclick = () => {
+    woSaveEdits(wo);
+    alert("Modifications enregistrées !");
+};
+
 
     };
   }
