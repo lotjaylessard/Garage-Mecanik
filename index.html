@@ -1660,6 +1660,29 @@ function saveInvoices(){
   });
 }
 
+  function renderHistoryTable() {
+  let HISTORY = JSON.parse(localStorage.getItem("history") || "[]");
+  const tbody = $("historyTable").querySelector("tbody");
+  tbody.innerHTML = "";
+
+  if (!HISTORY.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="muted">Aucune facture payée</td></tr>`;
+    return;
+  }
+
+  HISTORY.forEach(inv => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${inv.number}</td>
+      <td>${inv.date}</td>
+      <td>${inv.customer}</td>
+      <td>${inv.job || inv.vehicle || ""}</td>
+      <td>${money(inv.total)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
   // === FILTRES DE RECHERCHE ET STATUT (3D) ===
 $("invoiceSearch").oninput = renderInvoiceList;
 $("invoiceStatusFilter").onchange = renderInvoiceList;
@@ -2053,8 +2076,8 @@ if ($('saveInvoice')) {
       saveInvoices();
 
       alert("Facture marquée comme payée !");
-      showPage("page-invoice-list");
-      renderInvoiceList();
+showPage("page-history");
+renderHistoryTable();
     });
   }
 
@@ -4018,6 +4041,7 @@ window.addEventListener('load',()=>{
   initNotesModule();
   initLinksModule();
   initWorkOrdersModule();
+  renderHistoryTable();
   renderDashboard();
 });
   
