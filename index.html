@@ -484,6 +484,17 @@
         <div>TVQ: <span id="qstAmount">0.00</span> $</div>
         <div><strong>Total: <span id="totalAmount">0.00</span> $</strong></div>
 
+        <h3>Statut de la facture</h3>
+<select id="invoiceStatus">
+  <option value="draft">Brouillon</option>
+  <option value="pending">En attente de paiement</option>
+  <option value="paid">Payée</option>
+</select>
+
+<button id="markInvoicePaid" class="ghost" style="margin-top:10px;">
+  ✔ Marquer comme payée
+</button>
+
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
           <button id="saveInvoice">Enregistrer facture</button>
           <button id="clearItems" class="ghost">Vider</button>
@@ -1640,7 +1651,19 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   renderItems();
   invoiceCalcTotals();
-}
+
+    // Recharger le statut dans l’éditeur
+$("invoiceStatus").value = inv.status || "draft";
+
+// Gestion du bouton "Marquer comme payée"
+$("markInvoicePaid").onclick = () => {
+  inv.status = "paid";
+  $("invoiceStatus").value = "paid";
+  saveInvoices();
+  alert("Facture marquée comme payée !");
+  renderInvoiceList();
+};
+  }
 
 
 /* STOCK & INVENTAIRE */
@@ -1844,6 +1867,10 @@ const cust = clientObj ? clientObj.name : "Client inconnu";
     const total = sub+gst+qst;
 
     const inv = {number,date:dateStr,customer:cust,job,items:[...items],subTotal:sub,gst,qst,total};
+    
+    // === Étape 6 : ajouter le statut sélectionné ===
+inv.status = $("invoiceStatus").value;
+    
     INVOICES.push(inv);
     saveInvoices();
     alert("Facture enregistrée.");
@@ -3741,6 +3768,7 @@ function initLinksModule() {
     gst: 0,
     qst: 0,
     total: 0
+    invoice.status = "pending";
   };
 
   wo.parts.forEach(p => {
@@ -3765,6 +3793,9 @@ function initLinksModule() {
   invoice.gst = invoice.subTotal * (SETTINGS.gst/100);
   invoice.qst = (invoice.subTotal + invoice.gst) * (SETTINGS.qst/100);
   invoice.total = invoice.subTotal + invoice.gst + invoice.qst;
+
+    // === Statut par défaut d'une facture générée depuis un WO ===
+invoice.status = "pending";
 
   INVOICES.push(invoice);
   saveInvoices();
