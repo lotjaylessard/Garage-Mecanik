@@ -1837,6 +1837,32 @@ function renderTotals(subTotalOverride){
   if($('totalAmount')) $('totalAmount').innerText = money(total);
 }
 
+  function resetInvoiceForm() {
+  items = [];
+
+  // Réinitialisation champs facture
+  if ($("invoiceNumber")) $("invoiceNumber").value = "F-" + Date.now();
+  if ($("jobDesc")) $("jobDesc").value = "";
+
+  $("invClientName").textContent = "";
+  $("invClientPhone").textContent = "";
+  $("invClientAddress").textContent = "";
+  $("invClientEmail").textContent = "";
+
+  $("invVehicleLabel").textContent = "";
+  $("invVehicleYear").textContent = "";
+  $("invVehicleVin").textContent = "";
+
+  renderItems();
+  renderTotals();
+}
+
+  function invoiceCalcTotals() {
+  let sub = items.reduce((s, it) => s + it.qty * it.rate, 0);
+  renderTotals(sub);
+}
+
+
 function renderItems(){
   const tbody = document.querySelector('#itemsTable tbody');
   if(!tbody) return;
@@ -2071,7 +2097,10 @@ if ($("markInvoicePaid")) {
       $("invoiceStatus").value = "paid";
     }
 
-    // NE PLUS retirer de INVOICES, on garde tout dans le même tableau
+    // ⭐⭐⭐ AJOUT À L’HISTORIQUE (la ligne qu'il te manquait)
+    addInvoiceToHistory(inv);
+
+    // NE PLUS retirer de INVOICES
     saveInvoices();
 
     alert("Facture marquée comme payée !");
@@ -2081,7 +2110,6 @@ if ($("markInvoicePaid")) {
     showPage("page-history"); // On t’envoie sur l’historique
   });
 }
-
 
 
 /* INIT INVOICES */
@@ -4014,6 +4042,13 @@ function woConvertToInvoice(wo) {
   openInvoiceEditor(number);
 }
 
+  /* === Activer le bouton "Nouvelle facture" === */
+if (document.getElementById("btnNewInvoice")) {
+  document.getElementById("btnNewInvoice").onclick = () => {
+    showPage("page-invoice-editor"); // Ouvre la page facture
+    resetInvoiceForm();              // Réinitialise la facture
+  };
+}
   
 /* ===================== INIT ALL ===================== */
 window.addEventListener('load',()=>{
