@@ -1372,6 +1372,25 @@ function renderWorkOrders(){
   });
 }
 
+  function finishWorkOrder(id){
+  const wo = WORKORDERS.find(w => w.id === id);
+  if(!wo) return alert("Erreur : bon de travail introuvable.");
+
+  if(!confirm("Marquer ce bon de travail comme terminé et créer une facture ?")) return;
+
+  // Convertir en facture pending
+  woConvertToInvoice(wo);
+
+  // Mettre le WO en facturé
+  wo.status = "billed";
+
+  saveWorkOrders();
+  renderWorkOrders();
+
+  alert("Bon de travail terminé. Facture créée.");
+}
+
+
 function initWorkOrdersModule(){
   loadWorkOrders();
   renderWorkOrders();
@@ -1617,8 +1636,9 @@ function saveInvoices(){
       <td>${money(inv.total)}</td>
       <td>${inv.status || "draft"}</td>
       <td>
-        <button class="ghost" onclick="openInvoiceEditor(${inv.number})">Ouvrir</button>
-      </td>
+  <button class="ghost" onclick="openWorkOrder(${wo.id})">Ouvrir</button>
+  <button class="ghost" onclick="finishWorkOrder(${wo.id})">Terminé</button>
+</td>
     `;
 
     tbody.appendChild(row);
@@ -1659,11 +1679,24 @@ $("invoiceStatus").value = inv.status || "draft";
 $("markInvoicePaid").onclick = () => {
   inv.status = "paid";
   $("invoiceStatus").value = "paid";
+
+  // --- AJOUTER À L'HISTORIQUE ---
+  addInvoiceToHistory(inv);
+
+  // --- RETIRER DES FACTURES ACTIVES ---
+  INVOICES = INVOICES.filter(i => i.number !== inv.number);
   saveInvoices();
+
   alert("Facture marquée comme payée !");
   renderInvoiceList();
 };
   }
+
+  function addInvoiceToHistory(inv){
+  let HISTORY = JSON.parse(localStorage.getItem("history") || "[]");
+  HISTORY.push(inv);
+  localStorage.setItem("history", JSON.stringify(HISTORY));
+}
 
 
 /* STOCK & INVENTAIRE */
