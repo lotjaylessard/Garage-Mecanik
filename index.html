@@ -1557,44 +1557,50 @@ $("woConvertToInvoice").onclick = () => woConvertToInvoice(wo);
 
 
   // === Mise à jour automatique du menu véhicule selon le client ===
-if ($("customerSelect")) {
-  $("customerSelect").onchange = () => {
-      const clientName = $("customerSelect").value;
-      const client = CLIENTS.find(c => c.name === clientName);
-      const vehicleMenu = $("vehicleSelect");
+const customerSelectEl = $("customerSelect");
+if (customerSelectEl) {
+  customerSelectEl.onchange = () => {
+    const clientName = customerSelectEl.value;
+    const client = CLIENTS.find(c => c.name === clientName);
+    const vehicleMenu = $("vehicleSelect");
 
-      // Vider l'ancien contenu
-      vehicleMenu.innerHTML = "";
+    if (!vehicleMenu) {
+      // Plus de menu véhicule dans la nouvelle interface : on sort proprement
+      if ($("jobDesc")) $("jobDesc").value = "";
+      return;
+    }
 
-      if (!client) {
-          vehicleMenu.innerHTML = `<option value="">— Sélectionnez un client —</option>`;
-          $("jobDesc").value = "";
-          return;
-      }
+    // Vider l'ancien contenu
+    vehicleMenu.innerHTML = "";
 
-      // Si client sans véhicule
-      if (!client.vehicles || client.vehicles.length === 0) {
-          vehicleMenu.innerHTML = `<option value="">Aucun véhicule enregistré</option>`;
-          $("jobDesc").value = "";
-          return;
-      }
+    // Aucun client choisi
+    if (!client || !client.vehicles || client.vehicles.length === 0) {
+      vehicleMenu.innerHTML = `<option value="">— Aucun véhicule —</option>`;
+      if ($("jobDesc")) $("jobDesc").value = "";
+      return;
+    }
 
-      // Générer les options
-      client.vehicles.forEach(v => {
-          const opt = document.createElement("option");
-          opt.value = v.label;
-          opt.textContent = `${v.label} (${v.year})`;
-          vehicleMenu.appendChild(opt);
-      });
+    // Remplir les véhicules
+    client.vehicles.forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = `${v.year} ${v.make} ${v.model} (${v.plate || "sans plaque"})`;
+      opt.textContent = opt.value;
+      vehicleMenu.appendChild(opt);
+    });
 
+    // Mettre le premier véhicule dans jobDesc
+    vehicleMenu.selectedIndex = 0;
+    if ($("jobDesc")) $("jobDesc").value = vehicleMenu.value;
   };
 }
 
-
 // Quand un véhicule est sélectionné → mettre la valeur dans jobDesc
-$("vehicleSelect").onchange = () => {
-    $("jobDesc").value = $("vehicleSelect").value;
-};
+const vehicleSelectEl = $("vehicleSelect");
+if (vehicleSelectEl && $("jobDesc")) {
+  vehicleSelectEl.onchange = () => {
+    $("jobDesc").value = vehicleSelectEl.value;
+  };
+}
 
 
 /* ===================== SETTINGS ===================== */
