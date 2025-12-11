@@ -1652,7 +1652,7 @@ function saveInvoices(){
       <td>${money(inv.total)}</td>
       <td>${inv.status || "draft"}</td>
       <td>
-        <button class="ghost" onclick="openInvoiceEditor(${inv.number})">Ouvrir</button>
+        <button class="ghost" onclick="openInvoiceEditor('${inv.number}')">Ouvrir</button>
       </td>
     `;
 
@@ -1688,10 +1688,11 @@ $("invoiceSearch").oninput = renderInvoiceList;
 $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   function openInvoiceEditor(number) {
-  // On trouve la facture dans le tableau
   const index = INVOICES.findIndex(i => String(i.number) === String(number));
-  if (index === -1) return;
-  const inv = INVOICES[index];
+  if (index === -1) {
+    alert("Facture introuvable : " + number);
+    return;
+}
 
   // Aller sur la page éditeur
   showPage("page-invoice-editor");
