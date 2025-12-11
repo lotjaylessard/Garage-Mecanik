@@ -236,7 +236,7 @@
   font-size:1.1rem;
 }
 
-    #page-workorders select,
+#page-workorders select,
 #page-workorders input,
 #page-workorders textarea {
   background:#111;
@@ -245,6 +245,19 @@
   border-radius:5px;
   padding:6px;
 }
+
+    .status-badge {
+  padding:4px 8px;
+  border-radius:6px;
+  font-weight:600;
+  font-size:0.85rem;
+  color:black;
+}
+.status-draft { background:#888; }
+.status-in_progress { background:#f5c542; }
+.status-waiting_parts { background:#ff7f27; }
+.status-completed { background:#4CAF50; }
+.status-billed { background:#2196F3; }
 
 
   </style>
@@ -1145,7 +1158,10 @@ function woRenderLines(wo) {
       <td>${p.qty}</td>
       <td>${money(p.rate)}$</td>
       <td>${money(p.qty*p.rate)}$</td>
-      <td><button class="ghost" onclick="woRemovePart(${wo.id},${i})">🗑</button></td>
+      <td>
+        <button class="ghost" onclick="woEditLine(${wo.id},'part',${i})">✏️</button>
+        <button class="ghost" onclick="woRemovePart(${wo.id},${i})">🗑</button>
+      </td>
     </tr>
   `).join("");
 
@@ -1157,7 +1173,10 @@ function woRenderLines(wo) {
       <td>${l.hours}</td>
       <td>${money(l.rate)}$</td>
       <td>${money(l.hours*l.rate)}$</td>
-      <td><button class="ghost" onclick="woRemoveLabor(${wo.id},${i})">🗑</button></td>
+      <td>
+        <button class="ghost" onclick="woEditLine(${wo.id},'labor',${i})">✏️</button>
+        <button class="ghost" onclick="woRemoveLabor(${wo.id},${i})">🗑</button>
+      </td>
     </tr>
   `).join("");
 
@@ -1170,6 +1189,63 @@ function woRenderLines(wo) {
   $("woEstimateTotal").innerText = money(total) + " $";
 
   saveWorkOrders();
+}
+
+function woEditLine(woId, type, index) {
+  const wo = WORKORDERS.find(w => w.id == woId);
+  if (!wo) return;
+
+  const modal = $("woEditModal");
+  const box = $("woEditContent");
+
+  let line = (type === "part") ? wo.parts[index] : wo.labor[index];
+
+  if (type === "part") {
+    box.innerHTML = `
+      <label>Nom</label>
+      <input id="woEditName" value="${line.name}">
+
+      <label>Quantité</label>
+      <input id="woEditQty" type="number" value="${line.qty}">
+
+      <label>Prix unitaire</label>
+      <input id="woEditRate" type="number" step="0.01" value="${line.rate}">
+    `;
+  } else {
+    box.innerHTML = `
+      <label>Description</label>
+      <input id="woEditDesc" value="${line.description}">
+
+      <label>Heures</label>
+      <input id="woEditHours" type="number" step="0.1" value="${line.hours}">
+
+      <label>Taux horaire</label>
+      <input id="woEditRate" type="number" step="0.01" value="${line.rate}">
+    `;
+  }
+
+  modal.style.display = "flex";
+
+  $("woEditCancel").onclick = () => modal.style.display = "none";
+
+  $("woEditSave").onclick = () => {
+    if (type === "part") {
+      line.name = $("woEditName").value;
+      line.qty = Number($("woEditQty").value);
+      line.rate = Number($("woEditRate").value);
+      line.total = line.qty * line.rate;
+    } else {
+      line.description = $("woEditDesc").value;
+      line.hours = Number($("woEditHours").value);
+      line.rate = Number($("woEditRate").value);
+      line.total = line.hours * line.rate;
+    }
+
+    saveWorkOrders();
+    woRenderLines(wo);
+
+    modal.style.display = "none";
+  };
 }
 
   
@@ -1212,7 +1288,11 @@ function renderWorkOrders(){
       <td>${wo.date || ""}</td>
       <td>${wo.clientName || ""}</td>
       <td>${wo.vehicleLabel || ""}</td>
-      <td>${wo.status || ""}</td>
+      <td>
+  <span class="status-badge status-${wo.status}">
+    ${wo.status.replace("_"," ")}
+  </span>
+</td>
       <td>${money(wo.estimateTotal || 0)} $</td>
       <td><button class="ghost" data-action="open">Ouvrir</button></td>
     `;
@@ -1333,11 +1413,16 @@ function initWorkOrdersModule(){
   <div class="card" style="margin-top:20px;text-align:right;">
     <h3>Total estimé : <span id="woEstimateTotal">0 $</span></h3>
   </div>
+  <div class="card" style="margin-top:20px;text-align:right;">
+  <button id="woConvertToInvoice">➡️ Créer une facture</button>
+</div>
 `;
       
-      $("woAddPart").onclick = () => woAddPartLine(wo);
+$("woAddPart").onclick = () => woAddPartLine(wo);
 $("woAddLabor").onclick = () => woAddLaborLine(wo);
 woRenderLines(wo);
+$("woConvertToInvoice").onclick = () => woConvertToInvoice(wo);
+
 
     };
   }
@@ -3506,6 +3591,55 @@ function initLinksModule() {
     $("importLinksFile").onchange = importLinks;
 }
 
+  function woConvertToInvoice(wo) {
+  const number = nextInvoiceNumber();
+
+  const invoice = {
+    number,
+    date: new Date().toLocaleDateString("fr-CA"),
+    customer: wo.clientName,
+    job: wo.vehicleLabel + " - " + (wo.description || ""),
+    items: [],
+    subTotal: 0,
+    gst: 0,
+    qst: 0,
+    total: 0
+  };
+
+  wo.parts.forEach(p => {
+    invoice.items.push({
+      type: "Pièce",
+      desc: p.name,
+      qty: p.qty,
+      rate: p.rate
+    });
+  });
+
+  wo.labor.forEach(l => {
+    invoice.items.push({
+      type: "Main-d'œuvre",
+      desc: l.description,
+      qty: l.hours,
+      rate: l.rate
+    });
+  });
+
+  invoice.subTotal = invoice.items.reduce((s,it)=>s+it.qty*it.rate,0);
+  invoice.gst = invoice.subTotal * (SETTINGS.gst/100);
+  invoice.qst = (invoice.subTotal + invoice.gst) * (SETTINGS.qst/100);
+  invoice.total = invoice.subTotal + invoice.gst + invoice.qst;
+
+  INVOICES.push(invoice);
+  saveInvoices();
+
+  wo.status = "billed";
+  saveWorkOrders();
+  renderWorkOrders();
+
+  alert("Facture #" + number + " créée !");
+  showPage("page-invoices");
+}
+
   
 /* ===================== INIT ALL ===================== */
 window.addEventListener('load',()=>{
@@ -3521,5 +3655,19 @@ window.addEventListener('load',()=>{
 });
   
 </script>
+
+<!-- MODAL D'ÉDITION DE LIGNE -->
+<div id="woEditModal" class="modal-backdrop">
+  <div class="modal-panel" style="width:400px;">
+    <h2>Modifier la ligne</h2>
+    <div id="woEditContent"></div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:15px;">
+      <button id="woEditCancel" class="ghost">Annuler</button>
+      <button id="woEditSave">Enregistrer</button>
+    </div>
+  </div>
+</div>
+  
 </body>
 </html>
