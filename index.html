@@ -1986,9 +1986,12 @@ function resetInvoiceForm(){
 /* SAVE INVOICE (NEW) */
 function renderInvoicesTable(){
   // plus de table sur la page Factures; on met à jour Historique + Dashboard
-  renderHistoryTable();
+  if (typeof renderHistoryTable === "function") {
+    renderHistoryTable();
+  }
   renderDashboard();
 }
+
 
 if($('saveInvoice')){
   $('saveInvoice').addEventListener('click',()=>{
@@ -2981,7 +2984,13 @@ if ($("lastInvoicesBox")) {
     }
 
     $("lastInvoicesBox").innerHTML = html;
-}
+    }
+
+  // Met aussi à jour l’historique si la fonction existe
+  if (typeof renderHistoryTable === "function") {
+    renderHistoryTable();
+  }
+  }
 
     /* === Mettre à jour les filtres (client & véhicule) === */
   if ($("filterClient")) {
