@@ -259,6 +259,21 @@
 .status-completed { background:#4CAF50; }
 .status-billed { background:#2196F3; }
 
+    /* Cacher définitivement l’ajout pièce + main d’œuvre */
+#addPart, 
+#openPartPicker,
+#addLabor,
+#openServicePicker,
+#partName, #partQty, #partPrice,
+#laborDesc, #laborHours, #laborRate {
+  display:none !important;
+}
+
+/* Cacher les titres */
+h3:nth-of-type(1),
+h3:nth-of-type(2) {
+  display:none !important;
+}
 
   </style>
 
@@ -438,30 +453,29 @@
 <!-- ON GARDE jobDesc CACHÉ pour compatibilité interne -->
 <input id="jobDesc" style="display:none;" />
 
-        <h3>Ajouter une pièce</h3>
-        <label>Nom pièce / description</label>
-        <input id="partName" />
-        <label>Quantité</label>
-        <input id="partQty" type="number" value="1" />
-        <label>Prix unitaire</label>
-        <input id="partPrice" type="number" />
-        <button id="addPart">Ajouter pièce</button>
-        <button id="openPartPicker" class="ghost">
-    ➕ Ajouter une pièce enregistrée
-  </button>
+        <h3 data-section="addPart">Ajouter une pièce</h3>
+<div id="addPartSection">
+  <label>Nom pièce / description</label>
+  <input id="partName" />
+  <label>Quantité</label>
+  <input id="partQty" type="number" value="1" />
+  <label>Prix unitaire</label>
+  <input id="partPrice" type="number" />
+  <button id="addPart">Ajouter pièce</button>
+  <button id="openPartPicker" class="ghost">➕ Ajouter une pièce enregistrée</button>
+</div>
 
-        <h3>Ajouter main-d'œuvre</h3>
-        <label>Description</label>
-        <input id="laborDesc" />
-        <label>Heures</label>
-        <input id="laborHours" type="number" step="0.1" />
-        <label>Taux / h</label>
-        <input id="laborRate" type="number" step="0.01" />
-        <button id="addLabor">Ajouter main-d'œuvre</button>
-
-        <button id="openServicePicker" class="ghost" style="margin-top:8px;">
-          ➕ Ajouter un service enregistré
-        </button>
+        <h3 data-section="addLabor">Ajouter main-d'œuvre</h3>
+<div id="addLaborSection">
+  <label>Description</label>
+  <input id="laborDesc" />
+  <label>Heures</label>
+  <input id="laborHours" type="number" step="0.1" />
+  <label>Taux / h</label>
+  <input id="laborRate" type="number" step="0.01" />
+  <button id="addLabor">Ajouter main-d'œuvre</button>
+  <button id="openServicePicker" class="ghost">➕ Ajouter un service enregistré</button>
+</div>
 
         <h3>Articles</h3>
         <table id="itemsTable">
@@ -1661,27 +1675,19 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   resetInvoiceForm();
 
+    // ===== Mode édition : désactiver client & véhicule =====
+$("customerSelect").disabled = true;
+$("vehicleSelect").disabled = true;
+
     // ========== MODE ÉDITION : cacher les sections d'ajout ==========
 
-// Cacher titre "Ajouter une pièce"
-document.querySelector("h3:nth-of-type(1)").style.display = "none";
+// ===== CACHER SECTION AJOUT PIÈCE =====
+document.querySelector('h3[data-section="addPart"]').style.display = "none";
+document.querySelector('#addPartSection').style.display = "none";
 
-// Cacher tout le bloc de champs de pièce
-$("partName").closest("h3").nextElementSibling.style.display = "none";
-
-// Cacher les boutons pour pièces
-$("addPart").style.display = "none";
-$("openPartPicker").style.display = "none";
-
-// Cacher titre "Ajouter main-d'oeuvre"
-document.querySelector("h3:nth-of-type(2)").style.display = "none";
-
-// Cacher tout le bloc de champs de main-d'oeuvre
-$("laborDesc").closest("h3").nextElementSibling.style.display = "none";
-
-// Cacher les boutons main-d'oeuvre
-$("addLabor").style.display = "none";
-$("openServicePicker").style.display = "none";
+// ===== CACHER SECTION AJOUT MAIN D’ŒUVRE =====
+document.querySelector('h3[data-section="addLabor"]').style.display = "none";
+document.querySelector('#addLaborSection').style.display = "none";
 
     // === MODE ÉDITION : facture existante ===
 let editingInvoice = true;
