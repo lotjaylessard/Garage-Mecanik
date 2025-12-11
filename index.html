@@ -1631,9 +1631,9 @@ function saveInvoices(){
   });
 
   filtered.forEach(inv => {
-    const row = document.createElement("tr");
+  const row = document.createElement("tr");
 
-    row.innerHTML = `
+  row.innerHTML = `
       <td>${inv.number}</td>
       <td>${inv.date}</td>
       <td>${inv.customer}</td>
@@ -1641,11 +1641,33 @@ function saveInvoices(){
       <td>${inv.status || "draft"}</td>
       <td>
         <button class="ghost" onclick="openInvoiceEditor(${inv.number})">Ouvrir</button>
+        <button class="ghost" style="margin-left:6px;color:#f55;" onclick="deleteInvoice(${inv.number})">
+          Supprimer
+        </button>
       </td>
     `;
 
-    tbody.appendChild(row);
-  });
+  tbody.appendChild(row);
+});
+}
+
+  function deleteInvoice(number) {
+  if (!confirm("Supprimer cette facture ?")) return;
+
+  // Retirer la facture de la liste actuelle
+  INVOICES = INVOICES.filter(inv => inv.number !== number);
+  saveInvoices();
+
+  // Rafraîchir l'affichage des factures
+  renderInvoiceList();
+
+  // Mettre à jour le reste de l’interface si les fonctions existent
+  if (typeof renderHistoryTable === "function") {
+    renderHistoryTable();
+  }
+  if (typeof renderDashboard === "function") {
+    renderDashboard();
+  }
 }
 
   // === FILTRES DE RECHERCHE ET STATUT (3D) ===
