@@ -283,21 +283,25 @@ h3:nth-of-type(2) {
   line-height:1.5;
 }
 
-    /* ==== STYLE FACTURE : Informations client & véhicule ==== */
+    /* ==== STYLE FACTURE : Informations client & véhicule (DARK MODE) ==== */
 
 .invoice-info-box {
-  background: #f4f4f4;         /* gris clair, comme le reste de tes cards */
+  background: #1e1e1e !important;   /* gris très foncé, comme les cards */
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 15px;
-  border: 1px solid #ddd;
-  color: #333 !important;      /* texte sombre lisible */
+  border: 1px solid #333;
+  color: #f1f1f1 !important;        /* texte clair */
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .invoice-info-box strong {
-  color: #000 !important;      /* titres plus foncés */
+  color: #ffffff !important;        /* titres bien visibles */
+}
+
+.invoice-info-box span {
+  color: #e4e4e4 !important;        /* valeurs lisibles */
 }
 
 
