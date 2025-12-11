@@ -346,14 +346,11 @@
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
           <button id="btnNewWorkOrder">➕ Nouveau bon de travail</button>
 
-          <select id="woStatusFilter" style="max-width:200px;">
-            <option value="">Tous les statuts</option>
-            <option value="draft">Brouillon</option>
-            <option value="in_progress">En cours</option>
-            <option value="waiting_parts">En attente de pièces</option>
-            <option value="completed">Terminé</option>
-            <option value="billed">Facturé</option>
-          </select>
+          <select id="woStatusFilter">
+  <option value="">-- Tous --</option>
+  <option value="en_cours">En cours</option>
+  <option value="termine">Terminé</option>
+</select>
 
           <input id="woSearch"
                  placeholder="Rechercher (client, véhicule, # BT...)"
@@ -1339,7 +1336,8 @@ function renderWorkOrders(){
   // Appliquer filtre statut + recherche
   let filtered = WORKORDERS.filter(wo => {
 
-    if (wo.status === "billed") return false;
+    // Garder seulement WO "en cours" ou "terminé"
+if (wo.status !== "en_cours" && wo.status !== "termine") return false;
     
     let ok = true;
 
@@ -1387,8 +1385,8 @@ function renderWorkOrders(){
   // Convertir en facture pending
   woConvertToInvoice(wo);
 
-  // Mettre le WO en facturé
-  wo.status = "billed";
+  // Mettre le WO en terminé
+  wo.status = "termine";
 
   saveWorkOrders();
   renderWorkOrders();
