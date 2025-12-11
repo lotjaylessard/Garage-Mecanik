@@ -283,25 +283,21 @@ h3:nth-of-type(2) {
   line-height:1.5;
 }
 
-    /* ==== STYLE FACTURE : Informations client & véhicule (DARK MODE) ==== */
+    /* ==== STYLE FACTURE : Informations client & véhicule ==== */
 
 .invoice-info-box {
-  background: #1e1e1e !important;   /* gris très foncé, comme les cards */
+  background: #f4f4f4;         /* gris clair, comme le reste de tes cards */
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 15px;
-  border: 1px solid #333;
-  color: #f1f1f1 !important;        /* texte clair */
+  border: 1px solid #ddd;
+  color: #333 !important;      /* texte sombre lisible */
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .invoice-info-box strong {
-  color: #ffffff !important;        /* titres bien visibles */
-}
-
-.invoice-info-box span {
-  color: #e4e4e4 !important;        /* valeurs lisibles */
+  color: #000 !important;      /* titres plus foncés */
 }
 
 
@@ -1652,34 +1648,11 @@ function saveInvoices(){
       <td>${money(inv.total)}</td>
       <td>${inv.status || "draft"}</td>
       <td>
-        <button class="ghost" onclick="openInvoiceEditor('${inv.number}')">Ouvrir</button>
+        <button class="ghost" onclick="openInvoiceEditor(${inv.number})">Ouvrir</button>
       </td>
     `;
 
     tbody.appendChild(row);
-  });
-}
-
-  function renderHistoryTable() {
-  let HISTORY = JSON.parse(localStorage.getItem("history") || "[]");
-  const tbody = $("historyTable").querySelector("tbody");
-  tbody.innerHTML = "";
-
-  if (!HISTORY.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="muted">Aucune facture payée</td></tr>`;
-    return;
-  }
-
-  HISTORY.forEach(inv => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${inv.number}</td>
-      <td>${inv.date}</td>
-      <td>${inv.customer}</td>
-      <td>${inv.job || inv.vehicle || ""}</td>
-      <td>${money(inv.total)}</td>
-    `;
-    tbody.appendChild(tr);
   });
 }
 
@@ -1688,68 +1661,85 @@ $("invoiceSearch").oninput = renderInvoiceList;
 $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   function openInvoiceEditor(number) {
-  const index = INVOICES.findIndex(i => String(i.number) === String(number));
-  if (index === -1) {
-    alert("Facture introuvable : " + number);
-    return;
-}
+  const inv = INVOICES.find(i => i.number == number);
+  if (!inv) return;
 
   // Aller sur la page éditeur
   showPage("page-invoice-editor");
 
-  // Réinitialiser l'éditeur (totaux, items, etc.)
+  // Réinitialiser le formulaire / totaux / items
   resetInvoiceForm();
 
-  // ===== CLIENT : remplir le panneau "Informations du client" =====
+  // ===== Charger les informations client dans la facture =====
   let client = null;
-
-  // On essaie de retrouver le client par son nom
-  if (inv.customer) {
+  if (inv.clientId != null) {
+    client = CLIENTS.find(c => String(c.id) === String(inv.clientId));
+  }
+  if (!client) {
     client = CLIENTS.find(c => c.name === inv.customer);
   }
 
   if (client) {
-    $("invClientName").textContent   = client.name   || "";
-    $("invClientPhone").textContent  = client.phone  || "";
-    $("invClientAddress").textContent= client.address|| "";
-    $("invClientEmail").textContent  = client.email  || "";
-  } else {
-    $("invClientName").textContent = inv.customer || "Client inconnu";
-    if ($("invClientPhone"))   $("invClientPhone").textContent = "";
-    if ($("invClientAddress")) $("invClientAddress").textContent = "";
-    if ($("invClientEmail"))   $("invClientEmail").textContent = "";
+    $("invClientName").textContent = client.name || "";
+    $("invClientPhone").textContent = client.phone || "";
+    $("invClientAddress").textContent = client.address || "";
+    $("invClientEmail").textContent = client.email || "";
   }
 
-  // ===== VÉHICULE : pour l’instant, on prend le texte du job =====
-  let vehLabel = inv.job || "";
-  let vehYear  = "";
-  let vehVin   = "";
+  // ===== Charger les informations véhicule =====
+  let vehLabel = "";
+  let vehYear = "";
+  let vehVin = "";
 
-  if ($("invVehicleLabel")) $("invVehicleLabel").textContent = vehLabel;
-  if ($("invVehicleYear"))  $("invVehicleYear").textContent  = vehYear;
-  if ($("invVehicleVin"))   $("invVehicleVin").textContent   = vehVin;
+  if (client && Array.isArray(client.vehicles)) {
+    // 1) si on a un vehicleId sur la facture
+    if (inv.vehicleId != null) {
+      const vehById = client.vehicles.find(
+        v => String(v.id) === String(inv.vehicleId)
+      );
+      if (vehById) {
+        vehLabel = `${vehById.year || ""} ${vehById.make || ""} ${vehById.model || ""}`.trim();
+        vehYear = vehById.year || "";
+        vehVin = vehById.vin || "";
+      }
+    }
 
-  // ===== CACHER les sections "Ajouter une pièce" / "Ajouter main-d’œuvre" en mode édition =====
-  const h3Part      = document.querySelector('h3[data-section="addPart"]');
-  const partSection = $("addPartSection");
-  const h3Labor     = document.querySelector('h3[data-section="addLabor"]');
-  const laborSection= $("addLaborSection");
+    // 2) fallback : essayer de matcher avec le texte du job
+    if (!vehLabel && inv.job) {
+      const lowerJob = inv.job.toLowerCase();
+      const matchVeh = client.vehicles.find(v => {
+        const lbl = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.toLowerCase();
+        return lbl && lowerJob.includes(lbl.trim());
+      });
+      if (matchVeh) {
+        vehLabel = `${matchVeh.year || ""} ${matchVeh.make || ""} ${matchVeh.model || ""}`.trim();
+        vehYear = matchVeh.year || "";
+        vehVin = matchVeh.vin || "";
+      }
+    }
+  }
 
-  if (h3Part)       h3Part.style.display       = "none";
-  if (partSection)  partSection.style.display  = "none";
-  if (h3Labor)      h3Labor.style.display      = "none";
-  if (laborSection) laborSection.style.display = "none";
+  if (!vehLabel && inv.job) {
+    // dernier recours : on met le texte du job complet
+    vehLabel = inv.job;
+  }
 
-  if ($("addPart"))         $("addPart").style.display         = "none";
-  if ($("openPartPicker"))  $("openPartPicker").style.display  = "none";
-  if ($("addLabor"))        $("addLabor").style.display        = "none";
-  if ($("openServicePicker")) $("openServicePicker").style.display = "none";
+  $("invVehicleLabel").textContent = vehLabel;
+  if ($("invVehicleYear")) $("invVehicleYear").textContent = vehYear;
+  if ($("invVehicleVin")) $("invVehicleVin").textContent = vehVin;
 
-  // ===== Numéro de facture & description =====
-  if ($("invoiceNumber")) $("invoiceNumber").value = inv.number;
-  if ($("jobDesc"))       $("jobDesc").value       = inv.job || "";
+  // Numéro et statut de la facture
+  $("invoiceNumber").value = inv.number;
+  if ($("invoiceStatus")) {
+    $("invoiceStatus").value = inv.status || "draft";
+  }
 
-  // ===== Charger les items =====
+  // Job description interne (champ caché) pour compatibilité
+  if ($("jobDesc")) {
+    $("jobDesc").value = inv.job || "";
+  }
+
+  // Charger les items
   items = [];
   (inv.items || []).forEach(it => {
     items.push({ ...it });
@@ -1757,11 +1747,6 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   renderItems();
   invoiceCalcTotals();
-
-  // ===== Statut =====
-  if ($("invoiceStatus")) {
-    $("invoiceStatus").value = inv.status || "draft";
-  }
 }
 
 
@@ -1836,32 +1821,6 @@ function renderTotals(subTotalOverride){
   if($('qstAmount')) $('qstAmount').innerText = money(qst);
   if($('totalAmount')) $('totalAmount').innerText = money(total);
 }
-
-  function resetInvoiceForm() {
-  items = [];
-
-  // Réinitialisation champs facture
-  if ($("invoiceNumber")) $("invoiceNumber").value = "F-" + Date.now();
-  if ($("jobDesc")) $("jobDesc").value = "";
-
-  $("invClientName").textContent = "";
-  $("invClientPhone").textContent = "";
-  $("invClientAddress").textContent = "";
-  $("invClientEmail").textContent = "";
-
-  $("invVehicleLabel").textContent = "";
-  $("invVehicleYear").textContent = "";
-  $("invVehicleVin").textContent = "";
-
-  renderItems();
-  renderTotals();
-}
-
-  function invoiceCalcTotals() {
-  let sub = items.reduce((s, it) => s + it.qty * it.rate, 0);
-  renderTotals(sub);
-}
-
 
 function renderItems(){
   const tbody = document.querySelector('#itemsTable tbody');
@@ -1991,126 +1950,56 @@ function resetInvoiceForm(){
 
 /* SAVE INVOICE (NEW) */
 function renderInvoicesTable(){
-  // Met à jour la liste des factures actives + historique + dashboard
-  if (typeof renderInvoiceList === "function") {
-    renderInvoiceList();
-  }
+  // plus de table sur la page Factures; on met à jour Historique + Dashboard
   renderHistoryTable();
   renderDashboard();
 }
 
+if($('saveInvoice')){
+  $('saveInvoice').addEventListener('click',()=>{
+    if(!items.length) return alert("Aucun article dans la facture.");
+    const customerId = $("customerSelect").value;
+if(!customerId){
+    alert("Veuillez sélectionner un client.");
+    return;
+}
+const clientObj = CLIENTS.find(c => String(c.id) === String(customerId));
+const cust = clientObj ? clientObj.name : "Client inconnu";
+    if(!cust) return alert("Le nom du client est requis.");
+    const job = $("vehicleSelect").value || "";
+    const number = $('invoiceNumber').value || nextInvoiceNumber();
+    const dateStr = new Date().toLocaleDateString('fr-CA');
 
-if ($('saveInvoice')) {
-  $('saveInvoice').addEventListener('click', () => {
-    if (!items.length) {
-      alert("Aucun article dans la facture.");
-      return;
-    }
+    const sub = items.reduce((s,it)=>s+it.rate*it.qty,0);
+    const gstRate = Number(SETTINGS.gst||5)/100;
+    const qstRate = Number(SETTINGS.qst||9.975)/100;
+    const gst = sub*gstRate;
+    const qst = (sub+gst)*qstRate;
+    const total = sub+gst+qst;
 
-    const number = $("invoiceNumber").value || nextInvoiceNumber();
-    const dateStr = new Date().toLocaleDateString("fr-CA");
+    const inv = {number,date:dateStr,customer:cust,job,items:[...items],subTotal:sub,gst,qst,total};
+    
+    // === Étape 6 : ajouter le statut sélectionné ===
+inv.status = $("invoiceStatus").value;
 
-    // Chercher si la facture existe déjà
-    const existingIndex = INVOICES.findIndex(i => String(i.number) === String(number));
-    const existing = existingIndex !== -1 ? INVOICES[existingIndex] : null;
+// Vérifier si facture existe déjà
+const existingIndex = INVOICES.findIndex(i => i.number === inv.number);
 
-    // ===== CLIENT =====
-    let customerName = existing ? (existing.customer || "") : "";
-    if (!customerName && $("invClientName")) {
-      customerName = $("invClientName").textContent.trim();
-    }
-    if (!customerName) {
-      customerName = "Client inconnu";
-    }
-
-    // ===== JOB / VÉHICULE (texte descriptif) =====
-    let job = existing && existing.job ? existing.job : "";
-    if (!job) {
-      if ($("jobDesc") && $("jobDesc").value) {
-        job = $("jobDesc").value;
-      } else if ($("invVehicleLabel")) {
-        job = $("invVehicleLabel").textContent.trim();
-      }
-    }
-
-    // ===== Totaux =====
-    const sub = items.reduce((s, it) => s + Number(it.rate || 0) * Number(it.qty || 0), 0);
-    const gstRate = Number(SETTINGS.gst || 5) / 100;
-    const qstRate = Number(SETTINGS.qst || 9.975) / 100;
-    const gst = sub * gstRate;
-    const qst = (sub + gst) * qstRate;
-    const total = sub + gst + qst;
-
-    const status = $("invoiceStatus")
-      ? $("invoiceStatus").value
-      : (existing && existing.status) || "draft";
-
-    // ===== Construire l'objet final =====
-    const inv = {
-      ...(existing || {}),
-      number,
-      date: existing && existing.date ? existing.date : dateStr,
-      customer: customerName,
-      job,
-      items: [...items],
-      subTotal: sub,
-      gst,
-      qst,
-      total,
-      status
-    };
-
-    if (existingIndex !== -1) {
-      INVOICES[existingIndex] = inv;
-    } else {
-      INVOICES.push(inv);
-    }
-
+if (existingIndex !== -1) {
+  // Mise à jour
+  INVOICES[existingIndex] = inv;
+} else {
+  // Nouvelle facture
+  INVOICES.push(inv);
+}
+    
+    INVOICES.push(inv);
     saveInvoices();
     alert("Facture enregistrée.");
+    resetInvoiceForm();
     renderInvoicesTable();
   });
 }
-
-  
-    // === Bouton "Marquer comme payée" (nouvelle version, une seule source : INVOICES) ===
-if ($("markInvoicePaid")) {
-  $("markInvoicePaid").addEventListener("click", () => {
-    const numField = $("invoiceNumber");
-    if (!numField || !numField.value) {
-      alert("Aucune facture chargée.");
-      return;
-    }
-
-    const number = numField.value;
-    const idx = INVOICES.findIndex(inv => String(inv.number) === String(number));
-    if (idx === -1) {
-      alert("Facture introuvable.");
-      return;
-    }
-
-    const inv = INVOICES[idx];
-
-    // Met le statut à "paid"
-    inv.status = "paid";
-    if ($("invoiceStatus")) {
-      $("invoiceStatus").value = "paid";
-    }
-
-    // ⭐⭐⭐ AJOUT À L’HISTORIQUE (la ligne qu'il te manquait)
-    addInvoiceToHistory(inv);
-
-    // NE PLUS retirer de INVOICES
-    saveInvoices();
-
-    alert("Facture marquée comme payée !");
-    // On rafraîchit les listes
-    renderInvoiceList();      // Factures actives
-    renderHistoryTable();     // Historique (payées)
-    showPage("page-history"); // On t’envoie sur l’historique
-  });
-}
-
 
 /* INIT INVOICES */
 function initInvoices(){
@@ -2909,34 +2798,51 @@ partPickerFilter.onchange = renderPartPicker;
 
   
 /* ===================== HISTORIQUE & DASHBOARD ===================== */
-function renderHistoryTable() {
-  const table = $("historyTable");
-  if (!table) return;
+function renderHistoryTable(){
+  const tbody = document.querySelector('#historyTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
 
-  const tbody = table.querySelector("tbody");
-  tbody.innerHTML = "";
+  const filterClient = $("filterClient")?.value || "";
+const filterVehicle = $("filterVehicle")?.value || "";
 
-  // On prend seulement les factures payées
-  const paid = INVOICES.filter(inv => inv.status === "paid");
+INVOICES
+  .slice()
+  .sort((a, b) => Number(b.number) - Number(a.number))
+  .filter(inv => {
+      if (filterClient && inv.customer !== filterClient) return false;
+      if (filterVehicle) {
+    const job = (inv.job || "").toLowerCase();
+    const v = filterVehicle.toLowerCase();
 
-  if (!paid.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="muted">Aucune facture payée</td></tr>`;
-    return;
-  }
+    // Essaye de trouver la marque, modèle ou année dans la description du job
+    if (!job.includes(v)) {
+        // Ex.: "Honda Civic 2014" devrait matcher même si la plaque est différente
+        const parts = v.split(" ").filter(x => x.trim().length > 0);
+        let allMatch = true;
 
-  paid.forEach(inv => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${inv.number}</td>
-      <td>${inv.date || ""}</td>
-      <td>${inv.customer || ""}</td>
-      <td>${inv.job || ""}</td>
-      <td>${money(inv.total || 0)} $</td>
-    `;
-    tbody.appendChild(tr);
-  });
+        parts.forEach(p => {
+            if (!job.includes(p)) allMatch = false;
+        });
+
+        if (!allMatch) return false;
+    }
 }
 
+      return true;
+  })
+  .forEach(inv => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
+        <td>${inv.date}</td>
+        <td>${inv.customer || ""}</td>
+        <td>${inv.job || ""}</td>
+        <td>${money(inv.total || 0)} $</td>
+      `;
+      tbody.appendChild(tr);
+  });
+}
 
   // === Activation des filtres historique ===
 if ($("filterClient")) {
@@ -4042,13 +3948,6 @@ function woConvertToInvoice(wo) {
   openInvoiceEditor(number);
 }
 
-  /* === Activer le bouton "Nouvelle facture" === */
-if (document.getElementById("btnNewInvoice")) {
-  document.getElementById("btnNewInvoice").onclick = () => {
-    showPage("page-invoice-editor"); // Ouvre la page facture
-    resetInvoiceForm();              // Réinitialise la facture
-  };
-}
   
 /* ===================== INIT ALL ===================== */
 window.addEventListener('load',()=>{
@@ -4060,7 +3959,6 @@ window.addEventListener('load',()=>{
   initNotesModule();
   initLinksModule();
   initWorkOrdersModule();
-  renderHistoryTable();
   renderDashboard();
 });
   
