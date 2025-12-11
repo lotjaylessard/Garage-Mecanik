@@ -1965,10 +1965,14 @@ function resetInvoiceForm(){
 
 /* SAVE INVOICE (NEW) */
 function renderInvoicesTable(){
-  // plus de table sur la page Factures; on met à jour Historique + Dashboard
+  // Met à jour la liste des factures actives + historique + dashboard
+  if (typeof renderInvoiceList === "function") {
+    renderInvoiceList();
+  }
   renderHistoryTable();
   renderDashboard();
 }
+
 
 if ($('saveInvoice')) {
   $('saveInvoice').addEventListener('click', () => {
@@ -2043,44 +2047,40 @@ if ($('saveInvoice')) {
 }
 
   
-    // === Bouton "Marquer comme payée" ===
-  if ($("markInvoicePaid")) {
-    $("markInvoicePaid").addEventListener("click", () => {
-      const numField = $("invoiceNumber");
-      if (!numField || !numField.value) {
-        alert("Aucune facture chargée.");
-        return;
-      }
+    // === Bouton "Marquer comme payée" (nouvelle version, une seule source : INVOICES) ===
+if ($("markInvoicePaid")) {
+  $("markInvoicePaid").addEventListener("click", () => {
+    const numField = $("invoiceNumber");
+    if (!numField || !numField.value) {
+      alert("Aucune facture chargée.");
+      return;
+    }
 
-      const number = numField.value;
-      const idx = INVOICES.findIndex(inv => String(inv.number) === String(number));
-      if (idx === -1) {
-        alert("Facture introuvable.");
-        return;
-      }
+    const number = numField.value;
+    const idx = INVOICES.findIndex(inv => String(inv.number) === String(number));
+    if (idx === -1) {
+      alert("Facture introuvable.");
+      return;
+    }
 
-      const inv = INVOICES[idx];
+    const inv = INVOICES[idx];
 
-      // Met le statut à "paid"
-      inv.status = "paid";
-      if ($("invoiceStatus")) {
-        $("invoiceStatus").value = "paid";
-      }
+    // Met le statut à "paid"
+    inv.status = "paid";
+    if ($("invoiceStatus")) {
+      $("invoiceStatus").value = "paid";
+    }
 
-      // Ajouter à l'historique si la fonction existe
-      if (typeof addInvoiceToHistory === "function") {
-        addInvoiceToHistory(inv);
-      }
+    // NE PLUS retirer de INVOICES, on garde tout dans le même tableau
+    saveInvoices();
 
-      // Retirer de la liste active
-      INVOICES.splice(idx, 1);
-      saveInvoices();
-
-      alert("Facture marquée comme payée !");
-showPage("page-history");
-renderHistoryTable();
-    });
-  }
+    alert("Facture marquée comme payée !");
+    // On rafraîchit les listes
+    renderInvoiceList();      // Factures actives
+    renderHistoryTable();     // Historique (payées)
+    showPage("page-history"); // On t’envoie sur l’historique
+  });
+}
 
 
 
@@ -2881,51 +2881,34 @@ partPickerFilter.onchange = renderPartPicker;
 
   
 /* ===================== HISTORIQUE & DASHBOARD ===================== */
-function renderHistoryTable(){
-  const tbody = document.querySelector('#historyTable tbody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
+function renderHistoryTable() {
+  const table = $("historyTable");
+  if (!table) return;
 
-  const filterClient = $("filterClient")?.value || "";
-const filterVehicle = $("filterVehicle")?.value || "";
+  const tbody = table.querySelector("tbody");
+  tbody.innerHTML = "";
 
-INVOICES
-  .slice()
-  .sort((a, b) => Number(b.number) - Number(a.number))
-  .filter(inv => {
-      if (filterClient && inv.customer !== filterClient) return false;
-      if (filterVehicle) {
-    const job = (inv.job || "").toLowerCase();
-    const v = filterVehicle.toLowerCase();
+  // On prend seulement les factures payées
+  const paid = INVOICES.filter(inv => inv.status === "paid");
 
-    // Essaye de trouver la marque, modèle ou année dans la description du job
-    if (!job.includes(v)) {
-        // Ex.: "Honda Civic 2014" devrait matcher même si la plaque est différente
-        const parts = v.split(" ").filter(x => x.trim().length > 0);
-        let allMatch = true;
+  if (!paid.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="muted">Aucune facture payée</td></tr>`;
+    return;
+  }
 
-        parts.forEach(p => {
-            if (!job.includes(p)) allMatch = false;
-        });
-
-        if (!allMatch) return false;
-    }
-}
-
-      return true;
-  })
-  .forEach(inv => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><button class="ghost" onclick="openInvoiceEditModal(${inv.number})">#${inv.number}</button></td>
-        <td>${inv.date}</td>
-        <td>${inv.customer || ""}</td>
-        <td>${inv.job || ""}</td>
-        <td>${money(inv.total || 0)} $</td>
-      `;
-      tbody.appendChild(tr);
+  paid.forEach(inv => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${inv.number}</td>
+      <td>${inv.date || ""}</td>
+      <td>${inv.customer || ""}</td>
+      <td>${inv.job || ""}</td>
+      <td>${money(inv.total || 0)} $</td>
+    `;
+    tbody.appendChild(tr);
   });
 }
+
 
   // === Activation des filtres historique ===
 if ($("filterClient")) {
