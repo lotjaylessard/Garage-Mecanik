@@ -2084,50 +2084,75 @@ function refreshInvoiceClientSelect() {
 }
 
 /* ======== REMPLIR LE MENU DES VÉHICULES ======== */
+/* NOTE : garde ce code pour compatibilité, mais il ne fera rien
+   si les éléments customerSelect / vehicleSelect n'existent pas. */
 function refreshVehicleListForInvoice() {
-    const customerId = $("customerSelect").value;
-    const select = $("vehicleSelect");
-    select.innerHTML = "";
+  const customerSelect = $("customerSelect");
+  const select = $("vehicleSelect");
+  if (!customerSelect || !select) return;  // ← sécurité anti-bug
 
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "-- Choisir un véhicule --";
-    select.appendChild(opt0);
+  const customerId = customerSelect.value;
+  select.innerHTML = "";
 
-    if (!customerId) return;
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "-- Choisir un véhicule --";
+  select.appendChild(opt0);
 
-    const clientObj = CLIENTS.find(c => String(c.id) === String(customerId));
-    if (!clientObj || !Array.isArray(clientObj.vehicles)) return;
+  if (!customerId) return;
 
-    clientObj.vehicles.forEach(v => {
-        const opt = document.createElement("option");
-        opt.value = `${v.year} ${v.make} ${v.model} - ${v.plate}`;
-        opt.textContent = `${v.year} ${v.make} ${v.model} (${v.plate})`;
-        select.appendChild(opt);
-    });
+  const clientObj = CLIENTS.find(c => String(c.id) === String(customerId));
+  if (!clientObj || !Array.isArray(clientObj.vehicles)) return;
+
+  clientObj.vehicles.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = `${v.year} ${v.make} ${v.model} - ${v.plate}`;
+    opt.textContent = `${v.year} ${v.make} ${v.model} (${v.plate})`;
+    select.appendChild(opt);
+  });
 }
 
 /* ======== Quand on change de client => Raffraîchir les véhicules ======== */
-$("customerSelect").addEventListener("change", refreshVehicleListForInvoice);
+const invoiceCustomerSelect = $("customerSelect");
+if (invoiceCustomerSelect) {
+  invoiceCustomerSelect.addEventListener("change", refreshVehicleListForInvoice);
+}
 
-  
-  /* ======== AJOUT : créer un client pendant une facture ======== */
-$("btnCreateCustomerFromInvoice").onclick = () => {
-  const name = prompt("Nom du nouveau client :");
-  if (!name) return;
+/* ======== AJOUT : créer un client pendant une facture ======== */
+const btnCreateFromInvoice = $("btnCreateCustomerFromInvoice");
+if (btnCreateFromInvoice) {
+  btnCreateFromInvoice.onclick = () => {
+    const name = prompt("Nom du nouveau client :");
+    if (!name) return;
 
-  const phone = prompt("Téléphone (optionnel) :") || "";
-  const email = prompt("Email (optionnel) :") || "";
-  const address = prompt("Adresse (optionnel) :") || "";
+    const phone = prompt("Téléphone (optionnel) :") || "";
+    const email = prompt("Email (optionnel) :") || "";
+    const address = prompt("Adresse (optionnel) :") || "";
 
-  const newClient = {
-    id: Date.now(),
-    name,
-    phone,
-    email,
-    address,
-    vehicles: []
+    const newClient = {
+      id: Date.now(),
+      name,
+      phone,
+      email,
+      address,
+      vehicles: []
+    };
+
+    CLIENTS.push(newClient);
+    saveClients();
+    if (typeof refreshInvoiceClientSelect === "function") {
+      refreshInvoiceClientSelect();
+    }
+
+    if ($("customerSelect")) {
+      $("customerSelect").value = newClient.id;
+    }
+
+    alert("Client ajouté !");
+    renderClientsTable();
   };
+}
+
 
   CLIENTS.push(newClient);
   saveClients();
