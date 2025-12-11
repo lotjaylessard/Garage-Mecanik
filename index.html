@@ -1738,26 +1738,6 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
   if ($("invoiceStatus")) {
     $("invoiceStatus").value = inv.status || "draft";
   }
-
-  // ===== Gestion du bouton "Marquer comme payée" =====
-  const markBtn = $("markInvoicePaid");
-  if (markBtn) {
-    markBtn.onclick = () => {
-      inv.status = "paid";
-      if ($("invoiceStatus")) $("invoiceStatus").value = "paid";
-
-      // Ajouter à l'historique
-      addInvoiceToHistory(inv);
-
-      // Retirer de la liste active
-      INVOICES.splice(index, 1);
-      saveInvoices();
-
-      alert("Facture marquée comme payée !");
-      showPage("page-invoice-list");
-      renderInvoiceList();
-    };
-  }
 }
 
 
@@ -2037,6 +2017,47 @@ if ($('saveInvoice')) {
     renderInvoicesTable();
   });
 }
+
+  
+    // === Bouton "Marquer comme payée" ===
+  if ($("markInvoicePaid")) {
+    $("markInvoicePaid").addEventListener("click", () => {
+      const numField = $("invoiceNumber");
+      if (!numField || !numField.value) {
+        alert("Aucune facture chargée.");
+        return;
+      }
+
+      const number = numField.value;
+      const idx = INVOICES.findIndex(inv => String(inv.number) === String(number));
+      if (idx === -1) {
+        alert("Facture introuvable.");
+        return;
+      }
+
+      const inv = INVOICES[idx];
+
+      // Met le statut à "paid"
+      inv.status = "paid";
+      if ($("invoiceStatus")) {
+        $("invoiceStatus").value = "paid";
+      }
+
+      // Ajouter à l'historique si la fonction existe
+      if (typeof addInvoiceToHistory === "function") {
+        addInvoiceToHistory(inv);
+      }
+
+      // Retirer de la liste active
+      INVOICES.splice(idx, 1);
+      saveInvoices();
+
+      alert("Facture marquée comme payée !");
+      showPage("page-invoice-list");
+      renderInvoiceList();
+    });
+  }
+
 
 
 /* INIT INVOICES */
