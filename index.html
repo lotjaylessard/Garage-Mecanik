@@ -1753,19 +1753,21 @@ $("invoiceStatus").value = inv.status || "draft";
 
 // Gestion du bouton "Marquer comme payée"
 $("markInvoicePaid").onclick = () => {
+  // Marquer la facture comme payée
   inv.status = "paid";
   $("invoiceStatus").value = "paid";
 
-  // Historique
-  addInvoiceToHistory(inv);
+  // Sauvegarder dans INVOICES (on garde toutes les factures au même endroit)
+  const idx = INVOICES.findIndex(i => i.number === inv.number);
+  if (idx !== -1) {
+    INVOICES[idx] = inv;
+  }
 
-  // Retirer des factures actives
-  INVOICES = INVOICES.filter(i => i.number !== inv.number);
   saveInvoices();
 
   alert("Facture marquée comme payée !");
-  showPage("page-invoice-list");
   renderInvoiceList();
+  renderHistoryTable();
 };
   }
 
@@ -1775,6 +1777,12 @@ $("markInvoicePaid").onclick = () => {
   localStorage.setItem("history", JSON.stringify(HISTORY));
 }
 
+
+
+function openInvoiceEditModal(number){
+  // Alias utilisé par l’historique pour rouvrir une facture
+  openInvoiceEditor(number);
+}
 
 /* STOCK & INVENTAIRE */
 function loadParts(){
@@ -2011,8 +2019,7 @@ if (existingIndex !== -1) {
   // Nouvelle facture
   INVOICES.push(inv);
 }
-    
-    INVOICES.push(inv);
+
     saveInvoices();
     alert("Facture enregistrée.");
     resetInvoiceForm();
@@ -2028,6 +2035,20 @@ function initInvoices(){
   resetInvoiceForm();
   renderInvoicesTable();
   refreshInvoiceClientSelect();
+
+  // Bouton "Nouvelle facture" : ouvre simplement l’éditeur propre
+  if ($("btnNewInvoice")) {
+    $("btnNewInvoice").onclick = () => {
+      // On remet le formulaire à zéro
+      resetInvoiceForm();
+
+      // En création : on autorise la sélection client / véhicule
+      if ($("customerSelect")) $("customerSelect").disabled = false;
+      if ($("vehicleSelect")) $("vehicleSelect").disabled = false;
+
+      showPage("page-invoice-editor");
+    };
+  }
 }
 
 /* ===================== CLIENTS ===================== */
@@ -3948,34 +3969,10 @@ invoice.status = "pending";
 
   alert("Facture #" + number + " créée !");
   showPage("page-invoice-editor");
-    $("btnNewInvoice").onclick = () => {
-  resetInvoiceForm();
-
-      // Mode création : afficher les sections d'ajout
-document.querySelectorAll("h3").forEach(h => h.style.display = "");
-$("partName").parentElement.style.display = "";
-$("laborDesc").parentElement.style.display = "";
-
-$("addPart").style.display = "";
-$("openPartPicker").style.display = "";
-$("addLabor").style.display = "";
-$("openServicePicker").style.display = "";
-      
-      // Mode création : tout est actif
-$("customerSelect").disabled = false;
-$("vehicleSelect").disabled = false;
-
-$("addPart").style.display = "";
-$("openPartPicker").style.display = "";
-$("addLabor").style.display = "";
-$("openServicePicker").style.display = "";
-
-  showPage("page-invoice-editor");
-};
-
 }
 
-  
+
+
 /* ===================== INIT ALL ===================== */
 window.addEventListener('load',()=>{
   initSettings();
