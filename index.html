@@ -1665,17 +1665,20 @@ $("invoiceSearch").oninput = renderInvoiceList;
 $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   function openInvoiceEditor(number) {
-  const inv = INVOICES.find(i => i.number == number);
-  if (!inv) return;
+  // On trouve la facture dans le tableau
+  const index = INVOICES.findIndex(i => String(i.number) === String(number));
+  if (index === -1) return;
+  const inv = INVOICES[index];
 
   // Aller sur la page éditeur
   showPage("page-invoice-editor");
 
-  // Réinitialiser le formulaire / totaux / items
+  // Réinitialiser l'éditeur
   resetInvoiceForm();
 
-  // ===== Charger les informations client dans la facture =====
+  // ===== CLIENT : remplir le panneau "Informations du client" =====
   let client = null;
+
   if (inv.clientId != null) {
     client = CLIENTS.find(c => String(c.id) === String(inv.clientId));
   }
@@ -1688,62 +1691,69 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
     $("invClientPhone").textContent = client.phone || "";
     $("invClientAddress").textContent = client.address || "";
     $("invClientEmail").textContent = client.email || "";
+  } else {
+    // Au minimum, on affiche le nom de la facture
+    $("invClientName").textContent = inv.customer || "Client inconnu";
   }
 
-  // ===== Charger les informations véhicule =====
+  // ===== VÉHICULE : remplir le panneau "Informations du véhicule" =====
   let vehLabel = "";
   let vehYear = "";
   let vehVin = "";
 
   if (client && Array.isArray(client.vehicles)) {
-    // 1) si on a un vehicleId sur la facture
+    let veh = null;
+
+    // 1) Si on a un vehicleId sur la facture
     if (inv.vehicleId != null) {
-      const vehById = client.vehicles.find(
-        v => String(v.id) === String(inv.vehicleId)
-      );
-      if (vehById) {
-        vehLabel = `${vehById.year || ""} ${vehById.make || ""} ${vehById.model || ""}`.trim();
-        vehYear = vehById.year || "";
-        vehVin = vehById.vin || "";
-      }
+      veh = client.vehicles.find(v => String(v.id) === String(inv.vehicleId));
     }
 
-    // 2) fallback : essayer de matcher avec le texte du job
-    if (!vehLabel && inv.job) {
+    // 2) Sinon on essaie de matcher avec le texte du job
+    if (!veh && inv.job) {
       const lowerJob = inv.job.toLowerCase();
-      const matchVeh = client.vehicles.find(v => {
-        const lbl = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.toLowerCase();
-        return lbl && lowerJob.includes(lbl.trim());
+      veh = client.vehicles.find(v => {
+        const lbl = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.toLowerCase().trim();
+        return lbl && lowerJob.includes(lbl);
       });
-      if (matchVeh) {
-        vehLabel = `${matchVeh.year || ""} ${matchVeh.make || ""} ${matchVeh.model || ""}`.trim();
-        vehYear = matchVeh.year || "";
-        vehVin = matchVeh.vin || "";
-      }
+    }
+
+    if (veh) {
+      vehLabel = `${veh.year || ""} ${veh.make || ""} ${veh.model || ""}`.trim();
+      vehYear = veh.year || "";
+      vehVin = veh.vin || "";
     }
   }
 
-  if (!vehLabel && inv.job) {
-    // dernier recours : on met le texte du job complet
-    vehLabel = inv.job;
+  if (!vehLabel) {
+    vehLabel = inv.job || "";
   }
 
-  $("invVehicleLabel").textContent = vehLabel;
+  if ($("invVehicleLabel")) $("invVehicleLabel").textContent = vehLabel;
   if ($("invVehicleYear")) $("invVehicleYear").textContent = vehYear;
   if ($("invVehicleVin")) $("invVehicleVin").textContent = vehVin;
 
-  // Numéro et statut de la facture
-  $("invoiceNumber").value = inv.number;
-  if ($("invoiceStatus")) {
-    $("invoiceStatus").value = inv.status || "draft";
-  }
+  // ===== CACHER les sections "Ajouter pièce" / "Ajouter main-d'œuvre" en mode édition =====
+  const h3Part = document.querySelector('h3[data-section="addPart"]');
+  const partSection = $("addPartSection");
+  const h3Labor = document.querySelector('h3[data-section="addLabor"]');
+  const laborSection = $("addLaborSection");
 
-  // Job description interne (champ caché) pour compatibilité
-  if ($("jobDesc")) {
-    $("jobDesc").value = inv.job || "";
-  }
+  if (h3Part) h3Part.style.display = "none";
+  if (partSection) partSection.style.display = "none";
+  if (h3Labor) h3Labor.style.display = "none";
+  if (laborSection) laborSection.style.display = "none";
 
-  // Charger les items
+  if ($("addPart")) $("addPart").style.display = "none";
+  if ($("openPartPicker")) $("openPartPicker").style.display = "none";
+  if ($("addLabor")) $("addLabor").style.display = "none";
+  if ($("openServicePicker")) $("openServicePicker").style.display = "none";
+
+  // ===== Champ numéro et job caché =====
+  if ($("invoiceNumber")) $("invoiceNumber").value = inv.number;
+  if ($("jobDesc")) $("jobDesc").value = inv.job || "";
+
+  // ===== Charger les items =====
   items = [];
   (inv.items || []).forEach(it => {
     items.push({ ...it });
@@ -1751,6 +1761,31 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
 
   renderItems();
   invoiceCalcTotals();
+
+  // ===== Statut =====
+  if ($("invoiceStatus")) {
+    $("invoiceStatus").value = inv.status || "draft";
+  }
+
+  // ===== Gestion du bouton "Marquer comme payée" =====
+  const markBtn = $("markInvoicePaid");
+  if (markBtn) {
+    markBtn.onclick = () => {
+      inv.status = "paid";
+      if ($("invoiceStatus")) $("invoiceStatus").value = "paid";
+
+      // Ajouter à l'historique
+      addInvoiceToHistory(inv);
+
+      // Retirer de la liste active
+      INVOICES.splice(index, 1);
+      saveInvoices();
+
+      alert("Facture marquée comme payée !");
+      showPage("page-invoice-list");
+      renderInvoiceList();
+    };
+  }
 }
 
 
@@ -1959,51 +1994,87 @@ function renderInvoicesTable(){
   renderDashboard();
 }
 
-if($('saveInvoice')){
-  $('saveInvoice').addEventListener('click',()=>{
-    if(!items.length) return alert("Aucun article dans la facture.");
-    const customerId = $("customerSelect").value;
-if(!customerId){
-    alert("Veuillez sélectionner un client.");
-    return;
-}
-const clientObj = CLIENTS.find(c => String(c.id) === String(customerId));
-const cust = clientObj ? clientObj.name : "Client inconnu";
-    if(!cust) return alert("Le nom du client est requis.");
-    const job = $("vehicleSelect").value || "";
-    const number = $('invoiceNumber').value || nextInvoiceNumber();
-    const dateStr = new Date().toLocaleDateString('fr-CA');
+if ($('saveInvoice')) {
+  $('saveInvoice').addEventListener('click', () => {
+    if (!items.length) {
+      alert("Aucun article dans la facture.");
+      return;
+    }
 
-    const sub = items.reduce((s,it)=>s+it.rate*it.qty,0);
-    const gstRate = Number(SETTINGS.gst||5)/100;
-    const qstRate = Number(SETTINGS.qst||9.975)/100;
-    const gst = sub*gstRate;
-    const qst = (sub+gst)*qstRate;
-    const total = sub+gst+qst;
+    const number = $("invoiceNumber").value || nextInvoiceNumber();
+    const dateStr = new Date().toLocaleDateString("fr-CA");
 
-    const inv = {number,date:dateStr,customer:cust,job,items:[...items],subTotal:sub,gst,qst,total};
-    
-    // === Étape 6 : ajouter le statut sélectionné ===
-inv.status = $("invoiceStatus").value;
+    // Chercher si la facture existe déjà
+    const existingIndex = INVOICES.findIndex(i => String(i.number) === String(number));
+    const existing = existingIndex !== -1 ? INVOICES[existingIndex] : null;
 
-// Vérifier si facture existe déjà
-const existingIndex = INVOICES.findIndex(i => i.number === inv.number);
+    // ===== CLIENT =====
+    let customerName = "";
+    let clientId = null;
+    let vehicleId = null;
 
-if (existingIndex !== -1) {
-  // Mise à jour
-  INVOICES[existingIndex] = inv;
-} else {
-  // Nouvelle facture
-  INVOICES.push(inv);
-}
-    
-    INVOICES.push(inv);
+    if (existing) {
+      customerName = existing.customer || "";
+      clientId = existing.clientId ?? null;
+      vehicleId = existing.vehicleId ?? null;
+    }
+
+    if (!customerName && $("invClientName")) {
+      customerName = $("invClientName").textContent.trim();
+    }
+    if (!customerName) {
+      customerName = "Client inconnu";
+    }
+
+    // ===== JOB / VÉHICULE (texte descriptif) =====
+    let job = existing && existing.job ? existing.job : "";
+    if (!job) {
+      if ($("jobDesc") && $("jobDesc").value) {
+        job = $("jobDesc").value;
+      } else if ($("invVehicleLabel")) {
+        job = $("invVehicleLabel").textContent.trim();
+      }
+    }
+
+    // ===== Totaux =====
+    const sub = items.reduce((s, it) => s + Number(it.rate || 0) * Number(it.qty || 0), 0);
+    const gstRate = Number(SETTINGS.gst || 5) / 100;
+    const qstRate = Number(SETTINGS.qst || 9.975) / 100;
+    const gst = sub * gstRate;
+    const qst = (sub + gst) * qstRate;
+    const total = sub + gst + qst;
+
+    const status = $("invoiceStatus") ? $("invoiceStatus").value : (existing && existing.status) || "draft";
+
+    // ===== Construire l'objet facture final =====
+    const inv = {
+      ...(existing || {}),
+      number,
+      date: existing && existing.date ? existing.date : dateStr,
+      customer: customerName,
+      clientId,
+      vehicleId,
+      job,
+      items: [...items],
+      subTotal: sub,
+      gst,
+      qst,
+      total,
+      status
+    };
+
+    if (existingIndex !== -1) {
+      INVOICES[existingIndex] = inv;
+    } else {
+      INVOICES.push(inv);
+    }
+
     saveInvoices();
     alert("Facture enregistrée.");
-    resetInvoiceForm();
-    renderInvoicesTable();
+    renderInvoicesTable(); // met à jour Historique + Dashboard
   });
 }
+
 
 /* INIT INVOICES */
 function initInvoices(){
