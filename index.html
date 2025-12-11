@@ -386,9 +386,41 @@
       </div>
     </div>
 
+    <!-- FACTURES (liste complète) -->
+<div class="page" id="page-invoice-list">
+  <div class="card">
+    <h2>Factures</h2>
+
+    <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <input id="invoiceSearch" placeholder="Recherche (#, client, véhicule)" style="flex:1;" />
+      <select id="invoiceStatusFilter">
+        <option value="">-- Tous les statuts --</option>
+        <option value="draft">Brouillon</option>
+        <option value="pending">En attente de paiement</option>
+        <option value="paid">Payée</option>
+      </select>
+      <button id="btnNewInvoice">➕ Nouvelle facture</button>
+    </div>
+
+    <table id="invoiceListTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Total</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
 
     <!-- FACTURES (création seulement) -->
-    <div class="page" id="page-invoices">
+    <div class="page" id="page-invoice-editor">
       <div class="card">
         <h2>Créer Devis / Travail</h2>
         <label>Client</label>
@@ -890,7 +922,19 @@ function showPage(id){
   document.querySelectorAll('.navBtn').forEach(b=>{
     b.classList.toggle('active', b.dataset.page===id);
   });
+
+  // === ROUTAGE LOGIQUE DES PAGES ===
+  switch(id){
+    case "page-invoice-list":
+      renderInvoiceList();
+      break;
+
+    case "page-invoice-editor":
+      resetInvoiceForm();
+      break;
+  }
 }
+
 document.querySelectorAll('.navBtn').forEach(btn=>{
   btn.addEventListener('click',()=>showPage(btn.dataset.page));
 });
@@ -1522,9 +1566,82 @@ function loadInvoices(){
     if(!Array.isArray(INVOICES)) INVOICES=[];
   }catch(e){INVOICES=[];}
 }
+  
 function saveInvoices(){
   localStorage.setItem(STORAGE.invoices, JSON.stringify(INVOICES));
 }
+  function renderInvoiceList() {
+  const tbody = $("invoiceListTable").querySelector("tbody");
+  tbody.innerHTML = "";
+
+  if (!INVOICES.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="muted">Aucune facture</td></tr>`;
+    return;
+  }
+
+  const search = $("invoiceSearch").value.toLowerCase();
+  const statusFilter = $("invoiceStatusFilter").value;
+
+  let filtered = INVOICES.filter(inv => {
+    let ok = true;
+
+    if (statusFilter && inv.status !== statusFilter) ok = false;
+
+    if (search) {
+      const hay =
+        `${inv.number} ${inv.customer} ${inv.job}`.toLowerCase();
+      if (!hay.includes(search)) ok = false;
+    }
+
+    return ok;
+  });
+
+  filtered.forEach(inv => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${inv.number}</td>
+      <td>${inv.date}</td>
+      <td>${inv.customer}</td>
+      <td>${money(inv.total)}</td>
+      <td>${inv.status || "draft"}</td>
+      <td>
+        <button class="ghost" onclick="openInvoiceEditor(${inv.number})">Ouvrir</button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+  // === FILTRES DE RECHERCHE ET STATUT (3D) ===
+$("invoiceSearch").oninput = renderInvoiceList;
+$("invoiceStatusFilter").onchange = renderInvoiceList;
+
+  function openInvoiceEditor(number) {
+  const inv = INVOICES.find(i => i.number == number);
+  if (!inv) return;
+
+  // Aller sur la page éditeur
+  showPage("page-invoice-editor");
+
+  resetInvoiceForm();
+
+  $("invoiceNumber").value = inv.number;
+
+  // Client
+  const c = CLIENTS.find(c => c.name === inv.customer);
+  if (c) $("customerSelect").value = c.id;
+
+  $("jobDesc").value = inv.job;
+
+  items = [];
+  inv.items.forEach(it => items.push({...it}));
+
+  renderItems();
+  invoiceCalcTotals();
+}
+
 
 /* STOCK & INVENTAIRE */
 function loadParts(){
@@ -3657,7 +3774,12 @@ function initLinksModule() {
   renderWorkOrders();
 
   alert("Facture #" + number + " créée !");
-  showPage("page-invoices");
+  showPage("page-invoice-editor");
+    $("btnNewInvoice").onclick = () => {
+  resetInvoiceForm();
+  showPage("page-invoice-editor");
+};
+
 }
 
   
