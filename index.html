@@ -1338,6 +1338,9 @@ function renderWorkOrders(){
 
   // Appliquer filtre statut + recherche
   let filtered = WORKORDERS.filter(wo => {
+
+    if (wo.status === "billed") return false;
+    
     let ok = true;
 
     if (selectedStatus && wo.status !== selectedStatus) ok = false;
