@@ -278,6 +278,14 @@
   font-weight: 600;
   text-transform: capitalize;
 }
+    
+/* Couleur Rouge pour Supprimer */
+    button.danger {
+  color: #dc3545;
+}
+button.danger:hover {
+  background-color: rgba(220, 53, 69, 0.15);
+}
 
 
 
@@ -1400,10 +1408,12 @@ filtered.forEach(wo => {
       </span>
     </td>
     <td>${money(wo.estimateTotal || 0)} $</td>
-    <td>
-      <button class="ghost" data-action="open">Ouvrir</button>
-      <button class="ghost" onclick="finishWorkOrder(${wo.id})">Terminé</button>
-    </td>
+<td>
+  <button class="ghost" data-action="open">Ouvrir</button>
+  <button class="ghost" onclick="finishWorkOrder(${wo.id})">Terminé</button>
+  <button class="ghost danger" onclick="deleteWorkOrder(${wo.id})">🗑 Supprimer</button>
+</td>
+
   `;
   tbody.appendChild(tr);
 });
@@ -1424,6 +1434,23 @@ filtered.forEach(wo => {
   alert("Bon de travail marqué comme terminé.");
 }
 
+  
+  function deleteWorkOrder(id){
+  const index = WORKORDERS.findIndex(w => String(w.id) === String(id));
+  if (index === -1) {
+    alert("Bon de travail introuvable.");
+    return;
+  }
+
+  if (!confirm("Supprimer définitivement ce bon de travail ?")) return;
+
+  WORKORDERS.splice(index, 1);
+
+  saveWorkOrders();
+  renderWorkOrders();
+
+  alert("Bon de travail supprimé.");
+}
 
 
 function initWorkOrdersModule(){
