@@ -1524,12 +1524,12 @@ ${wo.description || ""}
   </div>
 
   <div class="card" style="margin-top:20px;text-align:right;">
-  <h3>
+  <h3 style="margin-bottom:5px;">
+    Coût des pièces : <span id="woPartsTotal">0 $</span><br>
+    Main-d'œuvre : <span id="woLaborTotal">0 $</span>
+  </h3>
+  <h3 style="margin-top:10px;">
     Total estimé : <span id="woEstimateTotal">0 $</span>
-    <br>
-    <span style="font-size:0.85em; color:var(--muted);">
-      Heures accumulées : <span id="woTotalHours">0</span> h
-    </span>
   </h3>
 </div>
 
@@ -1561,12 +1561,15 @@ if (isEditing) {
     let totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
     wo.estimateTotal = totalParts + totalLabor;
 
-  // Calcul heures totales
-let totalHours = wo.labor.reduce((s,l)=> s + Number(l.hours || 0), 0);
+// Mise à jour du coût des pièces
+if ($("woPartsTotal")) {
+    $("woPartsTotal").innerText = money(totalParts) + " $";
+}
 
-// Mise à jour affichage
-if ($("woTotalHours")) $("woTotalHours").innerText = totalHours;
-
+// Mise à jour du coût de main-d'œuvre
+if ($("woLaborTotal")) {
+    $("woLaborTotal").innerText = money(totalLabor) + " $";
+}
   
     saveWorkOrders();
     renderWorkOrders();
