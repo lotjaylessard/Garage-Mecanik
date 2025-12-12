@@ -1252,16 +1252,23 @@ function woRenderLines(wo) {
     </tr>
   `).join("");
 
-  // total estimé
-  const total =
-    wo.parts.reduce((s,p)=>s+p.qty*p.rate,0) +
-    wo.labor.reduce((s,l)=>s+l.hours*l.rate,0);
+  // === NOUVEAU : total pièces et total main-d'œuvre ===
+  const totalParts = wo.parts.reduce((s,p)=> s + (p.qty * p.rate), 0);
+  const totalLabor = wo.labor.reduce((s,l)=> s + (l.hours * l.rate), 0);
 
+  // Affichage séparé
+  if ($("woPartsTotal")) $("woPartsTotal").innerText = money(totalParts) + " $";
+  if ($("woLaborTotal")) $("woLaborTotal").innerText = money(totalLabor) + " $";
+
+  // === Total estimé ===
+  const total = totalParts + totalLabor;
   wo.estimateTotal = total;
-  $("woEstimateTotal").innerText = money(total) + " $";
+
+  if ($("woEstimateTotal")) $("woEstimateTotal").innerText = money(total) + " $";
 
   saveWorkOrders();
 }
+
 
 function woEditLine(woId, type, index) {
   const wo = WORKORDERS.find(w => w.id == woId);
