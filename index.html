@@ -270,7 +270,7 @@
 }
 
 /* Couleur VERTE pour TERMINÉ */
-.status-terminé {
+.status-termine {
   background-color: #28a745;   /* vert */
   color: white;
   padding: 4px 8px;
@@ -370,7 +370,7 @@
 <select id="woStatusFilter">
   <option value="">-- Tous --</option>
   <option value="en_cours">En cours</option>
-  <option value="terminé">Terminé</option>
+  <option value="termine">Terminé</option>
 </select>
 
           <input id="woSearch"
@@ -1414,7 +1414,7 @@ const search = $("woSearch")?.value.toLowerCase() || "";
   woConvertToInvoice(wo);
 
   // Mettre le WO en terminé
-  wo.status = "terminé";
+  wo.status = "termine";
 
   saveWorkOrders();
   renderWorkOrders();
