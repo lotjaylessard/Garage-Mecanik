@@ -1547,7 +1547,11 @@ if (table){
     const id = tr?.dataset.id;
     const wo = WORKORDERS.find(w => String(w.id) === String(id));
     const detail = $("woDetailContent");
-    if (!detail || !wo) return;
+if (!detail) {
+  console.warn("woDetailContent absent (page non active)");
+  return;
+}
+if (!wo) return;
 
     detail.innerHTML = `
       <input type="hidden" id="woEditId" value="${wo.id}">
@@ -4163,7 +4167,9 @@ window.addEventListener('load',()=>{
   initServicesModule();
   initNotesModule();
   initLinksModule();
+  if ($("page-workorders")) {
   initWorkOrdersModule();
+}
   renderDashboard();
 });
   
