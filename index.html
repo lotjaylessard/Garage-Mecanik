@@ -1525,18 +1525,39 @@ $("woSearch").oninput = renderWorkOrders;
     <h3>Total estimé : <span id="woEstimateTotal">0 $</span></h3>
   </div>
   <div class="card" style="margin-top:20px;text-align:right;">
-  <button id="woConvertToInvoice">➡️ Créer une facture</button>
+  <button id="woSaveBtn">💾 Enregistrer</button>
 </div>
 `;
       
 $("woAddPart").onclick = () => woAddPartLine(wo);
 $("woAddLabor").onclick = () => woAddLaborLine(wo);
 woRenderLines(wo);
-$("woConvertToInvoice").onclick = () => woConvertToInvoice(wo);
+      if ($("woSaveBtn")) {
+    $("woSaveBtn").onclick = () => {
 
+        // Récupérer l'objet en cours d'édition
+        const id = Number($("woEditId")?.value);
+        let wo = WORKORDERS.find(w => w.id === id);
 
+        if (!wo) return alert("Erreur : bon de travail introuvable.");
+
+        // Mise à jour des champs
+        wo.clientName = $("woClient")?.value || wo.clientName;
+        wo.vehicleLabel = $("woVehicle")?.value || wo.vehicleLabel;
+        wo.description = $("woDescription")?.value || "";
+
+        // Recalcul du total estimé
+        let totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
+        let totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
+
+        wo.estimateTotal = totalParts + totalLabor;
+
+        saveWorkOrders();
+        renderWorkOrders();
+
+        alert("Bon de travail enregistré !");
     };
-  }
+}
 }
 
 
