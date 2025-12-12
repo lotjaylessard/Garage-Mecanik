@@ -1456,7 +1456,6 @@ function deleteWorkOrder(id){
 function initWorkOrdersModule(){
   loadWorkOrders();
   renderWorkOrders();
-  if (!$("woDetailContent")) return; // sécurité si la page n’est pas rendue
 
 
   $("woStatusFilter").onchange = renderWorkOrders;
@@ -1511,31 +1510,6 @@ $("woSearch").oninput = renderWorkOrders;
 
   $("btnSaveWO").onclick = saveNewWorkOrder;
 };
-
-
-        // Remplir clients
-        const cSel = $("woClientSelect");
-        cSel.innerHTML = `<option value="">Sélectionner</option>`;
-        CLIENTS.forEach(c => {
-            cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
-
-        // Charger véhicules selon client
-        cSel.onchange = () => {
-            const vSel = $("woVehicleSelect");
-            vSel.innerHTML = `<option value="">Sélectionner</option>`;
-
-            const client = CLIENTS.find(c => String(c.id) === String(cSel.value));
-            if (!client || !client.vehicles) return;
-
-            client.vehicles.forEach(v => {
-                const label = `${v.year} ${v.make} ${v.model} (${v.plate || "sans plaque"})`;
-                vSel.innerHTML += `<option value="${v.id}">${label}</option>`;
-            });
-        };
-
-        // Bouton unique (création OU modification)
-        initWorkOrderSaveButton();
     };
 }
 
