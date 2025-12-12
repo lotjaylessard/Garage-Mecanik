@@ -1359,19 +1359,15 @@ function renderWorkOrders(){
 
   tbody.innerHTML = "";
 
-  const selectedStatus = $("woStatusFilter")?.value || "";
+const selectedStatus = $("woStatusFilter")?.value || "";
 const search = $("woSearch")?.value.toLowerCase() || "";
-  
-    let filtered = WORKORDERS.filter(wo => {
-      
 
-  // Toujours afficher seulement "en_cours" et "termine"
-  if (!["en_cours", "termine"].includes(wo.status)) return false;
+let filtered = WORKORDERS.filter(wo => {
 
-      // Ne jamais masquer un WO valide
-  if (!wo.status) return true;
+  // 🔒 Ne jamais masquer un WO valide
+  if (!wo || !wo.id) return false;
 
-  // Filtre manuel (dropdown)
+  // Filtre statut (si sélectionné)
   if (selectedStatus && wo.status !== selectedStatus) return false;
 
   // Recherche texte
@@ -1382,6 +1378,7 @@ const search = $("woSearch")?.value.toLowerCase() || "";
 
   return true;
 });
+
 
 
   filtered.forEach(wo => {
@@ -1409,19 +1406,20 @@ const search = $("woSearch")?.value.toLowerCase() || "";
 }
 
   function finishWorkOrder(id){
-  const wo = WORKORDERS.find(w => w.id === id);
-  if (!wo) return alert("Erreur : bon de travail introuvable.");
+  const wo = WORKORDERS.find(w => String(w.id) === String(id));
+  if (!wo) {
+    alert("Bon de travail introuvable.");
+    return;
+  }
 
-  if (!confirm("Marquer ce bon de travail comme terminé ?")) return;
-
-  // ✅ STATUT FINAL
-  wo.status = "termine";
+  wo.status = "termine"; // STATUT FINAL
 
   saveWorkOrders();
   renderWorkOrders();
 
   alert("Bon de travail marqué comme terminé.");
 }
+
 
 
 function initWorkOrdersModule(){
