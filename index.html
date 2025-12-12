@@ -1537,28 +1537,29 @@ woRenderLines(wo);
       if ($("woSaveBtn")) {
     $("woSaveBtn").onclick = () => {
 
-        const editId = $("woEditId") ? Number($("woEditId").value) : null;
-        const isEditing = !!editId;
+        const editField = $("woEditId");
+const isEditing = editField && editField.value !== "";
+const editId = isEditing ? Number(editField.value) : null;
 
-        if (isEditing) {
-            // === MODE MODIFICATION ===
-            let wo = WORKORDERS.find(w => w.id === editId);
-            if (!wo) return alert("Erreur : bon de travail introuvable.");
+if (isEditing) {
+    // === MODE MODIFICATION ===
+    let wo = WORKORDERS.find(w => String(w.id) === String(editId));
+    if (!wo) return alert("Erreur : bon de travail introuvable.");
 
-            // Mise à jour des champs
-            wo.description = $("woDescription").value.trim();
+    // Mise à jour de la description
+    wo.description = $("woDescription").value.trim();
 
-            // Recalcul total
-            let totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
-            let totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
-            wo.estimateTotal = totalParts + totalLabor;
+    // Recalcul total
+    let totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
+    let totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
+    wo.estimateTotal = totalParts + totalLabor;
 
-            saveWorkOrders();
-            renderWorkOrders();
+    saveWorkOrders();
+    renderWorkOrders();
 
-            alert("Modifications enregistrées !");
-            return;
-        }
+    alert("Modifications enregistrées !");
+    return;
+}
 
         // === MODE CRÉATION ===
         const clientId = $("woClientSelect").value;
