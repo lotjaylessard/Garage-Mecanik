@@ -1462,88 +1462,53 @@ $("woSearch").oninput = renderWorkOrders;
 
   const btnNew = $("btnNewWorkOrder");
   if (btnNew){
-    btnNew.onclick = () => {
-        const detail = $("woDetailContent");
-        if (!detail) return;
+        btnNew.onclick = () => {
+  const detail = $("woDetailContent");
+  if (!detail) return;
 
-const statusLabel =
-  wo.status === "en_cours" ? "En cours" :
-  wo.status === "termine"  ? "Terminé"  :
-  wo.status;
+  detail.innerHTML = `
+    <div class="card" style="max-width:600px;display:grid;gap:10px;">
 
-detail.innerHTML = `
-  <!-- EN-TÊTE -->
-  <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-    <div>
-      <h2>Bon de travail #${wo.number}</h2>
-      <div class="muted">${wo.date}</div>
+      <h2>Nouveau bon de travail</h2>
+
+      <label>Client</label>
+      <select id="woClientSelect"></select>
+
+      <label>Véhicule</label>
+      <select id="woVehicleSelect">
+        <option value="">Sélectionner un client d'abord</option>
+      </select>
+
+      <label>Description</label>
+      <textarea id="woDescription" style="min-height:100px;"></textarea>
+
+      <button id="btnSaveWO">💾 Sauvegarder</button>
     </div>
-    <span class="status-badge status-${wo.status}">
-      ${statusLabel}
-    </span>
-  </div>
+  `;
 
-  <!-- CLIENT / VÉHICULE -->
-  <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-    <div>
-      <label class="muted">Client</label>
-      <div><strong>${wo.clientName}</strong></div>
-    </div>
-    <div>
-      <label class="muted">Véhicule</label>
-      <div><strong>${wo.vehicleLabel}</strong></div>
-    </div>
-  </div>
+  // Remplir clients
+  const cSel = $("woClientSelect");
+  cSel.innerHTML = `<option value="">Sélectionner</option>`;
+  CLIENTS.forEach(c => {
+    cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+  });
 
-  <!-- DESCRIPTION -->
-  <div class="card">
-    <label>Description du problème</label>
-    <textarea id="woDescription" style="width:100%;min-height:100px;">
-${wo.description || ""}
-    </textarea>
-  </div>
+  // Charger véhicules
+  cSel.onchange = () => {
+    const vSel = $("woVehicleSelect");
+    vSel.innerHTML = `<option value="">Sélectionner</option>`;
 
-  <!-- PIÈCES -->
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h3>🧩 Pièces</h3>
-      <button id="woAddPart" class="ghost">➕ Ajouter une pièce</button>
-    </div>
-    <table id="woPartsTable" style="margin-top:10px;">
-      <thead>
-        <tr><th>Nom</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    const client = CLIENTS.find(c => String(c.id) === String(cSel.value));
+    if (!client || !client.vehicles) return;
 
-  <!-- MAIN D’ŒUVRE -->
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h3>🔧 Main-d'œuvre</h3>
-      <button id="woAddLabor" class="ghost">➕ Ajouter</button>
-    </div>
-    <table id="woLaborTable" style="margin-top:10px;">
-      <thead>
-        <tr><th>Description</th><th>Heures</th><th>Taux</th><th>Total</th><th></th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    client.vehicles.forEach(v => {
+      const label = `${v.year} ${v.make} ${v.model}`;
+      vSel.innerHTML += `<option value="${label}">${label}</option>`;
+    });
+  };
 
-  <!-- RÉSUMÉ -->
-  <div class="card" style="text-align:right;">
-    <div class="muted">Pièces : <span id="woPartsTotal">0 $</span></div>
-    <div class="muted">Main-d'œuvre : <span id="woLaborTotal">0 $</span></div>
-    <h3>Total estimé : <span id="woEstimateTotal">0 $</span></h3>
-  </div>
-
-  <!-- ACTIONS -->
-  <div class="card" style="display:flex;justify-content:flex-end;gap:10px;">
-    <button id="woSaveBtn">💾 Enregistrer</button>
-    <button class="danger" onclick="deleteWorkOrder(${wo.id})">🗑 Supprimer</button>
-  </div>
-`;
+  $("btnSaveWO").onclick = saveNewWorkOrder;
+};
 
 
         // Remplir clients
@@ -1583,7 +1548,7 @@ ${wo.description || ""}
       const wo = WORKORDERS.find(w => String(w.id) === String(id));
       const detail = $("woDetailContent");
       if (!detail || !wo) return;
-
+      
       detail.innerHTML = `
       <input type="hidden" id="woEditId" value="${wo.id}">
   <h3>Bon de travail #${wo.number}</h3>
@@ -1710,9 +1675,12 @@ if ($("woEstimateTotal")) {
         renderWorkOrders();
 
         alert("Bon de travail créé !");
-    };
+        
+        // === MODE CRÉATION (sécurité) ===
+alert("Ce bouton sert uniquement à modifier un bon existant.");
+};
 }
-}
+};
 }
 }
   
