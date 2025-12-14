@@ -1579,7 +1579,15 @@ detail.innerHTML = `
       <div style="margin-top:6px;">
   <b>Client :</b> ${wo.clientName || ""}<br>
   <b>Véhicule :</b> ${wo.vehicleLabel || ""}<br>
-  <b>Problème :</b> ${wo.description || "—"}
+  <b>Problème :</b>
+<span style="
+  background: #ffeb3b;
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+">
+  ${wo.description || "—"}
+</span>
 </div>
     </div>
 
