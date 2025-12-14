@@ -359,6 +359,7 @@ button.danger:hover {
         <h3>Raccourcis</h3>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">
           <button class="ghost" onclick="showPage('page-invoice-editor')">+ Nouvelle facture</button>
+          <button class="ghost" onclick="openNewWorkOrderFromDashboard()">+ Nouveau Work Order</button>
           <button class="ghost" onclick="showPage('page-clients')">+ Nouveau client</button>
           <button class="ghost" onclick="showPage('page-services')">Configurer services</button>
           <button class="ghost" onclick="showPage('page-parts')">Gérer inventaire</button>
@@ -1290,8 +1291,20 @@ function woRenderLines(wo) {
 
   saveWorkOrders();
 }
-  
 
+  
+  function openNewWorkOrderFromDashboard(){
+  // 1️⃣ Aller à la page Bons de travail
+  showPage('page-workorders');
+
+  // 2️⃣ Attendre que la page soit visible, puis cliquer sur le vrai bouton
+  setTimeout(() => {
+    const btn = document.getElementById("btnNewWorkOrder");
+    if (btn) btn.click();
+  }, 0);
+}
+
+  
 function formatTime(ms) {
   const totalSec = Math.floor(ms / 1000);
   const h = String(Math.floor(totalSec / 3600)).padStart(2, "0");
