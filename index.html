@@ -1313,14 +1313,15 @@ function updateTimerDisplay() {
   timerDisplay.innerText = "⏱ " + formatTime(current);
 }
 
-if (timerBtn) {
+  if (timerBtn) {
   timerBtn.onclick = () => {
 
-    // ▶️ START / RESUME
+    // ▶️ DÉMARRER / REPRENDRE
     if (!WO_TIMER.running) {
       WO_TIMER.running = true;
       WO_TIMER.startTime = Date.now();
 
+      updateTimerDisplay(); // affichage immédiat
       WO_TIMER.intervalId = setInterval(updateTimerDisplay, 1000);
 
       timerBtn.innerText = "⏸ Pause";
@@ -1339,10 +1340,9 @@ if (timerBtn) {
 
     timerBtn.innerText = "▶️ Reprendre";
     timerBtn.classList.remove("warning");
-    if (stopBtn) stopBtn.style.display = "inline-block";
-
   };
 }
+
 
 if (stopBtn) {
   stopBtn.onclick = () => {
@@ -1747,11 +1747,12 @@ if (timerBtn) {
 
     // ▶️ DÉMARRER
 if (!WO_TIMER.running) {
-  WO_TIMER.running = true;
-  WO_TIMER.startTime = Date.now();
+WO_TIMER.running = true;
+WO_TIMER.startTime = Date.now();
 
-  // ✅ AJOUTER CECI
-  WO_TIMER.intervalId = setInterval(updateTimerDisplay, 1000);
+// 🔴 AJOUT IMPORTANT
+updateTimerDisplay(); // affichage immédiat
+WO_TIMER.intervalId = setInterval(updateTimerDisplay, 1000);
   updateTimerDisplay(); // affichage immédiat
 
   timerBtn.innerText = "⏹ Arrêter";
