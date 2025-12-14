@@ -3253,17 +3253,27 @@ if ($("lastInvoicesBox")) {
 /* ===== 5 DERNIERS BONS DE TRAVAIL ===== */
 if ($("lastWorkOrdersBox")) {
 
-    // 🔴 SÉCURITÉ : s’assurer que les WO sont chargés
-    if (!Array.isArray(WORKORDERS) || WORKORDERS.length === 0) {
-        $("lastWorkOrdersBox").innerHTML =
-          `<span style="color:var(--muted);">Aucun bon de travail enregistré.</span>`;
+    // 🔒 S’assurer que les bons de travail sont chargés
+    loadWorkOrders();
+
+    const lastFiveWO = [...WORKORDERS]
+        .sort((a, b) => {
+            // priorité au numéro / id (plus fiable que date)
+            if (b.number && a.number) {
+                return Number(b.number) - Number(a.number);
+            }
+            return Number(b.id || 0) - Number(a.id || 0);
+        })
+        .slice(0, 5);
+
+    $("lastWorkOrdersBox").innerHTML = "";
+
+    let html = "";
+
+    if (lastFiveWO.length === 0) {
+        html = `<span style="color:var(--muted);">Aucun bon de travail enregistré.</span>`;
     } else {
-
-        const lastFiveWO = [...WORKORDERS]
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 5);
-
-        let html = `<div style="display:flex;flex-direction:column;gap:6px;">`;
+        html += `<div style="display:flex;flex-direction:column;gap:6px;">`;
 
         lastFiveWO.forEach(wo => {
             html += `
@@ -3271,17 +3281,16 @@ if ($("lastWorkOrdersBox")) {
                     style="padding:6px; border:1px solid var(--border); border-radius:6px;"
                 >
                     <b>#${wo.number || wo.id}</b>
-                    <br><span class="muted">
-                        ${wo.clientName || "Client inconnu"}<br>
-                        ${wo.vehicleLabel || ""}
-                    </span>
+                    <br><span class="muted">${wo.clientName || "Client inconnu"}</span>
+                    <br><span class="muted">${wo.vehicleLabel || ""}</span>
                 </div>
             `;
         });
 
         html += `</div>`;
-        $("lastWorkOrdersBox").innerHTML = html;
     }
+
+    $("lastWorkOrdersBox").innerHTML = html;
 }
 
 
