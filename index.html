@@ -1310,36 +1310,6 @@ function updateTimerDisplay() {
   timerDisplay.innerText = "⏱ " + formatTime(current);
 }
 
-  if (timerBtn) {
-  timerBtn.onclick = () => {
-
-    // ▶️ DÉMARRER / REPRENDRE
-    if (!WO_TIMER.running) {
-      WO_TIMER.running = true;
-      WO_TIMER.startTime = Date.now();
-
-      updateTimerDisplay(); // affichage immédiat
-      WO_TIMER.intervalId = setInterval(updateTimerDisplay, 1000);
-
-      timerBtn.innerText = "⏸ Pause";
-      timerBtn.classList.add("warning");
-      if (stopBtn) stopBtn.style.display = "inline-block";
-      return;
-    }
-
-    // ⏸ PAUSE
-    WO_TIMER.running = false;
-    WO_TIMER.elapsed += Date.now() - WO_TIMER.startTime;
-    WO_TIMER.startTime = null;
-
-    clearInterval(WO_TIMER.intervalId);
-    WO_TIMER.intervalId = null;
-
-    timerBtn.innerText = "▶️ Reprendre";
-    timerBtn.classList.remove("warning");
-  };
-}
-
 
 if (stopBtn) {
   stopBtn.onclick = () => {
