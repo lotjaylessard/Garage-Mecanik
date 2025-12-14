@@ -317,7 +317,7 @@ button.danger:hover {
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px;">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFD400">
-        <path d="M12 15.5A3.5 3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm8.94-2.81-1.35-.1a6.94 6.94 0 0 0-.54-1.3l.84-1.07a.5.5 0 0 0-.04-.66l-1.42-1.42a.5.5 0 0 0-.66-.04l-1.07.84c-.42-.25-.86-.45-1.3-.54l-.1-1.35a.5.5 0 0 0-.5-.46h-2a.5.5 0 0 0-.5.46l-.1 1.35c-.45.1-.88.3-1.3.54l-1.07-.84a.5.5 0 0 0-.66.04L5.15 8.56a.5.5 0 0 0-.04.66l.84 1.07c-.25.42-.45.86-.54 1.3l-1.35.1a.5.5 0 0 0-.46.5v2c0 .26.2.48.46.5l1.35.1c.1.45.3.88.54 1.3l-.84 1.07a.5.5 0 0 0 .04.66l1.42 1.42c.18.18.46.2.66.04l1.07-.84c.42.25.86.45 1.3.54l.1 1.35c.02.26.24.46.5.46h2c.26 0 .48-.2.5-.46l.1-1.35c.45-.1.88-.3 1.3-.54l1.07.84c.2.16.48.14.66-.04l1.42-1.42a.5.5 0 0 0 .04-.66l-.84-1.07c.25-.42.45-.86.54-1.3l1.35-.1c.26-.02.46-.24.46-.5v-2a.5.5 0 0 0-.46-.5z"/>
+        <path d="M12 15.5A3.5 3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm8.94 -2.81-1.35-.1a6.94 6.94 0 0 0-.54-1.3l.84-1.07a.5.5 0 0 0-.04-.66l-1.42-1.42a.5.5 0 0 0-.66-.04l-1.07.84c-.42-.25-.86-.45-1.3-.54l-.1-1.35a.5.5 0 0 0-.5-.46h-2a.5.5 0 0 0-.5.46l-.1 1.35c-.45.1-.88.3-1.3.54l-1.07-.84a.5.5 0 0 0-.66.04L5.15 8.56a.5.5 0 0 0-.04.66l.84 1.07c-.25.42-.45.86-.54 1.3l-1.35.1a.5.5 0 0 0-.46.5v2c0 .26.2.48.46.5l1.35.1c.1.45.3.88.54 1.3l-.84 1.07a.5.5 0 0 0 .04.66l1.42 1.42c.18.18.46.2.66.04l1.07-.84c.42.25.86.45 1.3.54l.1 1.35c.02.26.24.46.5.46h2c.26 0 .48-.2.5-.46l.1-1.35c.45-.1.88-.3 1.3-.54l1.07.84c.2.16.48.14.66-.04l1.42-1.42a.5.5 0 0 0 .04-.66l-.84-1.07c.25-.42.45-.86.54-1.3l1.35-.1c.26-.02.46-.24.46-.5v-2a.5.5 0 0 0-.46-.5z"/>
       </svg>
       <h1 style="font-size:18px;">Garage-Atelier Mécanique J.L — Gestion</h1>
     </div>
@@ -1932,55 +1932,6 @@ $("vehicleSelect").onchange = () => {
         renderWorkOrders();
         alert("Bon de travail créé !");
     };
-}
-
-
-function saveNewWorkOrder(){
-
-  const clientId = $("woClientSelect")?.value;
-  const vehicleId = $("woVehicleSelect")?.value;
-  const description = $("woDescription")?.value.trim();
-
-  console.log("clientId =", clientId);
-  console.log("vehicleId =", vehicleId);
-
-  if (!clientId || !vehicleId){
-    alert("Client ou véhicule introuvable.");
-    return;
-  }
-
-  const client = CLIENTS.find(c => String(c.id) === String(clientId));
-  if (!client){
-    alert("Client introuvable.");
-    return;
-  }
-
-  const vehicle = client.vehicles.find(v => String(v.id) === String(vehicleId));
-  if (!vehicle){
-    alert("Véhicule introuvable.");
-    return;
-  }
-
-  const wo = {
-    id: Date.now(),
-    number: "WO-" + (WORKORDERS.length + 1),
-    date: new Date().toLocaleDateString(),
-    clientId: client.id,
-    clientName: client.name,
-    vehicleId: vehicle.id,
-    vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-    description: description || "",
-    parts: [],
-    labor: [],
-    estimateTotal: 0,
-    status: "en_cours"
-  };
-
-  WORKORDERS.push(wo);
-  saveWorkOrders();
-  renderWorkOrders();
-
-  alert("Bon de travail créé !");
 }
 
 
