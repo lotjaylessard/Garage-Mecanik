@@ -289,17 +289,21 @@ button.danger:hover {
 
     /* Couleur Description Work Order*/
 .wo-readonly {
-  background-color: var(--card-bg, #1e1e1e); /* même fond que le site */
-  color: inherit;
-  border: none;
-  box-shadow: none;
-  resize: none;
+  /* 🎯 même fond que les autres cases */
+  background-color: #2b2b2b;
 
-  /* 🔒 pas d’édition */
-  pointer-events: auto;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+
+  resize: none;
+  box-shadow: none;
+
+  /* 🔒 pas éditable */
   cursor: text;
 
-  /* ✅ sélection et copie autorisées */
+  /* ✅ sélection / copie autorisée */
   user-select: text;
 }
 
