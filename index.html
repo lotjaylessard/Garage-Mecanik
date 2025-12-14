@@ -1290,16 +1290,6 @@ function woRenderLines(wo) {
   saveWorkOrders();
 }
 
-
-// ===== TIMER MAIN-D’ŒUVRE (START / PAUSE / RESUME) =====
-let WO_TIMER = window.WO_TIMER || {
-  running: false,
-  startTime: null,
-  elapsed: 0,
-  intervalId: null
-};
-window.WO_TIMER = WO_TIMER;
-
 const timerBtn = document.getElementById("woTimerBtn");
 const timerDisplay = document.getElementById("woTimerDisplay");
 
