@@ -1058,14 +1058,19 @@ function saveWorkOrders(){
     estimateTotal: 0
   };
 
-  WORKORDERS.push(wo);
-  saveWorkOrders();
-  renderWorkOrders();
+WORKORDERS.push(wo);
+saveWorkOrders();
+renderWorkOrders();
 
-  // Afficher confirmation
-  $("woDetailContent").innerHTML = `
-    <div class="muted">Bon de travail créé avec succès.</div>
-  `;
+/* 👉 OUVRIR AUTOMATIQUEMENT LE NOUVEAU WO */
+showPage("page-workorders");
+
+setTimeout(() => {
+  const btn = document.querySelector(
+    `tr[data-id="${wo.id}"] button[data-action="open"]`
+  );
+  if (btn) btn.click();
+}, 0);
 }
 
   function renderPartPicker() {
