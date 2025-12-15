@@ -381,7 +381,7 @@ button.danger:hover {
         <div id="woDetailContent"></div>
       </div>
 
-      <div class="card">
+      <div class="card" id="woListCard">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
           <button id="btnNewWorkOrder">➕ Nouveau bon de travail</button>
 
@@ -1265,6 +1265,13 @@ let WO_TIMER = {
 };
 
   
+function backToWorkOrdersList(){
+  $("woDetailCard").style.display = "block";
+  $("woListCard").style.display = "block";
+  $("woDetailContent").innerHTML = "";
+}
+  
+  
   /* Rendu des lignes d’un WO */
 function woRenderLines(wo) {
   // pièces
@@ -1527,6 +1534,9 @@ $("woSearch").oninput = renderWorkOrders;
   const detail = $("woDetailContent");
   if (!detail) return;
 
+$("woListCard").style.display = "none";
+$("woDetailCard").style.display = "block";
+
   detail.innerHTML = `
     <div class="card" style="max-width:600px;display:grid;gap:10px;">
 
@@ -1589,13 +1599,21 @@ if (!detail) {
 }
 if (!wo) return;
 
+    $("woListCard").style.display = "none";
+$("woDetailCard").style.display = "block";
+
 const statusLabel =
   wo.status === "en_cours" ? "En cours" :
   wo.status === "termine"  ? "Terminé"  :
   wo.status;
 
-detail.innerHTML = `
+    detail.innerHTML = `
+  <button class="ghost" onclick="backToWorkOrdersList()" style="margin-bottom:10px;">
+    ⬅ Retour aux bons de travail
+  </button>
+
   <input type="hidden" id="woEditId" value="${wo.id}">
+
 
   <!-- EN-TÊTE -->
   <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
