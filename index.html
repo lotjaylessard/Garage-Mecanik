@@ -1866,61 +1866,70 @@ $("vehicleSelect").onchange = () => {
     $("jobDesc").value = $("vehicleSelect").value;
 };
 
-  function initWorkOrderSaveButton(){
-    const btn = $("woSaveBtn");
-    if (!btn) return;
+  
+function initWorkOrderSaveButton(){
+  const btn = $("woSaveBtn");
+  if (!btn) return;
 
-    btn.onclick = () => {
+  btn.onclick = () => {
 
-        const editId = $("woEditId")?.value;
-        const isEditing = editId && editId !== "";
+    const editId = $("woEditId")?.value;
+    const isEditing = editId && editId !== "";
 
-        // === MODE MODIFICATION ===
-        if (isEditing){
-            let wo = WORKORDERS.find(w => String(w.id) === String(editId));
-            if (!wo) return alert("Erreur : bon de travail introuvable.");
+    // ================= MODE MODIFICATION =================
+    if (isEditing){
+      const wo = WORKORDERS.find(w => String(w.id) === String(editId));
+      if (!wo) return alert("Erreur : bon de travail introuvable.");
 
-            wo.description = $("woDescription").value.trim();
+      // 🔒 Description non modifiable ici (elle est dans l'entête)
+      // wo.description = $("woDescription")?.value.trim();
 
-            let totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
-            let totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
-            wo.estimateTotal = totalParts + totalLabor;
+      // 🔁 Recalcul COMPLET
+      const totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
+      const totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
+      wo.estimateTotal = totalParts + totalLabor;
 
-            saveWorkOrders();
-            renderWorkOrders();
-            alert("Modifications enregistrées !");
-            return;
-        }
+      // 💾 Sauvegarde
+      saveWorkOrders();
 
-        // === MODE CRÉATION ===
-        const clientId = $("woClientSelect").value;
-        const vehicleId = $("woVehicleSelect").value;
-        const description = $("woDescription").value.trim();
+      // 🔄 RAFRAÎCHISSEMENT IMMÉDIAT
+      woRenderLines(wo);      // ⬅️ MET À JOUR LES TOTAUX VISIBLES
+      renderWorkOrders();     // ⬅️ MET À JOUR LA LISTE
 
-        if (!clientId) return alert("Veuillez choisir un client.");
-        if (!vehicleId) return alert("Veuillez choisir un véhicule.");
+      alert("Bon de travail mis à jour !");
+      return;
+    }
 
-        const client = CLIENTS.find(c => String(c.id) === clientId);
-        const vehicle = client.vehicles.find(v => String(v.id) === vehicleId);
+    // ================= MODE CRÉATION =================
+    const clientId = $("woClientSelect")?.value;
+    const vehicleId = $("woVehicleSelect")?.value;
+    const description = $("woDescription")?.value.trim();
 
-        const wo = {
-            id: Date.now(),
-            number: WORKORDERS.length + 1,
-            date: new Date().toLocaleDateString(),
-            clientName: client.name,
-            vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.plate || "sans plaque"})`,
-            description,
-            parts: [],
-            labor: [],
-            estimateTotal: 0,
-            status: "en_cours"
-        };
+    if (!clientId) return alert("Veuillez choisir un client.");
+    if (!vehicleId) return alert("Veuillez choisir un véhicule.");
 
-        WORKORDERS.push(wo);
-        saveWorkOrders();
-        renderWorkOrders();
-        alert("Bon de travail créé !");
+    const client = CLIENTS.find(c => String(c.id) === String(clientId));
+    const vehicle = client.vehicles.find(v => String(v.id) === String(vehicleId));
+
+    const wo = {
+      id: Date.now(),
+      number: "BT-" + Date.now(),
+      date: new Date().toLocaleString("fr-CA"),
+      clientName: client.name,
+      vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+      description,
+      parts: [],
+      labor: [],
+      estimateTotal: 0,
+      status: "en_cours"
     };
+
+    WORKORDERS.push(wo);
+    saveWorkOrders();
+    renderWorkOrders();
+
+    alert("Bon de travail créé !");
+  };
 }
 
 
