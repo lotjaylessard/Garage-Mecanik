@@ -951,6 +951,29 @@ const STORAGE = {
 const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
 
+
+  /* ===================== # BT dans Work order ===================== */
+  function generateWorkOrderNumber(clientName){
+  if (!clientName) return "BT-UNKNOWN";
+
+  // Initiales du client (Jean Tremblay → JT)
+  const initials = clientName
+    .split(" ")
+    .filter(w => w.length > 0)
+    .map(w => w[0].toUpperCase())
+    .join("");
+
+  // Date AAAA-MM-JJ
+  const d = new Date();
+  const date =
+    d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+
+  return `BT-${initials}-${date}`;
+}
+
+
 /* ===================== NAVIGATION ===================== */
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.style.display='none');
@@ -1045,7 +1068,7 @@ function saveWorkOrders(){
   // Création du Work Order minimal
   const wo = {
     id: Date.now(),
-    number: "BT-" + Date.now(),
+    number: generateWorkOrderNumber(client.name),
     date: new Date().toLocaleString("fr-CA"),
     clientId,
     clientName: client.name,
