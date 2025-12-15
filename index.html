@@ -1052,6 +1052,7 @@ function saveWorkOrders(){
     vehicleId,
     vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
     description,
+    notes: "",          // 📝 notes techniques
     status: "en_cours",
     parts: [],
     labor: [],
@@ -1693,6 +1694,21 @@ const statusLabel =
     <h3 style="margin-top:10px;">Total estimé : <span id="woEstimateTotal">0 $</span></h3>
   </div>
 
+
+<!-- NOTES TECHNIQUES -->
+<div class="card">
+  <h3>📝 Notes techniques</h3>
+  <textarea
+    id="woNotes"
+    placeholder="Décris le diagnostic, les réparations effectuées, observations, etc."
+    style="min-height:140px;"
+  ></textarea>
+  <div class="muted" style="margin-top:6px;">
+    Ces notes sont sauvegardées automatiquement pour ce bon de travail.
+  </div>
+</div>
+
+
   <!-- ACTIONS -->
   <div class="card" style="display:flex;justify-content:flex-end;gap:10px;">
     <button id="woSaveBtn">💾 Enregistrer</button>
@@ -1705,11 +1721,23 @@ const statusLabel =
     // Bind boutons
     $("woAddPart").onclick = () => woAddPartLine(wo);
     $("woAddLabor").onclick = () => woAddLaborLine(wo);
+    
     woRenderLines(wo);
-    initWorkOrderSaveButton();
+    
+    // === NOTES TECHNIQUES DU BON DE TRAVAIL ===
+const notesField = document.getElementById("woNotes");
+if (notesField){
+  notesField.value = wo.notes || "";
+
+  notesField.oninput = () => {
+    wo.notes = notesField.value;
+    saveWorkOrders();
+  };
+}
+
+initWorkOrderSaveButton();
 
     
-
 // ===== TIMER MAIN-D’ŒUVRE (VERSION STABLE) =====
 let WO_TIMER = {
   running: false,
