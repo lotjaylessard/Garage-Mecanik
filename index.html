@@ -1803,27 +1803,28 @@ if (stopBtn){
 }
 
 
-    const saveBtn = $("woSaveBtn");
-    if (saveBtn){
-      saveBtn.onclick = () => {
+const saveBtn = $("woSaveBtn");
+if (saveBtn){
+  saveBtn.onclick = () => {
 
-        wo.description = $("woDescription").value.trim();
+    // recalcul totals
+    const totalParts = wo.parts.reduce((s,p)=> s + (Number(p.rate||0) * Number(p.qty||0)), 0);
+    const totalLabor = wo.labor.reduce((s,l)=> s + (Number(l.rate||0) * Number(l.hours||0)), 0);
+    wo.estimateTotal = totalParts + totalLabor;
 
-        const totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
-        const totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
+    // refresh panneau de droite (tout de suite)
+    if ($("woPartsTotal")) $("woPartsTotal").innerText = money(totalParts) + " $";
+    if ($("woLaborTotal")) $("woLaborTotal").innerText = money(totalLabor) + " $";
+    if ($("woEstimateTotal")) $("woEstimateTotal").innerText = money(wo.estimateTotal) + " $";
 
-        wo.estimateTotal = totalParts + totalLabor;
+    // save + refresh liste BT + refresh dashboard
+    saveWorkOrders();
+    renderWorkOrders();
+    renderDashboard();
 
-        if ($("woPartsTotal")) $("woPartsTotal").innerText = money(totalParts) + " $";
-        if ($("woLaborTotal")) $("woLaborTotal").innerText = money(totalLabor) + " $";
-        if ($("woEstimateTotal")) $("woEstimateTotal").innerText = money(wo.estimateTotal) + " $";
-
-        saveWorkOrders();
-        renderWorkOrders();
-
-        alert("Modifications enregistrées !");
-      };
-    }
+    alert("Modifications enregistrées !");
+  };
+}
   };
 }
 
@@ -3215,6 +3216,8 @@ if ($("filterVehicle")) {
 
 
 function renderDashboard(){
+  loadWorkOrders();
+  if (!Array.isArray(WORKORDERS)) WORKORDERS = [];
   const invoicesCount=INVOICES.length;
   const revenue=INVOICES.reduce((s,inv)=>s+Number(inv.total||0),0);
   const clientsCount=CLIENTS.length;
