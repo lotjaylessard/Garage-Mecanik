@@ -996,7 +996,9 @@ let CLIENTS = [];
 let PARTS = [];
 let SERVICES = [];
 
-    const PART_ICONS = {
+
+  /* ===================== PART ICONS ===================== */
+        const PART_ICONS = {
   "Moteur": "🧠",
   "Transmission": "⚙️",
   "Suspension": "🛞",
@@ -2753,6 +2755,7 @@ function renderParts(){
     const hay = `${p.name||''} ${p.number||''} ${p.category||''}`.toLowerCase();
     if(q && !hay.includes(q)) return;
     if(filterCat && p.category && p.category!==filterCat) return;
+    const icon = PART_ICONS[p.category] || "📦";
     const profit = p.price>0 ? ((p.price-p.cost)/p.price*100).toFixed(0) : 0;
     const card=document.createElement('div');
     card.style=`
@@ -2763,7 +2766,7 @@ function renderParts(){
       width:260px;
     `;
     card.innerHTML=`
-      <h3 style="margin-bottom:10px;color:var(--accent);">${p.name}</h3>
+      <h3 style="margin-bottom:10px;color:var(--accent);">${PART_ICONS[p.category] || "📦"} ${p.name}</h3>
       <div class="small"># Pièce : <b>${p.number||''}</b></div>
       <div class="small">Catégorie : <b>${p.category||'Divers'}</b></div>
       <div class="small">Stock : <b>${p.qty}</b></div>
