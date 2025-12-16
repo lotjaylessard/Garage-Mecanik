@@ -2018,47 +2018,6 @@ function initSettings(){
 });
 }
 
-  function deleteInvoice(number) {
-  if (!confirm("Supprimer cette facture ?")) return;
-
-  // Retirer la facture de la liste actuelle
-  INVOICES = INVOICES.filter(inv => inv.number !== number);
-  saveInvoices();
-
-  // Rafraîchir l'affichage des factures
-  renderInvoiceList();
-
-  // Mettre à jour le reste de l’interface si les fonctions existent
-  if (typeof renderHistoryTable === "function") {
-    renderHistoryTable();
-  }
-  if (typeof renderDashboard === "function") {
-    renderDashboard();
-  }
-}
-
-  // === FILTRES DE RECHERCHE ET STATUT (3D) ===
-$("invoiceSearch").oninput = renderInvoiceList;
-$("invoiceStatusFilter").onchange = renderInvoiceList;
-
-
-// Cacher tout le bloc de champs de main-d'oeuvre
-const laborDesc = $("laborDesc");
-if (laborDesc){
-  const h3 = laborDesc.closest("h3");
-  if (h3 && h3.nextElementSibling){
-    h3.nextElementSibling.style.display = "none";
-  }
-}
-
-
-// Cacher les boutons d'ajout de pièces et main-d'œuvre
-$("addPart").style.display = "none";
-$("openPartPicker").style.display = "none";
-$("addLabor").style.display = "none";
-$("openServicePicker").style.display = "none";
-if ($("invoiceNumber")) $("invoiceNumber").value = inv.number;
-
 
   // Client
   const c = CLIENTS.find(c => c.name === inv.customer);
