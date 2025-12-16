@@ -2046,30 +2046,6 @@ function saveClients(){
   localStorage.setItem(STORAGE.clients, JSON.stringify(CLIENTS));
 }
 
-  
-/* ======== Quand on change de client => Raffraîchir les véhicules ======== */
-
-  
-  const name = prompt("Nom du nouveau client :");
-  if (!name)
-
-  const phone = prompt("Téléphone (optionnel) :") || "";
-  const email = prompt("Email (optionnel) :") || "";
-  const address = prompt("Adresse (optionnel) :") || "";
-
-  const newClient = {
-    id: Date.now(),
-    name,
-    phone,
-    email,
-    address,
-    vehicles: []
-  };
-
-  CLIENTS.push(newClient);
-  saveClients();
-
-  $("customerSelect").value = newClient.id;
 
   alert("Client ajouté !");
   renderClientsTable();
