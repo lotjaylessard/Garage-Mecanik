@@ -1790,7 +1790,7 @@ if (saveBtn){
 }
 
   
-function initWorkOrderSaveButton(){
+  function initWorkOrderSaveButton(){
   const btn = $("woSaveBtn");
   if (!btn) return;
 
@@ -1799,31 +1799,24 @@ function initWorkOrderSaveButton(){
     const editId = $("woEditId")?.value;
     const isEditing = editId && editId !== "";
 
-    // ================= MODE MODIFICATION =================
+    // ===== MODE MODIFICATION =====
     if (isEditing){
       const wo = WORKORDERS.find(w => String(w.id) === String(editId));
       if (!wo) return alert("Erreur : bon de travail introuvable.");
 
-      // 🔒 Description non modifiable ici (elle est dans l'entête)
-      // wo.description = $("woDescription")?.value.trim();
-
-      // 🔁 Recalcul COMPLET
       const totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
       const totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
       wo.estimateTotal = totalParts + totalLabor;
 
-      // 💾 Sauvegarde
       saveWorkOrders();
-
-      // 🔄 RAFRAÎCHISSEMENT IMMÉDIAT
-      woRenderLines(wo);      // ⬅️ MET À JOUR LES TOTAUX VISIBLES
-      renderWorkOrders();     // ⬅️ MET À JOUR LA LISTE
+      woRenderLines(wo);
+      renderWorkOrders();
 
       alert("Bon de travail mis à jour !");
       return;
     }
 
-    // ================= MODE CRÉATION =================
+    // ===== MODE CRÉATION =====
     const clientId = $("woClientSelect")?.value;
     const vehicleId = $("woVehicleSelect")?.value;
     const description = $("woDescription")?.value.trim();
@@ -2459,6 +2452,8 @@ function loadServices(){
 function saveServices(){
   localStorage.setItem(STORAGE.services, JSON.stringify(SERVICES));
 }
+
+
 const SERVICE_ICONS = {
   "Entretien":"🛢️",
   "Mécanique générale":"🧰",
@@ -2479,8 +2474,6 @@ const SERVICE_ICONS = {
   function partIcon(cat){
   return PART_ICONS[cat] || "📦";
 }
-
-  
 
 
 
