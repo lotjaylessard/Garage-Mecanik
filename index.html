@@ -2167,9 +2167,13 @@ if (partName){
   }
 }
 
-// Cacher les boutons pour pièces
-$("addPart").style.display = "none";
-$("openPartPicker").style.display = "none";
+  
+if ($("addPart")) $("addPart").style.display = "none";
+if ($("openPartPicker")) $("openPartPicker").style.display = "none";
+
+if ($("addLabor")) $("addLabor").style.display = "none";
+if ($("openServicePicker")) $("openServicePicker").style.display = "none";
+
 
 // Cacher titre "Ajouter main-d'oeuvre"
 document.querySelector("h3:nth-of-type(2)").style.display = "none";
@@ -2182,11 +2186,6 @@ if (laborDesc){
     h3.nextElementSibling.style.display = "none";
   }
 }
-
-
-// Cacher les boutons main-d'oeuvre
-$("addLabor").style.display = "none";
-$("openServicePicker").style.display = "none";
 
     // === MODE ÉDITION : facture existante ===
 let editingInvoice = true;
