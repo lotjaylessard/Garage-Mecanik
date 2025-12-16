@@ -2159,7 +2159,13 @@ $("invoiceStatusFilter").onchange = renderInvoiceList;
 document.querySelector("h3:nth-of-type(1)").style.display = "none";
 
 // Cacher tout le bloc de champs de pièce
-$("partName").closest("h3").nextElementSibling.style.display = "none";
+const partName = $("partName");
+if (partName){
+  const h3 = partName.closest("h3");
+  if (h3 && h3.nextElementSibling){
+    h3.nextElementSibling.style.display = "none";
+  }
+}
 
 // Cacher les boutons pour pièces
 $("addPart").style.display = "none";
@@ -2169,7 +2175,14 @@ $("openPartPicker").style.display = "none";
 document.querySelector("h3:nth-of-type(2)").style.display = "none";
 
 // Cacher tout le bloc de champs de main-d'oeuvre
-$("laborDesc").closest("h3").nextElementSibling.style.display = "none";
+const laborDesc = $("laborDesc");
+if (laborDesc){
+  const h3 = laborDesc.closest("h3");
+  if (h3 && h3.nextElementSibling){
+    h3.nextElementSibling.style.display = "none";
+  }
+}
+
 
 // Cacher les boutons main-d'oeuvre
 $("addLabor").style.display = "none";
