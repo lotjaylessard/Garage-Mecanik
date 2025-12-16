@@ -2349,48 +2349,65 @@ function renderParts(){
       renderDashboard();
     });
   });
-  wrap.querySelectorAll('button[data-action="edit"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=Number(btn.dataset.id);
-      const p=PARTS[id];
-      if(!p) return;
-      const newName=prompt("Nom de la pièce :",p.name)||p.name;
-      const newNumber=prompt("Numéro de pièce :",p.number||"")||p.number;
-      const newCat=prompt("Catégorie :",p.category||'Divers')||p.category||'Divers';
-      const newQty=Number(prompt("Quantité :",p.qty)||p.qty);
-      const newCost=Number(prompt("Prix coûtant :",p.cost)||p.cost);
-      const newPrice=Number(prompt("Prix de vente :",p.price)||p.price);
-      PARTS[id]={name:newName,number:newNumber,category:newCat,qty:newQty,cost:newCost,price:newPrice};
-      saveParts();
-      renderParts();
-      renderDashboard();
-    });
+
+  wrap.querySelectorAll('button[data-role="edit-part"]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const id = Number(btn.dataset.id);
+    const p = PARTS[id];
+    if(!p) return;
+
+    const newName = prompt("Nom :", p.name) || p.name;
+    const newNumber = prompt("Numéro :", p.number) || p.number;
+    const newCat = prompt("Catégorie :", p.category || 'Divers') || p.category || 'Divers';
+    const newQty = Number(prompt("Quantité :", p.qty) || p.qty);
+    const newCost = Number(prompt("Prix coûtant :", p.cost) || p.cost);
+    const newPrice = Number(prompt("Prix de vente :", p.price) || p.price);
+
+    PARTS[id] = {
+      name: newName,
+      number: newNumber,
+      category: newCat,
+      qty: newQty,
+      cost: newCost,
+      price: newPrice
+    };
+
+    saveParts();
+    renderParts();
+    renderDashboard();
   });
-    btn.addEventListener('click',()=>{
-      const id=Number(btn.dataset.id);
-      const p=PARTS[id];
-      if(!p) return;
-      const currentQty=Number(p.qty||0);
-      if(currentQty<=0){
-        alert("Stock insuffisant pour cette pièce.");
-        return;
-      }
-      p.qty=currentQty-1;
-      saveParts();
-      renderParts();
-      renderDashboard();
-      const newItem={
-        type:"Pièce (Inventaire)",
-        desc:`${p.name} (#${p.number})`,
-        qty:1,
-        rate:p.price,
-        invNumber:p.number
-      };
-      items.push(newItem);
-      renderItems();
-    });
+});
+
+wrap.querySelectorAll('button[data-role="use-part"]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const id = Number(btn.dataset.id);
+    const p = PARTS[id];
+    if(!p) return;
+
+    const currentQty = Number(p.qty || 0);
+    if(currentQty <= 0){
+      alert("Stock insuffisant pour cette pièce.");
+      return;
+    }
+
+    p.qty = currentQty - 1;
+    saveParts();
+    renderParts();
+    renderDashboard();
+
+    const newItem = {
+      type: "Pièce (Inventaire)",
+      desc: `${p.name} (#${p.number})`,
+      qty: 1,
+      rate: p.price,
+      invNumber: p.number
+    };
+
+    items.push(newItem);
+    renderItems();
   });
-}
+});
+
 
 function initPartsModule(){
   loadParts();
