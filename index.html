@@ -2148,31 +2148,6 @@ $("invoiceSearch").oninput = renderInvoiceList;
 $("invoiceStatusFilter").onchange = renderInvoiceList;
 
 
-    // ========== MODE ÉDITION : cacher les sections d'ajout ==========
-
-// Cacher titre "Ajouter une pièce"
-document.querySelector("h3:nth-of-type(1)").style.display = "none";
-
-// Cacher tout le bloc de champs de pièce
-const partName = $("partName");
-if (partName){
-  const h3 = partName.closest("h3");
-  if (h3 && h3.nextElementSibling){
-    h3.nextElementSibling.style.display = "none";
-  }
-}
-
-  
-if ($("addPart")) $("addPart").style.display = "none";
-if ($("openPartPicker")) $("openPartPicker").style.display = "none";
-
-if ($("addLabor")) $("addLabor").style.display = "none";
-if ($("openServicePicker")) $("openServicePicker").style.display = "none";
-
-
-// Cacher titre "Ajouter main-d'oeuvre"
-document.querySelector("h3:nth-of-type(2)").style.display = "none";
-
 // Cacher tout le bloc de champs de main-d'oeuvre
 const laborDesc = $("laborDesc");
 if (laborDesc){
