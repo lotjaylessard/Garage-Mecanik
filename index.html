@@ -1318,6 +1318,55 @@ function woRenderLines(wo) {
     </tr>
   `).join("");
 
+
+  // ===== SERVICE MANUEL (BON DE TRAVAIL) =====
+const manualLaborBtn = document.getElementById("woAddLaborManual");
+const manualLaborBox = document.getElementById("woManualLaborBox");
+
+if (manualLaborBtn && manualLaborBox){
+  manualLaborBtn.onclick = () => {
+    manualLaborBox.style.display = "block";
+  };
+}
+
+const manualLaborSave = document.getElementById("woManualLaborSave");
+const manualLaborCancel = document.getElementById("woManualLaborCancel");
+
+if (manualLaborSave){
+  manualLaborSave.onclick = () => {
+    const desc = document.getElementById("woManualLaborDesc").value.trim();
+    const hours = Number(document.getElementById("woManualLaborHours").value);
+    const rate = Number(document.getElementById("woManualLaborRate").value);
+
+    if (!desc || hours <= 0 || rate <= 0){
+      return alert("Informations du service incomplètes.");
+    }
+
+    wo.labor.push({
+      description: desc,
+      hours,
+      rate,
+      total: hours * rate
+    });
+
+    saveWorkOrders();
+    woRenderLines(wo);
+
+    // reset + fermer
+    document.getElementById("woManualLaborDesc").value = "";
+    document.getElementById("woManualLaborHours").value = 1;
+    document.getElementById("woManualLaborRate").value = 90;
+    manualLaborBox.style.display = "none";
+  };
+}
+
+if (manualLaborCancel){
+  manualLaborCancel.onclick = () => {
+    manualLaborBox.style.display = "none";
+  };
+}
+
+
   // main d’œuvre
   const lBody = $("woLaborTable").querySelector("tbody");
   lBody.innerHTML = wo.labor.map((l,i)=>`
@@ -1714,13 +1763,18 @@ const statusLabel =
     </div>
   </div>
 
-  <div style="display:flex;gap:6px;">
-    <button id="woAddLabor" class="ghost">➕ Service Enregistré</button>
-    <button id="woTimerBtn" class="ghost">▶️ Démarrer</button>
-    <button id="woTimerStopBtn" class="ghost danger" style="display:none;">
-  ⏹ Arrêter
-</button>
-  </div>
+<div style="display:flex;gap:6px;">
+  <button id="woAddLabor" class="ghost">➕ Service enregistré</button>
+
+  <!-- 🆕 NOUVEAU BOUTON -->
+  <button id="woAddLaborManual" class="ghost">➕ Ajouter Service</button>
+
+  <button id="woTimerBtn" class="ghost">▶️ Démarrer</button>
+
+  <button id="woTimerStopBtn" class="ghost danger" style="display:none;">
+    ⏹ Arrêter
+  </button>
+</div>
 </div>
 
     <table id="woLaborTable" style="margin-top:10px;">
@@ -1730,6 +1784,25 @@ const statusLabel =
       <tbody></tbody>
     </table>
   </div>
+
+  <div id="woManualLaborBox" class="card" style="display:none;margin-top:10px;">
+  <h4>➕ Ajouter un service manuellement</h4>
+
+  <label>Description</label>
+  <input id="woManualLaborDesc">
+
+  <label>Heures</label>
+  <input id="woManualLaborHours" type="number" step="0.1" value="1">
+
+  <label>Taux horaire ($)</label>
+  <input id="woManualLaborRate" type="number" step="0.01" value="90">
+
+  <div style="display:flex;gap:8px;margin-top:10px;">
+    <button id="woManualLaborSave">Ajouter</button>
+    <button id="woManualLaborCancel" class="ghost">Annuler</button>
+  </div>
+</div>
+
 
   <!-- RÉSUMÉ -->
   <div class="card" style="text-align:right;">
