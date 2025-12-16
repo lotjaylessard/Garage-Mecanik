@@ -2221,14 +2221,16 @@ function renderClientModal(id){
   }
   renderVehiclesList();
 
-  const histWrap=$('clientHistory');
-  if(histWrap){
-    }else{
-        <div style="border-bottom:1px solid var(--border);padding:4px 0;">
-        </div>
-      `).join('');
-    }
-  }
+  
+const histWrap = $('clientHistory');
+if (histWrap) {
+  histWrap.innerHTML = `
+    <div style="border-bottom:1px solid var(--border);padding:4px 0;">
+      Aucun historique disponible.
+    </div>
+  `;
+}
+
 
   if($('clientSaveBtn')){
     $('clientSaveBtn').addEventListener('click',()=>{
