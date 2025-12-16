@@ -1949,43 +1949,43 @@ if (saveBtn){
 }
 
   
-  // === Mise à jour automatique du menu véhicule selon le client ===
-$("customerSelect").onchange = () => {
-    const clientName = $("customerSelect").value;
-    const client = CLIENTS.find(c => c.name === clientName);
-    const vehicleMenu = $("vehicleSelect");
+const customerSelect = $("customerSelect");
+const vehicleSelect = $("vehicleSelect");
 
-    // Vider l'ancien contenu
+if (customerSelect){
+  customerSelect.onchange = () => {
+    const clientName = customerSelect.value;
+    const client = CLIENTS.find(c => c.name === clientName);
+    const vehicleMenu = vehicleSelect;
+
     vehicleMenu.innerHTML = "";
 
-    // Aucun client choisi
-    if (!client) {
-        vehicleMenu.innerHTML = `<option value="">— Sélectionnez un client —</option>`;
-        $("jobDesc").value = "";
-        return;
+    if (!client){
+      vehicleMenu.innerHTML = `<option value="">— Sélectionnez un client —</option>`;
+      $("jobDesc").value = "";
+      return;
     }
 
-    // Si client sans véhicule
-    if (!client.vehicles || client.vehicles.length === 0) {
-        vehicleMenu.innerHTML = `<option value="">— Aucun véhicule enregistré —</option>`;
-        $("jobDesc").value = "";
-        return;
+    if (!client.vehicles || client.vehicles.length === 0){
+      vehicleMenu.innerHTML = `<option value="">— Aucun véhicule enregistré —</option>`;
+      $("jobDesc").value = "";
+      return;
     }
 
-    // Sinon : remplir avec les véhicules du client
     client.vehicles.forEach(v => {
-        const label = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim();
-        vehicleMenu.innerHTML += `<option value="${label}">${label}</option>`;
+      const label = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim();
+      vehicleMenu.innerHTML += `<option value="${label}">${label}</option>`;
     });
 
-    // mettre la valeur du premier véhicule dans jobDesc
     $("jobDesc").value = vehicleMenu.value;
-};
+  };
+}
 
-// Quand un véhicule est sélectionné → mettre la valeur dans jobDesc
-$("vehicleSelect").onchange = () => {
-    $("jobDesc").value = $("vehicleSelect").value;
-};
+if (vehicleSelect){
+  vehicleSelect.onchange = () => {
+    $("jobDesc").value = vehicleSelect.value;
+  };
+}
 
   
 function initWorkOrderSaveButton(){
