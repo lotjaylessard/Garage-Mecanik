@@ -950,6 +950,65 @@ const STORAGE = {
 
 const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
+  
+
+  function createInvoiceFromWorkOrder(wo){
+  if (!wo) return;
+
+  // empêcher double facture
+  if (wo.invoiceId){
+    showPage("page-invoice-editor");
+    loadInvoiceForEdit(wo.invoiceId);
+    return;
+  }
+
+  loadInvoices();
+
+  const newInvoiceId = Date.now();
+
+  const items = [];
+
+  // pièces
+  wo.parts.forEach(p => {
+    items.push({
+      type: "Pièce",
+      desc: p.name,
+      qty: p.qty,
+      rate: p.rate
+    });
+  });
+
+  // main-d'œuvre
+  wo.labor.forEach(l => {
+    items.push({
+      type: "Main-d'œuvre",
+      desc: l.description,
+      qty: l.hours,
+      rate: l.rate
+    });
+  });
+
+  const invoice = {
+    id: newInvoiceId,
+    number: "F-" + newInvoiceId,
+    date: new Date().toLocaleDateString("fr-CA"),
+    client: wo.clientName,
+    jobDesc: `BT ${wo.number} — ${wo.vehicleLabel}`,
+    items,
+    status: "draft",
+    notes: wo.notes || ""
+  };
+
+  INVOICES.push(invoice);
+  saveInvoices();
+
+  // lier BT → facture
+  wo.invoiceId = newInvoiceId;
+  saveWorkOrders();
+
+  showPage("page-invoice-editor");
+  loadInvoiceForEdit(newInvoiceId);
+}
 
 
   /* ===================== # BT dans Work order ===================== */
@@ -1079,7 +1138,8 @@ function saveWorkOrders(){
     status: "en_cours",
     parts: [],
     labor: [],
-    estimateTotal: 0
+    estimateTotal: 0,
+    invoiceId: null
   };
 
 WORKORDERS.push(wo);
@@ -1524,12 +1584,12 @@ function renderWorkOrders(){
   const wo = WORKORDERS.find(w => String(w.id) === String(id));
   if(!wo) return alert("Erreur : bon de travail introuvable.");
 
-  wo.status = "termine"; // ✅ statut interne SANS accent
+wo.status = "termine";
+saveWorkOrders();
+renderWorkOrders();
 
-  saveWorkOrders();
-  renderWorkOrders();
-
-  alert("Bon de travail marqué comme terminé.");
+// ➜ TRANSFERT VERS FACTURE
+createInvoiceFromWorkOrder(wo);
 }
 
   
