@@ -322,7 +322,6 @@ button.danger:hover {
       <h1 style="font-size:18px;">Garage-Atelier Mécanique J.L — Gestion</h1>
     </div>
     <div style="display:flex;gap:10px;">
-      <button id="btnPrint">Imprimer facture</button>
     </div>
   </div>
 
@@ -362,7 +361,6 @@ button.danger:hover {
       <div class="card" style="margin-top:20px;">
         <h3>Raccourcis</h3>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">
-          <button class="ghost" onclick="showPage('page-invoice-editor')">+ Nouvelle facture</button>
           <button class="ghost" onclick="openNewWorkOrderFromDashboard()">+ Nouveau Work Order</button>
           <button class="ghost" onclick="showPage('page-clients')">+ Nouveau client</button>
           <button class="ghost" onclick="showPage('page-services')">Configurer services</button>
@@ -851,64 +849,6 @@ const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
   
 
-  function createInvoiceFromWorkOrder(wo){
-  if (!wo) return;
-
-  // empêcher double facture
-  if (wo.invoiceId){
-    showPage("page-invoice-editor");
-    return;
-  }
-
-  loadInvoices();
-
-  const newInvoiceId = Date.now();
-
-  const items = [];
-
-  // pièces
-  wo.parts.forEach(p => {
-    items.push({
-      type: "Pièce",
-      desc: p.name,
-      qty: p.qty,
-      rate: p.rate
-    });
-  });
-
-  // main-d'œuvre
-  wo.labor.forEach(l => {
-    items.push({
-      type: "Main-d'œuvre",
-      desc: l.description,
-      qty: l.hours,
-      rate: l.rate
-    });
-  });
-
-  const invoice = {
-    id: newInvoiceId,
-    number: "F-" + newInvoiceId,
-    date: new Date().toLocaleDateString("fr-CA"),
-    client: wo.clientName,
-    jobDesc: `BT ${wo.number} — ${wo.vehicleLabel}`,
-    items,
-    status: "draft",
-    notes: wo.notes || ""
-  };
-
-  INVOICES.push(invoice);
-  saveInvoices();
-
-  // lier BT → facture
-  wo.invoiceId = newInvoiceId;
-  saveWorkOrders();
-    
-showPage("page-invoice-list");
-renderInvoiceList();
-
-}
-
 
   /* ===================== # BT dans Work order ===================== */
   function generateWorkOrderNumber(clientName){
@@ -1240,13 +1180,6 @@ function woAddLaborLine(wo) {
     };
   });
 }
-
-let WO_TIMER = {
-  running: false,
-  startTime: null,
-  elapsed: 0,
-  intervalId: null
-};
 
   
 function backToWorkOrdersList(){
@@ -1941,45 +1874,6 @@ if (saveBtn){
     alert("Modifications enregistrées !");
   };
 }
-  };
-}
-
-  
-const customerSelect = $("customerSelect");
-const vehicleSelect = $("vehicleSelect");
-
-if (customerSelect){
-  customerSelect.onchange = () => {
-    const clientName = customerSelect.value;
-    const client = CLIENTS.find(c => c.name === clientName);
-    const vehicleMenu = vehicleSelect;
-
-    vehicleMenu.innerHTML = "";
-
-    if (!client){
-      vehicleMenu.innerHTML = `<option value="">— Sélectionnez un client —</option>`;
-      $("jobDesc").value = "";
-      return;
-    }
-
-    if (!client.vehicles || client.vehicles.length === 0){
-      vehicleMenu.innerHTML = `<option value="">— Aucun véhicule enregistré —</option>`;
-      $("jobDesc").value = "";
-      return;
-    }
-
-    client.vehicles.forEach(v => {
-      const label = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim();
-      vehicleMenu.innerHTML += `<option value="${label}">${label}</option>`;
-    });
-
-    $("jobDesc").value = vehicleMenu.value;
-  };
-}
-
-if (vehicleSelect){
-  vehicleSelect.onchange = () => {
-    $("jobDesc").value = vehicleSelect.value;
   };
 }
 
@@ -3421,15 +3315,7 @@ function openWorkOrderFromDashboard(id){
     if (btn) btn.click();
   }, 0);
 }
-
-
-/* ===================== PRINT SIMPLE ===================== */
-if($('btnPrint')){
-  $('btnPrint').addEventListener('click',()=>{
-    if(!items.length){alert("Aucun article à imprimer.");return;}
-    window.print();
-  });
-}
+  
 
 /* ===================== BACKUP EXPORT / IMPORT ===================== */
 function exportAllData(){
