@@ -2199,7 +2199,8 @@ $("addPart").style.display = "none";
 $("openPartPicker").style.display = "none";
 $("addLabor").style.display = "none";
 $("openServicePicker").style.display = "none";
-  $("invoiceNumber").value = inv.number;
+if ($("invoiceNumber")) $("invoiceNumber").value = inv.number;
+
 
   // Client
   const c = CLIENTS.find(c => c.name === inv.customer);
@@ -2213,26 +2214,9 @@ $("openServicePicker").style.display = "none";
   renderItems();
   invoiceCalcTotals();
 
-    // Recharger le statut dans l’éditeur
-$("invoiceStatus").value = inv.status || "draft";
-
-// Gestion du bouton "Marquer comme payée"
-$("markInvoicePaid").onclick = () => {
-  inv.status = "paid";
-  $("invoiceStatus").value = "paid";
-
-  // Historique
-  addInvoiceToHistory(inv);
-
-  // Retirer des factures actives
-  INVOICES = INVOICES.filter(i => i.number !== inv.number);
-  saveInvoices();
-
-  alert("Facture marquée comme payée !");
-  showPage("page-invoice-list");
-  renderInvoiceList();
+;
 };
-  }
+
 
   function addInvoiceToHistory(inv){
   let HISTORY = JSON.parse(localStorage.getItem("history") || "[]");
