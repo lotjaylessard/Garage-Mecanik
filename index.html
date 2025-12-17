@@ -937,6 +937,8 @@ button.danger:hover {
   </div>
 
 <script>
+
+  
 /* ===================== HELPERS & STORAGE ===================== */
 const STORAGE = {
   invoices:'ar_invoices_v2',
@@ -945,9 +947,35 @@ const STORAGE = {
   clients:'ar_clients_v1',
   parts:'ar_parts_inventory_v1',
   services:'ar_services_v1',
-  notes: 'ar_notes_v1',
-  workorders: 'ar_workorders_v1'
+  notes:'ar_notes_v1',
+  workorders:'ar_workorders_v1'
 };
+
+/* ===== MIGRATION LOCALSTORAGE (TEMPORAIRE) ===== */
+(function migrateOldStorage(){
+  const map = {
+    clients: ["clients","garage_clients","ar_clients"],
+    parts: ["parts","garage_parts","ar_parts"],
+    services: ["services","garage_services","ar_services"],
+    notes: ["notes","garage_notes","ar_notes"],
+    workorders: ["workorders","garage_workorders","ar_workorders"],
+    invoices: ["invoices","garage_invoices","ar_invoices"]
+  };
+
+  Object.keys(map).forEach(key=>{
+    const newKey = STORAGE[key];
+    if (localStorage.getItem(newKey)) return;
+
+    for (const oldKey of map[key]){
+      const oldVal = localStorage.getItem(oldKey);
+      if (oldVal){
+        localStorage.setItem(newKey, oldVal);
+        console.log(`✔ Migration ${oldKey} → ${newKey}`);
+        break;
+      }
+    }
+  });
+})();
 
   
   function generateInvoiceNumber(){
