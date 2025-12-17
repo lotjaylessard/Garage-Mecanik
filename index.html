@@ -4575,24 +4575,30 @@ function woConvertToInvoice(wo) {
   openInvoiceEditModal(invoice.number);
 }
 
-  const invoiceTable = $("invoiceListTable");
+  
+const invoiceTable = $("invoiceListTable");
 if (invoiceTable){
-  invoiceTable.addEventListener("click", e => {
-    const tr = e.target.closest("tr");
+  invoiceTable.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");   // ✅ important
+    if (!btn) return;
+
+    const tr = btn.closest("tr");
     if (!tr) return;
 
     const number = tr.dataset.number;
 
-    if (e.target.classList.contains("btn-open-invoice")){
+    if (btn.classList.contains("btn-open-invoice")){
       loadInvoices();
       openInvoiceEditModal(number);
+      return;
     }
 
-    if (e.target.classList.contains("btn-delete-invoice")){
+    if (btn.classList.contains("btn-delete-invoice")){
       if (!confirm("Supprimer la facture " + number + " ?")) return;
       INVOICES = INVOICES.filter(i => String(i.number) !== String(number));
       saveInvoices();
       renderInvoiceList();
+      return;
     }
   });
 }
