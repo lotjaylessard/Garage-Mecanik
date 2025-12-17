@@ -2421,52 +2421,58 @@ function loadInvoices(){
 function saveInvoices(){
   localStorage.setItem(STORAGE.invoices, JSON.stringify(INVOICES));
 }
-  function renderInvoiceList() {
-  const tbody = $("invoiceListTable").querySelector("tbody");
-  tbody.innerHTML = "";
 
-  if (!INVOICES.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="muted">Aucune facture</td></tr>`;
+  
+  function renderInvoiceList(){
+  const table = $("invoiceListTable");
+  const tbody = table?.querySelector("tbody");
+  if (!tbody) return;
+
+  loadInvoices();
+
+  if (!INVOICES.length){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="muted">Aucune facture enregistrée.</td>
+      </tr>
+    `;
     return;
   }
 
-  const search = $("invoiceSearch").value.toLowerCase();
-  const statusFilter = $("invoiceStatusFilter").value;
+  const search = ($("invoiceSearch")?.value || "").toLowerCase();
+  const statusFilter = $("invoiceStatusFilter")?.value || "";
 
-  let filtered = INVOICES.filter(inv => {
-    let ok = true;
+  tbody.innerHTML = "";
 
-    if (statusFilter && inv.status !== statusFilter) ok = false;
+  INVOICES
+    .filter(inv => {
+      if (statusFilter && inv.status !== statusFilter) return false;
+      if (search){
+        const hay = `${inv.number} ${inv.customer} ${inv.job}`.toLowerCase();
+        if (!hay.includes(search)) return false;
+      }
+      return true;
+    })
+    .forEach(inv => {
+      const tr = document.createElement("tr");
+      tr.dataset.number = inv.number;
 
-    if (search) {
-      const hay =
-        `${inv.number} ${inv.customer} ${inv.job}`.toLowerCase();
-      if (!hay.includes(search)) ok = false;
-    }
+      tr.innerHTML = `
+        <td>${inv.number}</td>
+        <td>${inv.date || ""}</td>
+        <td>${inv.customer || ""}</td>
+        <td>${money(inv.total)} $</td>
+        <td>${inv.status || ""}</td>
+        <td>
+          <button class="ghost btn-open-invoice">Ouvrir</button>
+          <button class="ghost danger btn-delete-invoice">Supprimer</button>
+        </td>
+      `;
 
-    return ok;
-  });
-
-  filtered.forEach(inv => {
-  const row = document.createElement("tr");
-
-  row.innerHTML = `
-      <td>${inv.number}</td>
-      <td>${inv.date}</td>
-      <td>${inv.customer}</td>
-      <td>${money(inv.total)}</td>
-      <td>${inv.status || "draft"}</td>
-      <td>
-        <button class="ghost"
-  onclick="loadInvoices(); openInvoiceEditModal('${inv.number}')">Ouvrir</button>
-        <button class="ghost" style="margin-left:6px;color:#f55;" onclick="deleteInvoice('${inv.number}')">Supprimer</button>
-      </td>
-    `;
-
-tbody.appendChild(row);
-
-});
+      tbody.appendChild(tr);
+    });
 }
+
 
   console.log(
   "GLOBAL openInvoiceEditModal =",
@@ -4569,6 +4575,28 @@ function woConvertToInvoice(wo) {
   openInvoiceEditModal(invoice.number);
 }
 
+  const invoiceTable = $("invoiceListTable");
+if (invoiceTable){
+  invoiceTable.addEventListener("click", e => {
+    const tr = e.target.closest("tr");
+    if (!tr) return;
+
+    const number = tr.dataset.number;
+
+    if (e.target.classList.contains("btn-open-invoice")){
+      loadInvoices();
+      openInvoiceEditModal(number);
+    }
+
+    if (e.target.classList.contains("btn-delete-invoice")){
+      if (!confirm("Supprimer la facture " + number + " ?")) return;
+      INVOICES = INVOICES.filter(i => String(i.number) !== String(number));
+      saveInvoices();
+      renderInvoiceList();
+    }
+  });
+}
+
   
 console.log("openInvoiceEditModal =", typeof openInvoiceEditModal);
 
@@ -4593,6 +4621,8 @@ window.addEventListener('load',()=>{
   }
 });
   }
+
+  
   
   
 </script>
