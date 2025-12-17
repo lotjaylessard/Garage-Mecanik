@@ -2368,7 +2368,7 @@ function saveInvoices(){
       <td>${inv.status || "draft"}</td>
       <td>
         <button class="ghost open-invoice-btn">Ouvrir</button>
-        <button class="ghost" style="margin-left:6px;color:#f55;" onclick="deleteInvoice(${inv.number})">
+        <button class="ghost" style="margin-left:6px;color:#f55;" onclick="deleteInvoice('${inv.number}')">
           Supprimer
         </button>
       </td>
