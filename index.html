@@ -3753,8 +3753,6 @@ function openWorkOrderFromDashboard(id){
 
 
 /* ===================== EDIT EXISTING INVOICE ===================== */
-
-/* ===================== EDIT EXISTING INVOICE ===================== */
 function openInvoiceEditModal(invoiceNumber){
   const modal = $("invoiceEditModal");
   const content = $("invoiceEditContent");
@@ -3773,6 +3771,7 @@ function openInvoiceEditModal(invoiceNumber){
   let editItems = JSON.parse(JSON.stringify(inv.items || []));
   window.editInvoiceObj = inv;
   window.editItems = editItems;
+  }
 
   function computeTotals(){
     const sub = editItems.reduce((s,it)=> s + (Number(it.qty)||0) * (Number(it.rate)||0), 0);
@@ -4570,7 +4569,6 @@ window.addEventListener('load',()=>{
     $("invoiceStatusFilter").onchange = renderInvoiceList;
   }
 });
-  }
   }
   
   
