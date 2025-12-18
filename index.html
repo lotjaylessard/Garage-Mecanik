@@ -1823,38 +1823,30 @@ $("woDetailCard").style.display = "block";
     cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
   });
           
+          document.addEventListener("client:created", (e) => {
+  const newClient = e.detail;
+  if (!newClient || !cSel) return;
+
+  // recharger les clients
+  loadClients();
+
+  // rafraîchir la liste déroulante
+  cSel.innerHTML = `<option value="">Sélectionner</option>`;
+  CLIENTS.forEach(c => {
+    cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+  });
+
+  // sélectionner automatiquement le nouveau client
+  cSel.value = newClient.id;
+  cSel.dispatchEvent(new Event("change"));
+});
+          
           const btnAddClient = $("woAddClientBtn");
 if (btnAddClient){
   btnAddClient.onclick = () => {
     // ouvrir le modal client en mode "nouveau"
     renderClientModal();
     $("clientModal").style.display = "flex";
-
-    // hook temporaire après sauvegarde client
-    const originalSave = window.saveClient;
-
-    window.saveClient = function(){
-      originalSave();
-
-      // recharger clients
-      loadClients();
-
-      // re-remplir la liste
-      cSel.innerHTML = `<option value="">Sélectionner</option>`;
-      CLIENTS.forEach(c => {
-        cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-      });
-
-      // sélectionner le dernier client ajouté
-      const last = CLIENTS[CLIENTS.length - 1];
-      if (last){
-        cSel.value = last.id;
-        cSel.dispatchEvent(new Event("change"));
-      }
-
-      // restaurer la fonction originale
-      window.saveClient = originalSave;
-    };
   };
 }
 
@@ -3163,6 +3155,7 @@ const name = `${firstName} ${lastName}`.trim();
       if(idx===-1) CLIENTS.push(client);
       else CLIENTS[idx]=client;
       saveClients();
+      document.dispatchEvent(new CustomEvent("client:created", {detail: client}));
       refreshInvoiceClientSelect();
       renderClientsTable();
       closeClientModal();
