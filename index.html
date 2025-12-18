@@ -2971,6 +2971,53 @@ vehiclesFlat.forEach(v => {
 });
 }
 
+  function updateVehicleSortLabels(){
+  const map = {
+    sortVehClient: "Client",
+    sortVehMake: "Marque",
+    sortVehModel: "Modèle",
+    sortVehYear: "Année"
+  };
+
+  Object.keys(map).forEach(id => {
+    const btn = $(id);
+    if (!btn) return;
+
+    let key = "";
+    if (id === "sortVehClient") key = "client";
+    if (id === "sortVehMake")   key = "make";
+    if (id === "sortVehModel")  key = "model";
+    if (id === "sortVehYear")   key = "year";
+
+    btn.textContent =
+      map[id] +
+      (VEHICLES_SORT.key === key
+        ? (VEHICLES_SORT.dir === 1 ? " ⬆️" : " ⬇️")
+        : " ⬍");
+  });
+}
+
+  
+function bindVehicleSort(){
+  const bind = (id, key) => {
+    const btn = $(id);
+    if (!btn) return;
+
+    btn.onclick = () => {
+      if (VEHICLES_SORT.key === key) VEHICLES_SORT.dir *= -1;
+      else { VEHICLES_SORT.key = key; VEHICLES_SORT.dir = 1; }
+
+      renderVehiclesPage();
+      updateVehicleSortLabels();
+    };
+  };
+
+  bind("sortVehClient", "client");
+  bind("sortVehMake", "make");
+  bind("sortVehModel", "model");
+  bind("sortVehYear", "year");
+}
+
 
 function renderClientsTable(){
   const tbody = document.querySelector('#clientsTable tbody');
@@ -4809,6 +4856,8 @@ window.addEventListener('load',()=>{
   initLinksModule();
   loadWorkOrders();
   renderDashboard();
+  bindVehicleSort();
+updateVehicleSortLabels();
 
   if ($("invoiceSearch")) {
     $("invoiceSearch").oninput = renderInvoiceList;
