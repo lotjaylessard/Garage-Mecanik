@@ -1439,9 +1439,9 @@ let WO_TIMER = {
 
   
 function backToWorkOrdersList(){
-  $("woDetailCard").style.display = "block";
-  $("woListCard").style.display = "block";
   $("woDetailContent").innerHTML = "";
+  $("woDetailCard").style.display = "none";
+  $("woListCard").style.display = "block";
 }
 
 
@@ -1913,15 +1913,11 @@ if (table){
     const wo = WORKORDERS.find(w => String(w.id) === String(id));
     const detail = $("woDetailContent");
 if(!detail){
-  // 1) Active la page Work Orders (ou ta page détail si tu en as une dédiée)
-  showPage('workorders'); // <- mets ici l’ID EXACT de ta page (ex: 'page-workorders' ou 'workorders' selon ton showPage)
-
-  // 2) Re-tente le rendu dès que la page est active dans le DOM
-  setTimeout(()=>woEditLine(woId, type, index), 0);
+  showPage('workorders');
   return;
 }
-
 if (!wo) return;
+
 
     $("woListCard").style.display = "none";
 $("woDetailCard").style.display = "block";
