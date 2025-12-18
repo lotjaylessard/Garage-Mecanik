@@ -1797,6 +1797,9 @@ $("woDetailCard").style.display = "block";
     <div class="card" style="max-width:600px;display:grid;gap:10px;">
 
       <h2>Nouveau bon de travail</h2>
+      <button id="woCancelCreateBtn" class="ghost" style="margin-bottom:10px;">
+  ⬅ Annuler / Retour
+</button>
 
       <label>Client</label>
       <select id="woClientSelect"></select>
@@ -1866,8 +1869,20 @@ if (btnAddClient){
   };
 
   $("btnSaveWO").onclick = saveNewWorkOrder;
+          
+          const cancelBtn = $("woCancelCreateBtn");
+if (cancelBtn){
+  cancelBtn.onclick = () => {
+    // vider le formulaire
+    $("woDetailContent").innerHTML = "";
+
+    // afficher la liste
+    $("woDetailCard").style.display = "block";
+    $("woListCard").style.display = "block";
+  };
+}
 };
-    };
+};
 }
 
   const table = $("woTable");
