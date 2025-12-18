@@ -1800,6 +1800,9 @@ $("woDetailCard").style.display = "block";
 
       <label>Client</label>
       <select id="woClientSelect"></select>
+      <button id="woAddClientBtn" class="ghost" style="margin-top:6px;">
+  ➕ Nouveau client
+</button>
 
       <label>Véhicule</label>
       <select id="woVehicleSelect">
@@ -1819,6 +1822,42 @@ $("woDetailCard").style.display = "block";
   CLIENTS.forEach(c => {
     cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
   });
+          
+          const btnAddClient = $("woAddClientBtn");
+if (btnAddClient){
+  btnAddClient.onclick = () => {
+    // ouvrir le modal client en mode "nouveau"
+    renderClientModal();
+    $("clientModal").style.display = "flex";
+
+    // hook temporaire après sauvegarde client
+    const originalSave = window.saveClient;
+
+    window.saveClient = function(){
+      originalSave();
+
+      // recharger clients
+      loadClients();
+
+      // re-remplir la liste
+      cSel.innerHTML = `<option value="">Sélectionner</option>`;
+      CLIENTS.forEach(c => {
+        cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      });
+
+      // sélectionner le dernier client ajouté
+      const last = CLIENTS[CLIENTS.length - 1];
+      if (last){
+        cSel.value = last.id;
+        cSel.dispatchEvent(new Event("change"));
+      }
+
+      // restaurer la fonction originale
+      window.saveClient = originalSave;
+    };
+  };
+}
+
 
   // Charger véhicules
   cSel.onchange = () => {
