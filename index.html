@@ -3009,8 +3009,10 @@ function renderClientModal(id){
           <div class="small">Plaque: ${v.plate||''} | VIN: ${v.vin||''} | KM: ${v.km||''}</div>
           <div class="small">${v.notes||''}</div>
         </div>
-        <button class="ghost" data-role="edit-veh" data-index="${idx}">Modifier</button>
-        <button class="ghost" data-index="${idx}" data-role="del-veh">Supprimer</button>
+        <div style="display:flex; gap:8px;">
+  <button class="ghost" data-role="edit-veh" data-index="${idx}">Modifier</button>
+  <button class="ghost" data-index="${idx}" data-role="del-veh">Supprimer</button>
+</div>
       </div>
     `).join('');
     wrap.querySelectorAll('button[data-role="del-veh"]').forEach(btn=>{
