@@ -1823,18 +1823,49 @@ function finishWorkOrder(id){
   wo.status = "billed";
   saveWorkOrders();
 
-  // 2) Construire la facture depuis le WO
-  const invoice = {
-    id: Date.now(),
-    number: generateInvoiceNumber(),
-    date: new Date().toLocaleDateString("fr-CA"),
-    customer: wo.clientName || "",
-    job: wo.vehicleLabel || "",
-    items: [],
-    status: "pending",
-    locked: true,
-    sourceWO: wo.id
-  };
+// 2️⃣ Construire la facture PRO depuis le WO
+const invoice = {
+  id: Date.now(),
+  number: generateInvoiceNumber(),
+  date: new Date().toLocaleDateString("fr-CA"),
+
+  customer: wo.clientName,
+  vehicle: wo.vehicleLabel,
+  referenceWO: wo.number,
+
+  items: [],
+  status: "pending",
+  locked: true
+};
+  // 🔩 PIÈCES
+(wo.parts || []).forEach(p=>{
+  invoice.items.push({
+    type: "Pièce",
+    desc: `${p.name}${p.number ? " (#"+p.number+")" : ""}`,
+    qty: Number(p.qty),
+    rate: Number(p.rate),
+    total: Number(p.qty) * Number(p.rate)
+  });
+});
+// 🛠️ MAIN-D’ŒUVRE
+(wo.labor || []).forEach(l=>{
+  invoice.items.push({
+    type: "Main-d'œuvre",
+    desc: l.description,
+    qty: Number(l.hours),
+    rate: Number(l.rate),
+    total: Number(l.hours) * Number(l.rate)
+  });
+});
+// 💰 TOTAUX
+invoice.subTotal = invoice.items.reduce(
+  (s,it)=> s + (it.qty * it.rate), 0
+);
+
+invoice.gst = invoice.subTotal * (SETTINGS.gst / 100);
+invoice.qst = (invoice.subTotal + invoice.gst) * (SETTINGS.qst / 100);
+invoice.total = invoice.subTotal + invoice.gst + invoice.qst;
+
 
   (wo.parts || []).forEach(p=>{
     invoice.items.push({
@@ -1853,11 +1884,6 @@ function finishWorkOrder(id){
       rate: Number(l.rate)||0
     });
   });
-
-  invoice.subTotal = invoice.items.reduce((s,it)=>s + (Number(it.qty)||0)*(Number(it.rate)||0), 0);
-  invoice.gst = invoice.subTotal * (SETTINGS.gst/100);
-  invoice.qst = (invoice.subTotal + invoice.gst) * (SETTINGS.qst/100);
-  invoice.total = invoice.subTotal + invoice.gst + invoice.qst;
 
   INVOICES.push(invoice);
   saveInvoices();
