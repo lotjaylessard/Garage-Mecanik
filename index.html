@@ -544,8 +544,7 @@ button.danger:hover {
           <thead>
             <tr>
               <h3>Clients</h3>
-              <button id="toggleClientSort" class="ghost">Nom ⬆️</button>
-              <th>Nom</th>
+              <th><button id="toggleClientSort" class="ghost">Nom ⬆️</button></th>
               <th>Téléphone</th>
               <th>Email</th>
               <th>Adresse</th>
@@ -2873,18 +2872,20 @@ function renderVehiclesPage(){
   });
 }
 
+  let clientSortAsc = true;
+
 function renderClientsTable(){
   const tbody = document.querySelector('#clientsTable tbody');
   if(!tbody) return;
   const q = ($('clientSearch')?.value || '').toLowerCase();
   tbody.innerHTML='';
-  [...CLIENTS]
-  .sort((a, b) => {
-    const na = (a.name || '').toLowerCase();
-    const nb = (b.name || '').toLowerCase();
+[...CLIENTS]
+  .sort((a,b)=>{
+    const na = (a.name||'').toLowerCase().trim();
+    const nb = (b.name||'').toLowerCase().trim();
     return clientSortAsc ? na.localeCompare(nb) : nb.localeCompare(na);
   })
-  .forEach(c => {
+  .forEach(c=>{
     const hay = `${c.name||''} ${c.phone||''} ${c.email||''} ${c.address||''}`.toLowerCase();
     if(q && !hay.includes(q)) return;
     const vehicleCount = Array.isArray(c.vehicles)?c.vehicles.length:0;
