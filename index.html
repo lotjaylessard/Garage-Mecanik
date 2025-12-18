@@ -2880,17 +2880,17 @@ function renderClientsTable(){
   tbody.innerHTML='';
 [...CLIENTS]
   .sort((a,b)=>{
-    const na = (a.name||'').toLowerCase().trim();
-    const nb = (b.name||'').toLowerCase().trim();
-    return clientSortAsc ? na.localeCompare(nb) : nb.localeCompare(na);
-  })
+  const na = (a.lastName || a.name || '').toLowerCase().trim();
+  const nb = (b.lastName || b.name || '').toLowerCase().trim();
+  return clientSortAsc ? na.localeCompare(nb) : nb.localeCompare(na);
+})
   .forEach(c=>{
     const hay = `${c.name||''} ${c.phone||''} ${c.email||''} ${c.address||''}`.toLowerCase();
     if(q && !hay.includes(q)) return;
     const vehicleCount = Array.isArray(c.vehicles)?c.vehicles.length:0;
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td>${c.name||''}</td>
+      <td>${c.lastName || ''}${c.firstName ? ', ' + c.firstName : ''}</td>
       <td>${c.phone||''}</td>
       <td>${c.email||''}</td>
       <td>${c.address||''}</td>
@@ -3112,7 +3112,7 @@ if (!firstName && !lastName){
 
 const name = `${firstName} ${lastName}`.trim();
 
-      if(!name){alert('Le nom du client est requis.');return;}
+      if(!name){alert('Le prénom ou le nom du client est requis.');return;}
       client.firstName = firstName;
       client.lastName  = lastName;
       client.name      = name; // compatibilité
