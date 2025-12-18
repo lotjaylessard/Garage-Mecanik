@@ -1165,6 +1165,54 @@ box.innerHTML = renderInvoiceSummary(inv);
   
   /* ===================== WORK ORDERS (Bons de travail) ===================== */
 
+function addServiceToCurrentWO(serviceId){
+  // 1️⃣ Identifier le WO actuellement ouvert
+  const woId = $("woEditId")?.value;
+  if (!woId) {
+    alert("Aucun bon de travail ouvert.");
+    return;
+  }
+
+  const wo = WORKORDERS.find(w => String(w.id) === String(woId));
+  if (!wo) {
+    alert("Bon de travail introuvable.");
+    return;
+  }
+
+  // 2️⃣ Trouver le service
+  const srv = SERVICES.find(s => String(s.id) === String(serviceId));
+  if (!srv) return;
+
+  // 3️⃣ Calcul heures / taux
+  let hours = 1;
+  let rate = 0;
+
+  if (srv.priceFixed > 0){
+    hours = 1;
+    rate = Number(srv.priceFixed);
+  } else if (srv.hours > 0 && srv.rate > 0){
+    hours = Number(srv.hours);
+    rate = Number(srv.rate);
+  } else {
+    return alert("Service mal configuré.");
+  }
+
+  // 4️⃣ Ajouter au WO (PAS À LA FACTURE)
+  wo.labor.push({
+    description: srv.name,
+    hours,
+    rate,
+    total: hours * rate
+  });
+
+  // 5️⃣ Sauvegarde + rafraîchissement
+  saveWorkOrders();
+  woRenderLines(wo);
+
+  alert(`Service "${srv.name}" ajouté au bon de travail.`);
+}
+
+  
 function woRenderDetail(id){
   const detail = $("woDetailContent");
   if(!detail){
@@ -3580,7 +3628,9 @@ function renderServices(){
         <button class="ghost" data-action="edit-srv" data-id="${s.id}" style="flex:1;">Modifier</button>
         <button class="ghost" data-action="del-srv" data-id="${s.id}" style="flex:1;">Supprimer</button>
       </div>
-      <button class="ghost" data-action="add-to-invoice" data-id="${s.id}" style="margin-top:8px;width:100%;">➕ Ajouter à la facture</button>
+      <button class="ghost" onclick="addServiceToCurrentWO(${s.id})">
+  ➕ Ajouter au bon de travail
+</button>
     `;
     wrap.appendChild(card);
   });
