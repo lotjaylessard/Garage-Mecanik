@@ -1889,10 +1889,15 @@ if (table){
     const id = tr?.dataset.id;
     const wo = WORKORDERS.find(w => String(w.id) === String(id));
     const detail = $("woDetailContent");
-if (!detail) {
-  console.warn("woDetailContent absent (page non active)");
+if(!detail){
+  // 1) Active la page Work Orders (ou ta page détail si tu en as une dédiée)
+  showPage('workorders'); // <- mets ici l’ID EXACT de ta page (ex: 'page-workorders' ou 'workorders' selon ton showPage)
+
+  // 2) Re-tente le rendu dès que la page est active dans le DOM
+  setTimeout(()=>woRenderDetail(idWO), 0);
   return;
 }
+
 if (!wo) return;
 
     $("woListCard").style.display = "none";
