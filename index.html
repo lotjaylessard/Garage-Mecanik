@@ -2946,7 +2946,17 @@ function renderClientModal(id){
   const isNew = !id;
   let client;
   if(isNew){
-    client={id:Date.now(),name:'',phone:'',email:'',address:'',notes:'',vehicles:[]};
+    client={
+  id:Date.now(),
+  firstName:'',
+  lastName:'',
+  name:'',
+  phone:'',
+  email:'',
+  address:'',
+  notes:'',
+  vehicles:[]
+};
   }else{
     client=findClientById(id);
     if(!client){
@@ -2963,10 +2973,15 @@ function renderClientModal(id){
       <div>
         <h3 style="margin:0 0 6px;color:var(--accent);">Informations client</h3>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:200px;">
-            <label>Nom</label>
-            <input id="clientFormName" value="${client.name||''}" />
-          </div>
+          <div style="flex:1;min-width:160px;">
+  <label>Prénom</label>
+  <input id="clientFormFirstName" value="${client.firstName||''}" />
+</div>
+
+<div style="flex:1;min-width:200px;">
+  <label>Nom</label>
+  <input id="clientFormLastName" value="${client.lastName||''}" />
+</div>
           <div style="flex:1;min-width:160px;">
             <label>Téléphone</label>
             <input id="clientFormPhone" value="${client.phone||''}" />
@@ -3087,9 +3102,20 @@ function renderClientModal(id){
 
   if($('clientSaveBtn')){
     $('clientSaveBtn').addEventListener('click',()=>{
-      const name=$('clientFormName').value.trim();
+      const firstName = $('clientFormFirstName').value.trim();
+const lastName  = $('clientFormLastName').value.trim();
+
+if (!firstName && !lastName){
+  alert('Le prénom ou le nom est requis');
+  return;
+}
+
+const name = `${firstName} ${lastName}`.trim();
+
       if(!name){alert('Le nom du client est requis.');return;}
-      client.name=name;
+      client.firstName = firstName;
+      client.lastName  = lastName;
+      client.name      = name; // compatibilité
       client.phone=$('clientFormPhone').value.trim();
       client.email=$('clientFormEmail').value.trim();
       client.address=$('clientFormAddress').value.trim();
