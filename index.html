@@ -4261,8 +4261,9 @@ function openInvoiceEditModal(invoiceNumber){
     </div>
 
     <div style="margin-top:15px; text-align:right;">
-      <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
-    </div>
+  <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
+  <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
+</div>
   `;
 
   // === AFFICHER LA MODAL ===
@@ -5046,6 +5047,35 @@ function woConvertToInvoice(wo) {
 
   // === OUVRIR LA FACTURE ===
   openInvoiceEditModal(invoice.number);
+}
+
+  
+  function printInvoice(){
+  const content = $("invoiceEditContent");
+  if (!content) return;
+
+  const printWindow = window.open("", "", "width=800,height=900");
+  printWindow.document.write(`
+    <html>
+    <head>
+      <title>Facture</title>
+      <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 6px; }
+        th { background: #f0f0f0; }
+        .muted { color: #666; font-size: 0.9em; }
+      </style>
+    </head>
+    <body>
+      ${content.innerHTML}
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
 }
 
   
