@@ -4416,36 +4416,51 @@ content.innerHTML = `
 }
 
 
-  
-  function openInvoiceEdit(number){
+function openInvoiceEdit(number){
   const inv = INVOICES.find(i => String(i.number) === String(number));
   if (!inv) return;
 
-  // Sécurité supplémentaire
+  // 🔒 Sécurité : facture payée = non modifiable
   if (inv.status === "paid"){
     alert("Facture payée — modification interdite.");
     return;
   }
 
-  // Charger les données dans l’éditeur
-  loadInvoices(); // si tu as cette fonction
+  // 1️⃣ Aller sur LA BONNE page
+  showPage("page-invoice-editor");
 
-  // Exemple : remplir les champs existants
-  $("invoiceNumber").value = inv.number || "";
-  $("invoiceCustomer").value = inv.customer || "";
-  $("invoiceVehicle").value = inv.vehicle || "";
+  // 2️⃣ Attendre que le DOM soit visible
+  setTimeout(() => {
 
-  // Items
-  items = JSON.parse(JSON.stringify(inv.items || []));
-  renderItems();
+    // ✅ IDS RÉELS DE TON HTML
+    const elCustomer = $("customerSelect");
+    const elVehicle  = $("vehicleSelect");
+    const elNumber   = $("invoiceNumber");
 
-  // Mémoriser la facture en cours d’édition
-  window.currentEditingInvoice = inv;
+    if (!elCustomer || !elVehicle || !elNumber){
+      alert("Champs facture introuvables (IDs incorrects).");
+      return;
+    }
 
-  // Afficher la page facture
-  showPage("page-invoice");
+    // 3️⃣ Remplir les champs
+    elNumber.value = inv.number || "";
+    elCustomer.value = inv.customer || "";
+    elCustomer.dispatchEvent(new Event("change"));
+
+    // Sélectionner le véhicule après chargement
+    setTimeout(() => {
+      elVehicle.value = inv.vehicle || "";
+    }, 0);
+
+    // 4️⃣ Charger les items
+    items = JSON.parse(JSON.stringify(inv.items || []));
+    renderItems();
+
+    // 5️⃣ Marquer comme facture en édition
+    window.currentEditingInvoice = inv;
+
+  }, 0);
 }
-
 
   
   function editInvoiceFromModal(number){
