@@ -4415,6 +4415,38 @@ content.innerHTML = `
   modal.style.display = "block";
 }
 
+
+  
+  function openInvoiceEdit(number){
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv) return;
+
+  // Sécurité supplémentaire
+  if (inv.status === "paid"){
+    alert("Facture payée — modification interdite.");
+    return;
+  }
+
+  // Charger les données dans l’éditeur
+  loadInvoices(); // si tu as cette fonction
+
+  // Exemple : remplir les champs existants
+  $("invoiceNumber").value = inv.number || "";
+  $("invoiceCustomer").value = inv.customer || "";
+  $("invoiceVehicle").value = inv.vehicle || "";
+
+  // Items
+  items = JSON.parse(JSON.stringify(inv.items || []));
+  renderItems();
+
+  // Mémoriser la facture en cours d’édition
+  window.currentEditingInvoice = inv;
+
+  // Afficher la page facture
+  showPage("page-invoice");
+}
+
+
   
   function editInvoiceFromModal(number){
   const inv = INVOICES.find(i => String(i.number) === String(number));
