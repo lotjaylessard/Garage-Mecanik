@@ -4395,11 +4395,18 @@ content.innerHTML = `
     </div>
 
     <div>
-      <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePaid('${inv.number}')">✔ Payée</button>
-      <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
-      <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
-      <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
-    </div>
+  <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePaid('${inv.number}')">✔ Payée</button>
+  <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
+
+  <button class="ghost"
+    ${isLocked ? "disabled title='Facture payée — modification verrouillée'" : ""}
+    onclick="editInvoiceFromModal('${inv.number}')">
+    ✏️ Modifier
+  </button>
+
+  <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
+  <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
+</div>
   </div>
 `;
 
@@ -4407,6 +4414,33 @@ content.innerHTML = `
   // === AFFICHER LA MODAL ===
   modal.style.display = "block";
 }
+
+  
+  function editInvoiceFromModal(number){
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv) return;
+
+  // Sécurité absolue
+  if (inv.status === "paid"){
+    alert("Cette facture est payée et ne peut plus être modifiée.");
+    return;
+  }
+
+  // Fermer la modal
+  closeInvoiceModal();
+
+  // Ouvrir la facture en mode édition
+  // (adapte si ton nom de page est différent)
+  showPage("page-invoice");
+
+  // Charger la facture dans l’éditeur existant
+  if (typeof openInvoiceEdit === "function"){
+    openInvoiceEdit(number);
+  } else {
+    alert("Fonction d’édition de facture introuvable.");
+  }
+}
+
 
   function closeInvoiceModal(){
   const modal = $("invoiceEditModal");
