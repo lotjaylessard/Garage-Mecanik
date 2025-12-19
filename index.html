@@ -2650,15 +2650,29 @@ function renderInvoiceList(){
         <td>${money(inv.total)} $</td>
         <td>${inv.status || ""}</td>
         <td>
-          <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">
-  Ouvrir
-</button>
-          <button class="ghost danger btn-delete-invoice">Supprimer</button>
+        <button class="ghost btn-open-invoice">Ouvrir</button>
+        <button class="ghost danger btn-delete-invoice">Supprimer</button>
         </td>
       `;
 
       tbody.appendChild(tr);
     });
+}
+
+  
+  // === OUVRIR FACTURE (event delegation) ===
+const invoiceTable = $("invoiceListTable");
+if (invoiceTable){
+  invoiceTable.onclick = (e)=>{
+    const openBtn = e.target.closest(".btn-open-invoice");
+    if (!openBtn) return;
+
+    const tr = openBtn.closest("tr");
+    const number = tr?.dataset.number;
+    if (!number) return;
+
+    openInvoiceEditModal(number);
+  };
 }
 
 
