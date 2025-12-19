@@ -4267,15 +4267,22 @@ content.innerHTML = `
 
   <!-- CLIENT / VÉHICULE -->
   <div style="
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:10px;
-    margin-bottom:15px;
-    background:#fafafa;
-  ">
-    <div><b>Client :</b> ${inv.customer || ""}</div>
-    <div><b>Véhicule :</b> ${inv.vehicle || ""}</div>
+  border:1px solid #444;
+  border-radius:8px;
+  padding:12px;
+  margin-bottom:15px;
+  background:#2b2b2b;
+  color:#f1f1f1;
+">
+  <div style="margin-bottom:4px;">
+    <span style="color:#aaa;">Client :</span>
+    <b style="color:#fff;">${inv.customer || ""}</b>
   </div>
+  <div>
+    <span style="color:#aaa;">Véhicule :</span>
+    <b style="color:#fff;">${inv.vehicle || ""}</b>
+  </div>
+</div>
 
   <!-- DÉTAILS -->
   <table class="table">
