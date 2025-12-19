@@ -1828,13 +1828,13 @@ const invoice = {
   id: Date.now(),
   number: generateInvoiceNumber(),
   date: new Date().toLocaleDateString("fr-CA"),
-
   customer: wo.clientName,
   vehicle: wo.vehicleLabel,
   referenceWO: wo.number,
-
   items: [],
-  status: "pending",
+  status: "unpaid",     // unpaid | partial | paid
+  paidAmount: 0,
+  paidDate: null,
   locked: true
 };
   // 🔩 PIÈCES
@@ -2686,6 +2686,12 @@ if (invoiceTableEl){
 
       const idx = INVOICES.findIndex(i => String(i.number) === String(number));
       if (idx === -1) return;
+
+      // 🔒 BLOQUER SI FACTURE PAYÉE
+      if (INVOICES[idx].status === "paid"){
+  alert("Impossible de supprimer une facture payée.");
+  return;
+}
 
       if (!confirm(`Supprimer la facture #${number} ?`)) return;
 
@@ -4228,8 +4234,17 @@ function openInvoiceEditModal(invoiceNumber){
     `;
   });
 
+const isLocked = inv.status === "paid";
+  
   content.innerHTML = `
     <h2>Facture #${inv.number}</h2>
+    <div class="muted" style="margin-bottom:6px;">
+  Statut : <b>${
+    inv.status === "paid" ? "Payée" :
+    inv.status === "partial" ? "Partielle" :
+    "Impayée"
+  }</b>
+</div>
 
     <div class="muted" style="margin-bottom:10px;">
       Date : ${inv.date || ""}<br>
@@ -4260,9 +4275,22 @@ function openInvoiceEditModal(invoiceNumber){
       <div style="font-size:1.2em;">TOTAL : <b>${money(inv.total)} $</b></div>
     </div>
 
-    <div style="margin-top:15px; text-align:right;">
-  <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
-  <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
+    <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+  <div>
+    <span class="muted">Paiement :</span>
+    <b>${
+      inv.status === "paid" ? "Payée" :
+      inv.status === "partial" ? "Partielle" :
+      "Impayée"
+    }</b>
+  </div>
+
+  <div>
+    <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePaid('${inv.number}')">✔ Payée</button>
+<button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
+    <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
+    <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
+  </div>
 </div>
   `;
 
@@ -5077,6 +5105,37 @@ function woConvertToInvoice(wo) {
   printWindow.focus();
   printWindow.print();
 }
+
+  function markInvoicePaid(number){
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv) return;
+
+  inv.status = "paid";
+  inv.paidAmount = inv.total;
+  inv.paidDate = new Date().toLocaleDateString("fr-CA");
+
+  saveInvoices();
+  renderInvoiceList();
+  openInvoiceEditModal(number);
+}
+
+  
+function markInvoicePartial(number){
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv) return;
+
+  const amt = Number(prompt("Montant payé :", inv.paidAmount || ""));
+  if (!amt || amt <= 0 || amt > inv.total) return;
+
+  inv.paidAmount = amt;
+  inv.status = amt >= inv.total ? "paid" : "partial";
+  inv.paidDate = new Date().toLocaleDateString("fr-CA");
+
+  saveInvoices();
+  renderInvoiceList();
+  openInvoiceEditModal(number);
+}
+
 
   
 console.log("openInvoiceEditModal =", typeof openInvoiceEditModal);
