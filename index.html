@@ -1155,26 +1155,16 @@ window.openInvoiceEditModal = function(number){
   loadInvoices();
 
   const inv = INVOICES.find(i => String(i.number) === String(number));
-  if (!inv){
-    alert("Facture introuvable.");
-    return;
-  }
+  if (!inv) return alert("Facture introuvable.");
 
-  // 1️⃣ convertir la facture en WO temporaire
+  // transformer facture → WO temporaire
   const tempWO = invoiceToTempWO(inv);
 
-  // 2️⃣ ouvrir la page Work Orders
-  showPage("page-workorders");
+  // 🔁 UTILISER EXACTEMENT LE MÊME UI
+  openWorkOrderDetail(tempWO);
 
-  // 3️⃣ masquer la liste / afficher le détail
-  $("woListCard").style.display = "none";
-  $("woDetailCard").style.display = "block";
-
-  // 4️⃣ mémoriser le WO temporaire
-  window.__currentTempWO = tempWO;
-
-  // 5️⃣ rendre EXACTEMENT comme un WO
-  renderInvoiceAsWO(tempWO);
+  // flag facture
+  tempWO.__fromInvoice = true;
 };
 
 
@@ -1902,6 +1892,15 @@ function renderWorkOrders(){
     `;
     tbody.appendChild(tr);
   });
+
+  tbody.querySelectorAll("button[data-action='open']").forEach(btn=>{
+  btn.onclick = () => {
+    const id = btn.closest("tr").dataset.id;
+    const wo = WORKORDERS.find(w => String(w.id) === String(id));
+    if (wo) openWorkOrderDetail(wo);
+  };
+});
+
 }
 
   
@@ -1985,6 +1984,88 @@ function deleteWorkOrder(id){
   // vider le panneau de droite si c'était ouvert
   const detail = $("woDetailContent");
   if (detail) detail.innerHTML = `<div class="muted">Bon de travail supprimé.</div>`;
+}
+
+
+  function openWorkOrderDetail(wo){
+  if (!wo) return;
+
+  // afficher la page WO
+  showPage("page-workorders");
+
+  // masquer la liste
+  $("woListCard").style.display = "none";
+  $("woDetailCard").style.display = "block";
+
+  // 🧠 IMPORTANT : injecter l’ID courant
+  const hidden = document.createElement("input");
+  hidden.type = "hidden";
+  hidden.id = "woEditId";
+  hidden.value = wo.id;
+
+  const detail = $("woDetailContent");
+  detail.innerHTML = "";
+  detail.appendChild(hidden);
+
+  // 🔥 ICI : UI EXACTE du WO (celle que tu connais)
+  detail.innerHTML += `
+    <div class="card">
+      <h2>Bon de travail #${wo.number}</h2>
+      <p><b>Client :</b> ${wo.clientName}</p>
+      <p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
+    </div>
+
+    <div class="card">
+      <h3>Pièces</h3>
+      <table id="woPartsTable">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qté</th>
+            <th>Prix</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="text-align:right;margin-top:6px;">
+        Total pièces : <b><span id="woPartsTotal">0.00 $</span></b>
+      </div>
+      <button class="ghost" onclick="woAddPartLine(window.__currentWO)">➕ Ajouter une pièce</button>
+    </div>
+
+    <div class="card">
+      <h3>Main-d’œuvre</h3>
+      <table id="woLaborTable">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Heures</th>
+            <th>Taux</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="text-align:right;margin-top:6px;">
+        Total main-d’œuvre : <b><span id="woLaborTotal">0.00 $</span></b>
+      </div>
+      <button class="ghost" onclick="woAddLaborLine(window.__currentWO)">➕ Ajouter main-d’œuvre</button>
+    </div>
+
+    <div class="card" style="text-align:right;">
+      <h3>Total estimé : <span id="woEstimateTotal">0.00 $</span></h3>
+      <button class="ghost" onclick="backToWorkOrdersList()">⬅ Retour</button>
+    </div>
+  `;
+
+  // mémoriser le WO actif
+  window.__currentWO = wo;
+
+  // rendu des lignes
+  woRenderLines(wo);
 }
 
 
