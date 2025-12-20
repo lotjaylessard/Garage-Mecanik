@@ -1325,6 +1325,39 @@ function woRenderDetail(id){
   };
 }
 
+
+  /* ===================== FACTURE -> UI WO (MODIF) ===================== */
+window.openInvoiceEditModal = function(number){
+  loadInvoices();
+
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv){
+    alert("Facture introuvable : " + number);
+    return;
+  }
+
+  // 1) Convertir la facture en WO temporaire
+  const tempWO = invoiceToTempWO(inv);
+
+  // 2) Aller sur la page Work Orders (UI identique)
+  showPage("page-workorders");
+
+  // 3) Masquer la liste et afficher le détail
+  if ($("woListCard")) $("woListCard").style.display = "none";
+  if ($("woDetailCard")) $("woDetailCard").style.display = "block";
+
+  // 4) Marquer ce WO comme "actif"
+  window.__currentWO = tempWO;
+  window.__currentTempWO = tempWO;
+
+  // Important : si ton moteur WO utilise woEditId pour retrouver le WO actif
+  if ($("woEditId")) $("woEditId").value = String(tempWO.id);
+
+  // 5) Rendre la facture avec EXACTEMENT le moteur WO
+  renderInvoiceAsWO(tempWO);
+};
+
+
     /* =========================================================
    PONT: FACTURE (INVOICES) <-> WO UI (WORKORDERS)
    ========================================================= */
@@ -4718,7 +4751,7 @@ function editInvoiceFromModal(number){
   if (typeof closeInvoiceModal === "function") closeInvoiceModal();
 
   // ✅ Ouvre la facture dans l'UI identique au WO
-  openInvoiceEditModal(number);
+  window.openInvoiceEditModal(number);
 }
 
 
