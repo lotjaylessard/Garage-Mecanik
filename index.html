@@ -1886,24 +1886,6 @@ invoice.qst = (invoice.subTotal + invoice.gst) * (SETTINGS.qst / 100);
 invoice.total = invoice.subTotal + invoice.gst + invoice.qst;
 
 
-  (wo.parts || []).forEach(p=>{
-    invoice.items.push({
-      type: "Pièce",
-      desc: p.name || "",
-      qty: Number(p.qty)||0,
-      rate: Number(p.rate)||0
-    });
-  });
-
-  (wo.labor || []).forEach(l=>{
-    invoice.items.push({
-      type: "Main-d'œuvre",
-      desc: l.description || "",
-      qty: Number(l.hours)||0,
-      rate: Number(l.rate)||0
-    });
-  });
-
   INVOICES.push(invoice);
   saveInvoices();
 
