@@ -1152,26 +1152,31 @@ function saveInvoices(){
 
 
 window.openInvoiceEditModal = function(number){
-  console.log("OPEN INVOICE", number, "INVOICES =", INVOICES);
-  
+  loadInvoices();
+
   const inv = INVOICES.find(i => String(i.number) === String(number));
-  if (!inv) {
-    alert("Facture introuvable : " + number);
+  if (!inv){
+    alert("Facture introuvable.");
     return;
   }
 
-  const modal = $("invoiceEditModal");
-  const box = $("invoiceEditContent");
+  // 1️⃣ convertir la facture en WO temporaire
+  const tempWO = invoiceToTempWO(inv);
 
-  if (!modal || !box){
-    alert("Modal facture manquant dans le DOM");
-    return;
-  }
+  // 2️⃣ ouvrir la page Work Orders
+  showPage("page-workorders");
 
-box.innerHTML = renderInvoiceSummary(inv);
+  // 3️⃣ masquer la liste / afficher le détail
+  $("woListCard").style.display = "none";
+  $("woDetailCard").style.display = "block";
 
-  modal.style.display = "flex";
-}
+  // 4️⃣ mémoriser le WO temporaire
+  window.__currentTempWO = tempWO;
+
+  // 5️⃣ rendre EXACTEMENT comme un WO
+  renderInvoiceAsWO(tempWO);
+};
+
 
   if ($("closeInvoiceEditModal")){
   $("closeInvoiceEditModal").onclick = () => {
@@ -1293,6 +1298,75 @@ function woRenderDetail(id){
       <p><b>Description :</b> ${wo.desc || ''}</p>
     </div>
   `;
+}
+
+
+  function invoiceToTempWO(invoice){
+  return {
+    __fromInvoice: true,              // 🔒 flag critique
+    __invoiceNumber: invoice.number,  // lien inverse
+
+    id: "INV-" + invoice.number,      // ID virtuel
+    number: invoice.number,
+    date: invoice.date,
+    clientName: invoice.customer,
+    vehicleLabel: invoice.vehicle,
+    status: invoice.status || "draft",
+
+    parts: (invoice.items || [])
+      .filter(i => i.type === "Pièce")
+      .map(i => ({
+        name: i.desc,
+        qty: Number(i.qty),
+        rate: Number(i.rate),
+        total: Number(i.qty) * Number(i.rate)
+      })),
+
+    labor: (invoice.items || [])
+      .filter(i => i.type === "Main-d'œuvre")
+      .map(i => ({
+        description: i.desc,
+        hours: Number(i.qty),
+        rate: Number(i.rate),
+        total: Number(i.qty) * Number(i.rate)
+      })),
+
+    estimateTotal: invoice.total || 0
+  };
+}
+
+
+  function renderInvoiceAsWO(wo){
+  const detail = $("woDetailContent");
+  if (!detail) return;
+
+  // 🔁 titre adapté
+  detail.innerHTML = `
+    <div class="card">
+      <h2>Facture #${wo.number}</h2>
+      <p class="muted">Modification de facture (UI bon de travail)</p>
+      <p><b>Client :</b> ${wo.clientName}</p>
+      <p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
+    </div>
+  `;
+
+  // ⚠️ on réutilise EXACTEMENT le moteur WO
+  woRenderLines(wo);
+
+  // 🔒 bloquer actions interdites
+  lockInvoiceUI();
+}
+
+
+  function lockInvoiceUI(){
+  // supprimer boutons WO non valides
+  document.querySelectorAll(
+    "button[onclick^='finishWorkOrder'], button[onclick^='deleteWorkOrder']"
+  ).forEach(b => b.remove());
+
+  // désactiver changement statut
+  const status = $("woStatus");
+  if (status) status.disabled = true;
 }
 
   
