@@ -4769,6 +4769,11 @@ function openInvoiceEdit(number){
 
   
 function editInvoiceFromModal(number){
+  // 🔥 FERMER LE MODAL FACTURE AVANT NAVIGATION
+if ($("invoiceEditModal")) {
+  $("invoiceEditModal").style.display = "none";
+}
+
   loadInvoices();
 
   const inv = INVOICES.find(i => String(i.number) === String(number));
