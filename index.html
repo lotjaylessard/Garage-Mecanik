@@ -4930,25 +4930,6 @@ function editInvoiceFromModal(number){
   openInvoiceAsWO(number);
 }
 
-  loadInvoices();
-
-  const inv = INVOICES.find(i => String(i.number) === String(number));
-  if (!inv){
-    alert("Facture introuvable : " + number);
-    return;
-  }
-
-  // 🔐 DÉBLOCAGE LOGIQUE CRITIQUE
-  window.currentEditingInvoice = inv;
-
- // 🔒 Forcer TOUTES les pages à se fermer visuellement
-document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-
-// 🔝 Sécurité : scroll en haut
-window.scrollTo(0, 0);
-
-}
-
 
   function closeInvoiceModal(){
   const modal = $("invoiceEditModal");
