@@ -1337,6 +1337,12 @@ function woRenderDetail(id){
 
   /* ===================== FACTURE -> UI WO (MODIF) ===================== */
 window.openInvoiceAsWorkOrder = function(number){
+
+  // 🔥 FERMER LE MODAL FACTURE S'IL EST OUVERT
+if ($("invoiceEditModal")) {
+  $("invoiceEditModal").style.display = "none";
+}
+
   loadInvoices();
 
   const inv = INVOICES.find(i => String(i.number) === String(number));
