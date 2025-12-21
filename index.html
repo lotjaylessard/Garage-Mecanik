@@ -969,30 +969,36 @@ function loadInvoiceIntoEditor(inv){
 }
   
 
-  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-  
+function showPage(id){
+
+  // cacher toutes les pages
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+
+  // afficher la page demandée
   const pg = $(id);
-  if(pg) pg.style.display='block';
+  if (pg) pg.style.display = 'block';
 
-
+  // logique par page
   if (id === "page-dashboard") {
-  loadWorkOrders();
-}
+    loadWorkOrders();
+  }
 
   if (id === "page-workorders") {
     initWorkOrdersModule();
   }
-  
+
+  // navigation active
   document.querySelectorAll('.navBtn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.page===id);
+    b.classList.toggle('active', b.dataset.page === id);
   });
 
-  // === ROUTAGE LOGIQUE DES PAGES ===
+  // routage spécifique
   switch(id){
     case "page-invoice-list":
-  loadInvoices();
-  renderInvoiceList();
-  break;
+      loadInvoices();
+      renderInvoiceList();
+      break;
+  }
 }
 
 
