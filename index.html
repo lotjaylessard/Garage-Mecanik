@@ -1523,12 +1523,13 @@ function renderInvoiceAsWO(wo){
 
     <!-- PIÈCES -->
     <div class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <h3>Pièces</h3>
-    <button class="ghost" onclick="woAddPartLine(window.__currentTempWO)">
-      ➕ Pièce Enregistrée
-    </button>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+  <h3>Pièces</h3>
+  <div>
+    <button class="ghost" onclick="woAddPartLine(window.__currentTempWO)">➕ Pièce Enregistrée</button>
+    <button class="ghost" onclick="showManualPartBox()">➕ Ajouter Pièce</button>
   </div>
+</div>
 
   <table id="woPartsTable">
     <thead>
@@ -1548,14 +1549,34 @@ function renderInvoiceAsWO(wo){
   </div>
 </div>
 
+  <div id="woManualPartBox" class="card" style="display:none;">
+  <h4>Ajouter une pièce manuelle</h4>
+
+  <label>Description</label>
+  <input id="woManualPartName" placeholder="Ex: Boulon, huile, joint...">
+
+  <label>Quantité</label>
+  <input type="number" id="woManualPartQty" value="1" min="1">
+
+  <label>Prix unitaire</label>
+  <input type="number" id="woManualPartRate" value="0" step="0.01">
+
+  <div style="display:flex;gap:10px;margin-top:10px;">
+    <button class="ghost" onclick="saveManualPart()">💾 Ajouter</button>
+    <button class="ghost" onclick="cancelManualPart()">Annuler</button>
+  </div>
+</div>
+
+
     <!-- MAIN-D’ŒUVRE -->
     <div class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <h3>Main-d'œuvre</h3>
-    <button class="ghost" onclick="woAddLaborLine(window.__currentTempWO)">
-      ➕ Service Enregistré
-    </button>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+  <h3>Main-d'œuvre</h3>
+  <div>
+    <button class="ghost" onclick="woAddLaborLine(window.__currentTempWO)">➕ Main-d'œuvre Enregistré</button>
+    <button class="ghost" id="woAddLaborManual">➕ Ajouter Service</button>
   </div>
+</div>
 
   <table id="woLaborTable">
     <thead>
@@ -1590,6 +1611,48 @@ function renderInvoiceAsWO(wo){
 
   // 🔒 Bloquer actions interdites pour facture
   lockInvoiceUI();
+}
+
+  
+  function showManualPartBox(){
+  if ($("woManualPartBox")) {
+    $("woManualPartBox").style.display = "block";
+  }
+}
+
+function cancelManualPart(){
+  if ($("woManualPartBox")) {
+    $("woManualPartBox").style.display = "none";
+  }
+}
+
+function saveManualPart(){
+  const wo = window.__currentTempWO || window.__currentWO;
+  if (!wo) return;
+
+  const name = $("woManualPartName").value.trim();
+  const qty  = Number($("woManualPartQty").value);
+  const rate = Number($("woManualPartRate").value);
+
+  if (!name || qty <= 0 || rate < 0){
+    alert("Informations de la pièce incomplètes.");
+    return;
+  }
+
+  wo.parts.push({
+    name,
+    qty,
+    rate
+  });
+
+  saveWorkOrders();
+  woRenderLines(wo);
+
+  // reset + fermer
+  $("woManualPartName").value = "";
+  $("woManualPartQty").value = 1;
+  $("woManualPartRate").value = 0;
+  $("woManualPartBox").style.display = "none";
 }
 
 
