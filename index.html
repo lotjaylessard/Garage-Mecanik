@@ -1392,6 +1392,17 @@ function getActiveWOById(woId){
   return null;
 }
 
+  
+  function backToInvoiceList(){
+  // nettoyer l’état temporaire
+  window.__currentTempWO = null;
+  window.__currentWO = null;
+
+  // réafficher la liste des factures
+  showPage("page-invoice-list");
+}
+
+  
 /* 2) Sauver: si c'est une facture -> INVOICES, sinon -> WORKORDERS */
 function persistActiveWO(wo){
   if (!wo) return;
@@ -1401,6 +1412,22 @@ function persistActiveWO(wo){
   } else {
     saveWorkOrders();
   }
+}
+
+  function saveInvoiceFromWO(){
+  const wo = window.__currentTempWO;
+  if (!wo){
+    alert("Aucune facture en cours de modification.");
+    return;
+  }
+
+  // 🔒 Sauvegarde vers la facture
+  persistActiveWO(wo);
+
+  alert("Modifications enregistrées.");
+
+  // optionnel : rafraîchir totaux / listes
+  loadInvoices();
 }
 
   
@@ -1467,6 +1494,12 @@ function renderInvoiceAsWO(wo){
 
   // 🔑 Réutiliser EXACTEMENT le layout du Work Order
   detail.innerHTML = `
+
+  <!-- BARRE D’ACTIONS (HAUT) -->
+<div class="card">
+  <button class="ghost" onclick="backToInvoiceList()">⬅ Retour à la facture</button>
+</div>
+
     <div class="card">
       <h2>Facture #${wo.number}</h2>
       <p class="muted">Modification de facture (UI bon de travail)</p>
@@ -1521,6 +1554,12 @@ function renderInvoiceAsWO(wo){
       <h3>Total estimé</h3>
       <div><strong id="woEstimateTotal">0.00 $</strong></div>
     </div>
+
+    <!-- ACTIONS FINALES -->
+<div class="card" style="text-align:right;">
+  <button onclick="saveInvoiceFromWO()">💾 Enregistrer les modifications</button>
+</div>
+
   `;
 
   // 🔁 RENDRE LES LIGNES EXISTANTES (CRITIQUE)
