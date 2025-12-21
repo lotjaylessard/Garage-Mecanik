@@ -4780,8 +4780,15 @@ function editInvoiceFromModal(number){
   // 🔐 DÉBLOCAGE LOGIQUE CRITIQUE
   window.currentEditingInvoice = inv;
 
-  // Navigation autorisée
-  showPage("page-invoice-editor");
+ // 🔒 Forcer TOUTES les pages à se fermer visuellement
+document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+
+// 👉 Ouvrir l’éditeur de facture AU PREMIER PLAN
+showPage("page-invoice-editor");
+
+// 🔝 Sécurité : scroll en haut
+window.scrollTo(0, 0);
+
 }
 
 
