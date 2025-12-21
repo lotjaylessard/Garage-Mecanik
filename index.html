@@ -1063,6 +1063,27 @@ function renderInvoiceSummary(inv){
 }
 
 
+function loadInvoiceIntoEditor(inv){
+  // 1) numéro
+  if ($("invoiceNumber")) $("invoiceNumber").value = inv.number || "";
+
+  // 2) afficher readonly (tu as déjà les div dans le HTML)
+  if ($("invoiceClientSelectBlock")) $("invoiceClientSelectBlock").style.display = "none";
+  if ($("invoiceVehicleSelectBlock")) $("invoiceVehicleSelectBlock").style.display = "none";
+  if ($("invoiceClientReadonly")) $("invoiceClientReadonly").style.display = "block";
+  if ($("invoiceVehicleReadonly")) $("invoiceVehicleReadonly").style.display = "block";
+
+  if ($("invoiceClientText")) $("invoiceClientText").innerText = inv.customer || "";
+  if ($("invoiceVehicleText")) $("invoiceVehicleText").innerText = inv.vehicle || inv.job || "";
+
+  // 3) items
+  items = Array.isArray(inv.items) ? inv.items.map(x => ({...x})) : [];
+
+  // 4) refresh UI
+  if (typeof renderItems === "function") renderItems();
+}
+  
+  
 /* ===================== NAVIGATION ===================== */
 function showPage(id){
   // ❌ INTERDICTION D'OUVRIR L'ÉDITEUR SANS FACTURE
@@ -1096,9 +1117,14 @@ function showPage(id){
   renderInvoiceList();
   break;
 
-    case "page-invoice-editor":
-      resetInvoiceForm();
-      break;
+  case "page-invoice-editor":
+  if (window.currentEditingInvoice){
+    loadInvoiceIntoEditor(window.currentEditingInvoice);
+  } else {
+    resetInvoiceForm();
+  }
+  break;
+
   }
 }
 
@@ -1310,7 +1336,7 @@ function woRenderDetail(id){
 
 
   /* ===================== FACTURE -> UI WO (MODIF) ===================== */
-window.openInvoiceEditModal = function(number){
+window.openInvoiceAsWorkOrder = function(number){
   loadInvoices();
 
   const inv = INVOICES.find(i => String(i.number) === String(number));
@@ -4719,7 +4745,7 @@ content.innerHTML = `
 
   <button class="ghost"
   ${isLocked ? "disabled title='Facture payée — modification verrouillée'" : ""}
-  onclick="openInvoiceEditModal('${inv.number}')">
+  onclick="editInvoiceFromModal('${inv.number}')">
   ✏️ Modifier
 </button>
 
