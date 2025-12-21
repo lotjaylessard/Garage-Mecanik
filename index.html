@@ -1573,7 +1573,7 @@ function renderInvoiceAsWO(wo){
   <h3>Main-d'œuvre</h3>
   <div>
     <button class="ghost" onclick="woAddLaborLine(window.__currentTempWO)">➕ Main-d'œuvre Enregistré</button>
-    <button class="ghost" id="woAddLaborManual">➕ Ajouter Service</button>
+    <button class="ghost" onclick="showManualLaborBox()">➕ Ajouter Service</button>
   </div>
 </div>
 
@@ -1594,6 +1594,25 @@ function renderInvoiceAsWO(wo){
     Total main-d'œuvre : <span id="woLaborTotal">0.00 $</span>
   </div>
 </div>
+
+<div id="woManualLaborBox" class="card" style="display:none;">
+  <h4>Ajouter un service manuel</h4>
+
+  <label>Description</label>
+  <input id="woManualLaborDesc" placeholder="Ex: Diagnostic, ajustement, réparation...">
+
+  <label>Heures</label>
+  <input type="number" id="woManualLaborHours" value="1" min="0.25" step="0.25">
+
+  <label>Taux horaire</label>
+  <input type="number" id="woManualLaborRate" value="90" step="0.01">
+
+  <div style="display:flex;gap:10px;margin-top:10px;">
+    <button class="ghost" onclick="saveManualLabor()">💾 Ajouter</button>
+    <button class="ghost" onclick="cancelManualLabor()">Annuler</button>
+  </div>
+</div>
+
 
     <!-- TOTAL -->
     <div class="card">
@@ -1653,6 +1672,51 @@ function saveManualPart(){
   $("woManualPartRate").value = 0;
   $("woManualPartBox").style.display = "none";
 }
+
+
+  function showManualLaborBox(){
+  const box = $("woManualLaborBox");
+  if (box){
+    box.style.display = "block";
+  }
+}
+
+function cancelManualLabor(){
+  const box = $("woManualLaborBox");
+  if (box){
+    box.style.display = "none";
+  }
+}
+
+function saveManualLabor(){
+  const wo = window.__currentTempWO || window.__currentWO;
+  if (!wo) return;
+
+  const desc  = $("woManualLaborDesc").value.trim();
+  const hours = Number($("woManualLaborHours").value);
+  const rate  = Number($("woManualLaborRate").value);
+
+  if (!desc || hours <= 0 || rate < 0){
+    alert("Informations du service incomplètes.");
+    return;
+  }
+
+  wo.labor.push({
+    description: desc,
+    hours,
+    rate
+  });
+
+  saveWorkOrders();
+  woRenderLines(wo);
+
+  // reset + fermer
+  $("woManualLaborDesc").value = "";
+  $("woManualLaborHours").value = 1;
+  $("woManualLaborRate").value = 90;
+  $("woManualLaborBox").style.display = "none";
+}
+
 
 
   function lockInvoiceUI(){
