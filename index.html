@@ -4804,10 +4804,15 @@ function openInvoiceEditModal(invoiceNumber){
     return;
   }
 
-  const inv = INVOICES.find(x => String(x.number) === String(invoiceNumber));
-  const clientObj = CLIENTS.find(c =>
-  String(c.name) === String(inv.customer)
+  const inv = INVOICES.find(x =>
+  String(x.number) === String(invoiceNumber) ||
+  String(x.workOrderNumber) === String(invoiceNumber)
 );
+
+if(!inv){
+  alert("Facture introuvable.");
+  return;
+}
 
   let vehicleObj = null;
 if (clientObj && clientObj.vehicles){
@@ -4816,15 +4821,11 @@ if (clientObj && clientObj.vehicles){
   );
 }
 
-  
-  if(!inv){
-    alert("Facture introuvable.");
-    return;
-  }
-
-  if (!invoice.number && invoice.workOrderNumber){
-  invoice.number = btToInvoiceNumber(invoice.workOrderNumber);
+  if (!inv.number && inv.workOrderNumber){
+  inv.number = btToInvoiceNumber(inv.workOrderNumber);
+  saveInvoices(); // recommandé
 }
+
 
   // Lecture seule
   inv.locked = true;
@@ -5006,10 +5007,7 @@ content.innerHTML = `
 
   <button class="ghost"
   ${isLocked ? "disabled title='Facture payée — modification verrouillée'" : ""}
-  onclick="openInvoiceAsWorkOrder('${inv.number}')">
-  ✏️ Modifier
-</button>
-
+  onclick="editInvoiceFromModal('${inv.number}')">✏️ Modifier</button>
   <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
   <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
 </div>
