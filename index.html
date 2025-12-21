@@ -985,13 +985,6 @@ const STORAGE = {
   });
 })();
 
-  
-  function generateInvoiceNumber(){
-  let n = Number(localStorage.getItem(STORAGE.invoiceCounter) || 1);
-  localStorage.setItem(STORAGE.invoiceCounter, n + 1);
-  return "F-" + String(n).padStart(5,"0");
-}
-
 
 const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
@@ -1157,6 +1150,13 @@ let VEHICLES_SORT = { key: "client", dir: 1 // 1 = asc, -1 = desc
 function saveInvoices(){
   localStorage.setItem(STORAGE.invoices, JSON.stringify(INVOICES));
 }
+
+
+  function btToInvoiceNumber(btNumber){
+  if (!btNumber) return "";
+  return btNumber.replace(/^BT/, "FA");
+}
+
 
 
   /* ===================== PART ICONS ===================== */
@@ -2307,11 +2307,11 @@ function finishWorkOrder(id){
 // 2️⃣ Construire la facture PRO depuis le WO
 const invoice = {
   id: Date.now(),
-  number: generateInvoiceNumber(),
-  date: new Date().toLocaleDateString("fr-CA"),
+  number: btToInvoiceNumber(wo.number),
+  workOrderNumber: wo.number,
   customer: wo.clientName,
   vehicle: wo.vehicleLabel,
-  referenceWO: wo.number,
+  date: new Date().toLocaleDateString("fr-CA"),
   items: [],
   status: "unpaid",     // unpaid | partial | paid
   paidAmount: 0,
@@ -4821,6 +4821,10 @@ if (clientObj && clientObj.vehicles){
     alert("Facture introuvable.");
     return;
   }
+
+  if (!invoice.number && invoice.workOrderNumber){
+  invoice.number = btToInvoiceNumber(invoice.workOrderNumber);
+}
 
   // Lecture seule
   inv.locked = true;
