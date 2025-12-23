@@ -303,6 +303,28 @@ body {
   max-width: 100%;
 }
 
+    /* === FIX: pages trop basses (scroll inutile) === */
+
+/* Le conteneur principal ne doit PAS pousser vers le bas */
+#appPages {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Chaque page doit commencer en haut */
+.page {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Sécurité si un ancien header invisible existe */
+.page > h1:first-child,
+.page > h2:first-child,
+.page > h3:first-child {
+  margin-top: 0 !important;
+}
+
+
 
   </style>
 
