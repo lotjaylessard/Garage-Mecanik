@@ -492,6 +492,7 @@ button.danger:hover {
     <th>Plaque</th>
     <th>VIN</th>
     <th>KM</th>
+    <th>Actions</th>
   </tr>
 </thead>
           <tbody></tbody>
@@ -3590,6 +3591,9 @@ const vehiclesFlat = [];
 CLIENTS.forEach(c => {
   (c.vehicles || []).forEach(v => {
     vehiclesFlat.push({
+      clientId: c.id,
+      vehicleId: v.id,
+      
       clientName: c.name || "",
       make: v.make || "",
       model: v.model || "",
@@ -3643,6 +3647,10 @@ vehiclesFlat.forEach(v => {
     <td>${v.plate}</td>
     <td>${v.vin}</td>
     <td>${v.km}</td>
+    <td><button class="ghost"
+    onclick="editVehicle('${v.clientId}','${v.vehicleId}')">✏️</button>
+</td>
+
   `;
   tbody.appendChild(tr);
 });
@@ -5866,7 +5874,53 @@ updateVehicleSortLabels();
   }
 });
 }
+
   
+  function editVehicle(clientId, vehicleId){
+  const client = CLIENTS.find(c => String(c.id) === String(clientId));
+  if (!client) return;
+
+  const v = client.vehicles.find(v => String(v.id) === String(vehicleId));
+  if (!v) return;
+
+  $("vehEditClientId").value = clientId;
+  $("vehEditId").value = vehicleId;
+
+  $("vehEditMake").value  = v.make  || "";
+  $("vehEditModel").value = v.model || "";
+  $("vehEditYear").value  = v.year  || "";
+  $("vehEditPlate").value = v.plate || "";
+  $("vehEditVin").value   = v.vin   || "";
+  $("vehEditKm").value    = v.km    || "";
+
+  $("vehicleEditModal").style.display = "flex";
+}
+
+function closeVehicleEdit(){
+  $("vehicleEditModal").style.display = "none";
+}
+
+function saveVehicleEdit(){
+  const clientId  = $("vehEditClientId").value;
+  const vehicleId = $("vehEditId").value;
+
+  const client = CLIENTS.find(c => String(c.id) === String(clientId));
+  if (!client) return;
+
+  const v = client.vehicles.find(v => String(v.id) === String(vehicleId));
+  if (!v) return;
+
+  v.make  = $("vehEditMake").value.trim();
+  v.model= $("vehEditModel").value.trim();
+  v.year = Number($("vehEditYear").value) || "";
+  v.plate= $("vehEditPlate").value.trim();
+  v.vin  = $("vehEditVin").value.trim();
+  v.km   = Number($("vehEditKm").value) || 0;
+
+  saveClients();              // 🔒 CRITIQUE
+  renderVehiclesTable();      // refresh vue
+  closeVehicleEdit();
+} 
   
   
 </script>
@@ -5888,6 +5942,39 @@ updateVehicleSortLabels();
 <div id="invoiceEditModal" class="modal-backdrop" style="display:none;">
   <div class="modal-panel" style="max-width:800px;">
     <div id="invoiceEditContent"></div>
+  </div>
+</div>
+
+  <!-- MODAL ÉDITION VÉHICULE -->
+<div id="vehicleEditModal" class="modal-backdrop">
+  <div class="modal-panel" style="max-width:600px;">
+    <h2>Modifier le véhicule</h2>
+
+    <input type="hidden" id="vehEditClientId">
+    <input type="hidden" id="vehEditId">
+
+    <label>Marque</label>
+    <input id="vehEditMake">
+
+    <label>Modèle</label>
+    <input id="vehEditModel">
+
+    <label>Année</label>
+    <input id="vehEditYear" type="number">
+
+    <label>Plaque</label>
+    <input id="vehEditPlate">
+
+    <label>VIN</label>
+    <input id="vehEditVin">
+
+    <label>Kilométrage</label>
+    <input id="vehEditKm" type="number">
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+      <button class="ghost" onclick="closeVehicleEdit()">Annuler</button>
+      <button onclick="saveVehicleEdit()">💾 Enregistrer</button>
+    </div>
   </div>
 </div>
 
