@@ -125,10 +125,13 @@
       z-index:9;
     }
     #appPages{
-      margin-left:220px;
-      margin-top:70px;
-      padding:20px;
-    }
+  position: relative;
+  margin-left: 220px;   /* largeur sidebar */
+  margin-top: 70px;     /* hauteur topbar */
+  padding: 20px;
+  min-height: calc(100vh - 70px);
+  width: calc(100% - 220px);
+}
     .page{display:none;}
 
     /* Dashboard cards */
@@ -286,45 +289,6 @@
 button.danger:hover {
   background-color: rgba(220, 53, 69, 0.15);
 }
-
-/* === CORRECTION EMPIÈTEMENT SIDEBAR === */
-body {
-  overflow-x: hidden;
-}
-
-#appPages {
-  position: relative;
-  width: calc(100% - 220px);
-  min-height: 100vh;
-}
-
-.page {
-  width: 100%;
-  max-width: 100%;
-}
-
-    /* === FIX: pages trop basses (scroll inutile) === */
-
-/* Le conteneur principal ne doit PAS pousser vers le bas */
-#appPages {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Chaque page doit commencer en haut */
-.page {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Sécurité si un ancien header invisible existe */
-.page > h1:first-child,
-.page > h2:first-child,
-.page > h3:first-child {
-  margin-top: 0 !important;
-}
-
-
 
   </style>
 
