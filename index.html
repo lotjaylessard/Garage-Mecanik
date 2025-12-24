@@ -3715,6 +3715,74 @@ vehiclesFlat.forEach(v => {
 }
 
 
+  function openAddVehicleModal(){
+  const sel = $("vehClientSelect");
+  if (!sel) return;
+
+  sel.innerHTML = `<option value="">— Sélectionner un client —</option>`;
+
+  CLIENTS.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+
+  // reset champs
+  ["vehYear","vehMake","vehModel","vehPlate","vehVin","vehKm"]
+    .forEach(id => { if($(id)) $(id).value=""; });
+
+  $("addVehicleModal").style.display = "flex";
+}
+
+function closeAddVehicleModal(){
+  $("addVehicleModal").style.display = "none";
+}
+  
+
+  if ($("btnAddVehicle")){
+  $("btnAddVehicle").onclick = openAddVehicleModal;
+}
+
+
+  function saveNewVehicle(){
+
+  const clientId = $("vehClientSelect").value;
+  if (!clientId){
+    alert("Veuillez sélectionner un client.");
+    return;
+  }
+
+  const client = CLIENTS.find(c => String(c.id) === String(clientId));
+  if (!client){
+    alert("Client introuvable.");
+    return;
+  }
+
+  const vehicle = {
+    id: Date.now(),
+    year: Number($("vehYear").value) || "",
+    make: $("vehMake").value.trim(),
+    model: $("vehModel").value.trim(),
+    plate: $("vehPlate").value.trim(),
+    vin: $("vehVin").value.trim(),
+    km: $("vehKm").value.trim()
+  };
+
+  if (!vehicle.make || !vehicle.model){
+    alert("Marque et modèle requis.");
+    return;
+  }
+
+  client.vehicles = client.vehicles || [];
+  client.vehicles.push(vehicle);
+
+  saveClients();
+  renderVehiclesPage();
+  closeAddVehicleModal();
+}
+
+
   function updateVehicleSortLabels(){
   const map = {
     sortVehClient: "Client",
@@ -6163,6 +6231,41 @@ function saveVehicleEdit(){
     </div>
   </div>
 </div>
+
+  <div class="modal" id="addVehicleModal" style="display:none;">
+  <div class="modal-content" style="max-width:500px;">
+
+    <h2>Ajouter un véhicule</h2>
+
+    <label>Client</label>
+    <select id="vehClientSelect"></select>
+
+    <label>Année</label>
+    <input id="vehYear" type="number">
+
+    <label>Marque</label>
+    <input id="vehMake">
+
+    <label>Modèle</label>
+    <input id="vehModel">
+
+    <label>Plaque</label>
+    <input id="vehPlate">
+
+    <label>VIN</label>
+    <input id="vehVin">
+
+    <label>Kilométrage</label>
+    <input id="vehKm" type="number">
+
+    <div style="display:flex;gap:10px;margin-top:15px;">
+      <button class="primary" onclick="saveNewVehicle()">💾 Sauvegarder</button>
+      <button class="ghost" onclick="closeAddVehicleModal()">Annuler</button>
+    </div>
+
+  </div>
+</div>
+
 
   
 </body>
