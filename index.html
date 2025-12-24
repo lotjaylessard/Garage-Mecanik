@@ -4596,20 +4596,31 @@ if ($("lastNotesBox")) {
     html += `<div style="display:flex;flex-direction:column;gap:6px;">`;
 
     lastFiveNotes.forEach(n => {
-      html += `
-        <div
-          style="padding:6px;border:1px solid var(--border);border-radius:6px;cursor:pointer;"
-          onclick="openNoteFromDashboard('${n.id}')"
-        >
-          <div style="font-weight:600;">
-            ${(n.title || "Note").slice(0, 40)}
-          </div>
-          <div class="muted" style="font-size:0.8rem;">
-            ${n.date || ""}
-          </div>
+  const preview = (n.text || n.description || "")
+    .replace(/\n+/g, " ")
+    .slice(0, 100);
+
+  html += `
+    <div
+      style="padding:6px;border:1px solid var(--border);border-radius:6px;cursor:pointer;"
+      onclick="openNoteFromDashboard('${n.id}')"
+    >
+      <div style="font-weight:600;">
+        ${(n.title || "Note").slice(0, 40)}
+      </div>
+
+      <div class="muted" style="font-size:0.8rem; margin:2px 0;">
+        ${n.date || ""}
+      </div>
+
+      ${preview ? `
+        <div style="font-size:0.85rem; line-height:1.2;">
+          ${preview}${preview.length >= 100 ? "…" : ""}
         </div>
-      `;
-    });
+      ` : ""}
+    </div>
+  `;
+});
 
     html += `</div>`;
   }
