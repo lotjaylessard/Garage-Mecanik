@@ -3709,6 +3709,12 @@ vehiclesFlat.forEach(v => {
 });
 }
 
+
+  function renderVehicles(){
+  renderVehiclesPage();
+}
+
+
   function updateVehicleSortLabels(){
   const map = {
     sortVehClient: "Client",
@@ -6017,10 +6023,8 @@ function markInvoicePartial(number){
 }
 
 
-  if ($("vehicleSearch")) {
-  $("vehicleSearch").addEventListener("input", () => {
-    renderVehicles();
-  });
+  if ($("vehicleSearch")){
+  $("vehicleSearch").oninput = renderVehicles;
 }
 
   
