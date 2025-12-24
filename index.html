@@ -4595,6 +4595,13 @@ if ($("lastNotesBox")) {
   } else {
     html += `<div style="display:flex;flex-direction:column;gap:6px;">`;
 
+const NOTE_CATEGORY_COLORS = {
+  urgent: "#ff4d4d",     // 🔴 Urgent
+  afaire: "#f5c542",     // 🟡 À faire
+  todo:   "#f5c542",     // alias
+  general:"#4da6ff"      // 🔵 Général
+};
+    
     lastFiveNotes.forEach(n => {
 
   const preview = (n.text || n.description || "")
@@ -4602,7 +4609,9 @@ if ($("lastNotesBox")) {
     .slice(0, 100);
 
   // 🎨 couleur de la note (fallback sécurisé)
-  const color = n.color || "var(--accent)";
+  const color =
+  NOTE_CATEGORY_COLORS[(n.category || "").toLowerCase()] ||
+  "var(--accent)";
 
   html += `
     <div
