@@ -1528,6 +1528,18 @@ function saveTempWOToInvoice(tempWO){
 
 
 function renderInvoiceAsWO(wo){
+
+  // ===== CALCUL FACTURE PAYÉE =====
+let totalPaid = 0;
+
+if (Array.isArray(wo.payments)){
+  wo.payments.forEach(p=>{
+    totalPaid += Number(p.amount || 0);
+  });
+}
+
+const isPaid = totalPaid >= Number(wo.total || 0);
+
   const detail = $("woDetailContent");
   if (!detail) return;
 
@@ -1541,11 +1553,9 @@ function renderInvoiceAsWO(wo){
 
     <div class="card">
   <h2>
-    Facture #${wo.number}
-    ${wo.status === "paid"
-      ? `<span class="invoice-paid-badge">PAYÉ</span>`
-      : ``}
-  </h2>
+  Facture #${wo.number}
+  ${isPaid ? `<span class="invoice-paid-badge">PAYÉ</span>` : ``}
+</h2>
 
   <p class="muted">Modification de facture (UI bon de travail)</p>
 
