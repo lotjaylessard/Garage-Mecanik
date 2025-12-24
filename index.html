@@ -310,6 +310,38 @@ button.link:hover{
 }
 
 
+    <style>
+  /* tout ton CSS existant */
+
+  /* ===== MODALS (CLIENT / VEHICULE / FACTURE) ===== */
+  .modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-box{
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  }
+
+  .modal-actions{
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 15px;
+  }
+
+    
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -3717,23 +3749,22 @@ vehiclesFlat.forEach(v => {
 
   function openAddVehicleModal(){
   const sel = $("vehClientSelect");
-  if (!sel) return;
-
   sel.innerHTML = `<option value="">— Sélectionner un client —</option>`;
 
-  CLIENTS.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.name;
-    sel.appendChild(opt);
+  CLIENTS.forEach(c=>{
+    const o=document.createElement("option");
+    o.value=c.id;
+    o.textContent=c.name;
+    sel.appendChild(o);
   });
-
-  // reset champs
-  ["vehYear","vehMake","vehModel","vehPlate","vehVin","vehKm"]
-    .forEach(id => { if($(id)) $(id).value=""; });
 
   $("addVehicleModal").style.display = "flex";
 }
+
+function closeAddVehicleModal(){
+  $("addVehicleModal").style.display = "none";
+}
+
 
 function closeAddVehicleModal(){
   $("addVehicleModal").style.display = "none";
@@ -6029,6 +6060,9 @@ function woConvertToInvoice(wo) {
   button {
     display: none;
   }
+
+
+  
 </style>
     </head>
     <body>
@@ -6232,8 +6266,9 @@ function saveVehicleEdit(){
   </div>
 </div>
 
-  <div class="modal" id="addVehicleModal" style="display:none;">
-  <div class="modal-content" style="max-width:500px;">
+  
+  <div class="modal" id="addVehicleModal">
+  <div class="modal-box" style="max-width:520px;">
 
     <h2>Ajouter un véhicule</h2>
 
@@ -6258,15 +6293,13 @@ function saveVehicleEdit(){
     <label>Kilométrage</label>
     <input id="vehKm" type="number">
 
-    <div style="display:flex;gap:10px;margin-top:15px;">
+    <div class="modal-actions">
       <button class="primary" onclick="saveNewVehicle()">💾 Sauvegarder</button>
       <button class="ghost" onclick="closeAddVehicleModal()">Annuler</button>
     </div>
 
   </div>
 </div>
-
-
   
 </body>
 </html>
