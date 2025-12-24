@@ -3901,7 +3901,7 @@ function renderClientModal(id){
     wrap.innerHTML=client.vehicles.map((v,idx)=>`
       <div style="border:1px solid var(--border);border-radius:6px;padding:6px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div><strong>${v.make||''} ${v.model||''} ${v.year||''}</strong></div>
+          <div><strong>${v.year||''} ${v.make||''} ${v.model||''}</strong></div>
           <div class="small">Plaque: ${v.plate||''} | VIN: ${v.vin||''} | KM: ${v.km||''}</div>
           <div class="small">${v.notes||''}</div>
         </div>
@@ -3929,9 +3929,9 @@ function renderClientModal(id){
     vehEditIndex = idx;
 
     // Remplir les champs du formulaire véhicule
+    $('vehYear').value  = v.year  || '';
     $('vehMake').value  = v.make  || '';
     $('vehModel').value = v.model || '';
-    $('vehYear').value  = v.year  || '';
     $('vehPlate').value = v.plate || '';
     $('vehVin').value   = v.vin   || '';
     $('vehKm').value    = v.km    || '';
@@ -4802,7 +4802,7 @@ if ($("lastWorkOrdersBox")) {
 
       const unique = [];
       vehicles.forEach(v => {
-          const label = `${v.make || ""} ${v.model || ""} ${v.year || ""}`.trim();
+          const label = `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim();
           if (label && !unique.includes(label)) unique.push(label);
       });
 
@@ -6030,9 +6030,9 @@ updateVehicleSortLabels();
   $("vehEditClientId").value = clientId;
   $("vehEditId").value = vehicleId;
 
+  $("vehEditYear").value  = v.year  || "";
   $("vehEditMake").value  = v.make  || "";
   $("vehEditModel").value = v.model || "";
-  $("vehEditYear").value  = v.year  || "";
   $("vehEditPlate").value = v.plate || "";
   $("vehEditVin").value   = v.vin   || "";
   $("vehEditKm").value    = v.km    || "";
@@ -6053,10 +6053,9 @@ function saveVehicleEdit(){
 
   const v = client.vehicles.find(v => String(v.id) === String(vehicleId));
   if (!v) return;
-
+  v.year = Number($("vehEditYear").value) || "";
   v.make  = $("vehEditMake").value.trim();
   v.model= $("vehEditModel").value.trim();
-  v.year = Number($("vehEditYear").value) || "";
   v.plate= $("vehEditPlate").value.trim();
   v.vin  = $("vehEditVin").value.trim();
   v.km   = Number($("vehEditKm").value) || 0;
