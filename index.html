@@ -368,6 +368,10 @@ button.link:hover{
           <div class="stat-value" id="statVehicles">0</div>
         </div>
         </div>
+      <div class="card">
+  <h3>5 Dernières notes</h3>
+  <div id="lastNotesBox"></div>
+</div>
         <div class="stat-card">
     <div class="stat-label">5 dernières factures</div>
     <div id="lastInvoicesBox" style="margin-top:6px;font-size:0.9rem;line-height:1.2rem;"></div>
@@ -4575,6 +4579,44 @@ function renderDashboard(){
   if($('statRevenue')) $('statRevenue').innerText=money(revenue)+' $';
   if($('statClients')) $('statClients').innerText=clientsCount;
   if($('statVehicles')) $('statVehicles').innerText=vehiclesCount;
+
+
+  /* ===== 5 DERNIÈRES NOTES ===== */
+if ($("lastNotesBox")) {
+
+  const lastFiveNotes = [...(NOTES || [])]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5);
+
+  let html = "";
+
+  if (lastFiveNotes.length === 0) {
+    html = `<span class="muted">Aucune note enregistrée.</span>`;
+  } else {
+    html += `<div style="display:flex;flex-direction:column;gap:6px;">`;
+
+    lastFiveNotes.forEach(n => {
+      html += `
+        <div
+          style="padding:6px;border:1px solid var(--border);border-radius:6px;cursor:pointer;"
+          onclick="openNoteFromDashboard('${n.id}')"
+        >
+          <div style="font-weight:600;">
+            ${(n.title || "Note").slice(0, 40)}
+          </div>
+          <div class="muted" style="font-size:0.8rem;">
+            ${n.date || ""}
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  $("lastNotesBox").innerHTML = html;
+}
+
   
     /* ===== 5 DERNIÈRES FACTURES ===== */
 if ($("lastInvoicesBox")) {
@@ -4707,6 +4749,16 @@ if ($("lastWorkOrdersBox")) {
     showPage("page-history");
     const row = document.querySelector(`[data-invoice-number="${number}"]`);
     if(row) row.scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+
+  function openNoteFromDashboard(noteId){
+  showPage("page-notes");
+
+  setTimeout(() => {
+    const el = document.querySelector(`[data-note-id="${noteId}"]`);
+    if (el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+  }, 0);
 }
 
 
