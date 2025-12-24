@@ -497,8 +497,8 @@ button.link:hover{
       <h2>Véhicules</h2>
       <div class="card">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <input id="vehicleSearch" placeholder="Rechercher un véhicule..." style="flex:1;min-width:200px;" />
-          <button id="btnAddVehicle">Ajouter véhicule</button>
+          <input id="vehicleSearch" type="text" placeholder="Rechercher un véhicule..." style="flex:1;min-width:200px;" />
+          <button id="btnAddVehicle" type="button">Ajouter véhicule</button>
         </div>
       </div>
       <div class="card">
@@ -3613,6 +3613,9 @@ function renderVehiclesPage(){
   if(!tbody) return;
   tbody.innerHTML='';
 
+  const q = ($("vehicleSearch")?.value || "").toLowerCase();
+
+
 
   // 1️⃣ Aplatir les véhicules
 const vehiclesFlat = [];
@@ -3667,24 +3670,40 @@ vehiclesFlat.sort((a, b) => {
 
 // 3️⃣ Afficher
 vehiclesFlat.forEach(v => {
+
+  // 🔍 Filtre recherche
+  if (q) {
+    const hay = `
+      ${v.clientName}
+      ${v.year}
+      ${v.make}
+      ${v.model}
+      ${v.plate}
+      ${v.vin}
+      ${v.km}
+    `.toLowerCase();
+
+    if (!hay.includes(q)) return;
+  }
+
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td>
-  <button class="link"
-    onclick="openClientFromVehicles('${v.clientId}')">
-    ${v.clientName}
-  </button>
-</td>
+      <button class="link"
+        onclick="openClientFromVehicles('${v.clientId}')">
+        ${v.clientName}
+      </button>
+    </td>
     <td>${v.year || ""}</td>
     <td>${v.make}</td>
     <td>${v.model}</td>
     <td>${v.plate}</td>
     <td>${v.vin}</td>
     <td>${v.km}</td>
-    <td><button class="ghost"
-    onclick="editVehicle('${v.clientId}','${v.vehicleId}')">✏️</button>
-</td>
-
+    <td>
+      <button class="ghost"
+        onclick="editVehicle('${v.clientId}','${v.vehicleId}')">✏️</button>
+    </td>
   `;
   tbody.appendChild(tr);
 });
@@ -5995,6 +6014,13 @@ function markInvoicePartial(number){
   saveInvoices();
   renderInvoiceList();
   openInvoiceEditModal(number);
+}
+
+
+  if ($("vehicleSearch")) {
+  $("vehicleSearch").addEventListener("input", () => {
+    renderVehicles();
+  });
 }
 
   
