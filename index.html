@@ -1023,6 +1023,21 @@ function calcTotalsFromItems(items){
 }
 
 
+  /* ===================== RENDU TOTAUX FACTURE (SAFE) ===================== */
+function renderInvoiceTotals(items){
+  const totals = calcTotalsFromItems(items || []);
+  return `
+    <div style="text-align:right;margin-top:12px;">
+      <div>Sous-total : ${money(totals.subTotal)} $</div>
+      <div>TPS : ${money(totals.gst)} $</div>
+      <div>TVQ : ${money(totals.qst)} $</div>
+      <h3>Total : ${money(totals.total)} $</h3>
+    </div>
+  `;
+}
+
+
+
 
   /* ===================== FACTURES – RENDU UNIQUE ===================== */
 function renderInvoiceSummary(inv){
@@ -1072,17 +1087,7 @@ function renderInvoiceSummary(inv){
       </tbody>
     </table>
 
-    ${(() => {
-  const totals = calcTotalsFromItems(inv.items || []);
-  return `
-    <div style="text-align:right;margin-top:12px;">
-      <div>Sous-total : ${money(totals.subTotal)} $</div>
-      <div>TPS : ${money(totals.gst)} $</div>
-      <div>TVQ : ${money(totals.qst)} $</div>
-      <h3>Total : ${money(totals.total)} $</h3>
-    </div>
-  `;
-})()}
+    ${renderInvoiceTotals(inv.items)}
 
   `;
 }
