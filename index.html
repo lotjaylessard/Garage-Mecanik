@@ -997,15 +997,6 @@ const $ = id => document.getElementById(id);
 function money(n){return Number(n||0).toFixed(2);}
 
 
-  function formatVehicleLabel(v){
-  if (!v) return "";
-  const y = v.year || "";
-  const m = v.make || "";
-  const md = v.model || "";
-  return `${y} ${m} ${md}`.trim();
-}
-
-
   /* ===================== FACTURES – RENDU UNIQUE ===================== */
 function renderInvoiceSummary(inv){
   if (!inv) return '<div class="muted">Facture introuvable.</div>';
@@ -1171,13 +1162,6 @@ function saveInvoices(){
 }
 
 
-  function btToInvoiceNumber(btNumber){
-  if (!btNumber) return "";
-  return btNumber.replace(/^BT/, "FA");
-}
-
-
-
   /* ===================== PART ICONS ===================== */
         const PART_ICONS = {
   "Moteur": "🧠",
@@ -1293,29 +1277,6 @@ function addServiceToCurrentWO(serviceId){
   woRenderLines(wo);
 
   alert(`Pièce "${part.name}" ajoutée au bon de travail.`);
-}
-
-  
-function woRenderDetail(id){
-  const detail = $("woDetailContent");
-  if(!detail){
-    console.warn("woDetailContent absent (page non active)");
-    return;
-  }
-
-  const wo = WORKORDERS.find(w=>String(w.id)===String(id));
-  if(!wo){
-    alert("Bon de travail introuvable");
-    return;
-  }
-
-  detail.innerHTML = `
-    <div class="card">
-      <h2>Bon de travail #${wo.id}</h2>
-      <p><b>Statut :</b> ${wo.status || ''}</p>
-      <p><b>Description :</b> ${wo.desc || ''}</p>
-    </div>
-  `;
 }
 
 
@@ -6294,6 +6255,49 @@ function saveVehicleEdit(){
   $("clientModal").style.display = "flex";
 }
 
+
+
+  /* =====================================================
+   ARCHIVE – Fonctions non utilisées (SAFE)
+   Gardées volontairement pour évolutions futures
+   ===================================================== */
+  
+function formatVehicleLabel(v){
+  if (!v) return "";
+  const y = v.year || "";
+  const m = v.make || "";
+  const md = v.model || "";
+  return `${y} ${m} ${md}`.trim();
+}
+
+
+  function btToInvoiceNumber(btNumber){
+  if (!btNumber) return "";
+  return btNumber.replace(/^BT/, "FA");
+}
+
+
+  function woRenderDetail(id){
+  const detail = $("woDetailContent");
+  if(!detail){
+    console.warn("woDetailContent absent (page non active)");
+    return;
+  }
+
+  const wo = WORKORDERS.find(w=>String(w.id)===String(id));
+  if(!wo){
+    alert("Bon de travail introuvable");
+    return;
+  }
+
+  detail.innerHTML = `
+    <div class="card">
+      <h2>Bon de travail #${wo.id}</h2>
+      <p><b>Statut :</b> ${wo.status || ''}</p>
+      <p><b>Description :</b> ${wo.desc || ''}</p>
+    </div>
+  `;
+}
   
 </script>
 
