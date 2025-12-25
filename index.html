@@ -1012,11 +1012,25 @@ function money(n){return Number(n||0).toFixed(2);}
 function renderInvoiceSummary(inv){
   if (!inv) return '<div class="muted">Facture introuvable.</div>';
 
-  return `
-    <h3>Facture #${inv.number}</h3>
-    <div class="muted">${inv.date || ''}</div>
+    // ===== CALCUL FACTURE PAYÉE =====
+  let totalPaid = 0;
+  if (Array.isArray(inv.payments)){
+    inv.payments.forEach(p=>{
+      totalPaid += Number(p.amount || 0);
+    });
+  }
+  const isPaid = totalPaid >= Number(inv.total || 0);
+  
+ return `
+  <h3 style="display:flex;align-items:center;gap:12px;">
+    Facture #${inv.number}
+    ${isPaid ? `<span class="invoice-paid-badge">PAYÉ</span>` : ``}
+  </h3>
 
-    <p><b>Client :</b> ${inv.customer || ''}</p>
+  <div class="muted">${inv.date || ''}</div>
+
+  <p><b>Client :</b> ${inv.customer || ''}</p>
+
     <p><b>Véhicule / Job :</b> ${inv.job || ''}</p>
 
     <table style="width:100%;margin-top:10px;">
