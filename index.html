@@ -1008,6 +1008,22 @@ function loadArrayFromStorage(key){
 }
 
 
+  /* ===================== CALCULS TOTAUX (SAFE) ===================== */
+function calcTotalsFromItems(items){
+  const subTotal = (items || []).reduce(
+    (sum, it) => sum + (Number(it.qty || 0) * Number(it.rate || 0)),
+    0
+  );
+
+  const gst = subTotal * (SETTINGS.gst / 100);
+  const qst = (subTotal + gst) * (SETTINGS.qst / 100);
+  const total = subTotal + gst + qst;
+
+  return { subTotal, gst, qst, total };
+}
+
+
+
   /* ===================== FACTURES – RENDU UNIQUE ===================== */
 function renderInvoiceSummary(inv){
   if (!inv) return '<div class="muted">Facture introuvable.</div>';
@@ -1492,11 +1508,12 @@ function saveTempWOToInvoice(tempWO){
 
   inv.items = items;
 
-  // Totaux
-  inv.subTotal = items.reduce((s,it)=> s + ((it.qty || 0) * (it.rate || 0)), 0);
-  inv.gst = inv.subTotal * (SETTINGS.gst / 100);
-  inv.qst = (inv.subTotal + inv.gst) * (SETTINGS.qst / 100);
-  inv.total = inv.subTotal + inv.gst + inv.qst;
+  // Totaux (centralisés)
+const totals = calcTotalsFromItems(items);
+inv.subTotal = totals.subTotal;
+inv.gst      = totals.gst;
+inv.qst      = totals.qst;
+inv.total    = totals.total;
 
   saveInvoices();
 
