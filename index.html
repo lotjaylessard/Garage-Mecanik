@@ -1072,12 +1072,18 @@ function renderInvoiceSummary(inv){
       </tbody>
     </table>
 
+    ${(() => {
+  const totals = calcTotalsFromItems(inv.items || []);
+  return `
     <div style="text-align:right;margin-top:12px;">
-      <div>Sous-total : ${money(inv.subTotal)} $</div>
-      <div>TPS : ${money(inv.gst)} $</div>
-      <div>TVQ : ${money(inv.qst)} $</div>
-      <h3>Total : ${money(inv.total)} $</h3>
+      <div>Sous-total : ${money(totals.subTotal)} $</div>
+      <div>TPS : ${money(totals.gst)} $</div>
+      <div>TVQ : ${money(totals.qst)} $</div>
+      <h3>Total : ${money(totals.total)} $</h3>
     </div>
+  `;
+})()}
+
   `;
 }
 
