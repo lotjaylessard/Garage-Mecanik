@@ -1540,6 +1540,10 @@ if (Array.isArray(wo.payments)){
 
 const isPaid = totalPaid >= Number(wo.total || 0);
 
+  console.log("FACTURE COURANTE (wo) :", wo);
+  console.log("PAIEMENTS :", wo.payments);
+  console.log("TOTAL :", wo.total);
+
   const detail = $("woDetailContent");
   if (!detail) return;
 
