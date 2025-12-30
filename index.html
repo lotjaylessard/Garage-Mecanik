@@ -1091,11 +1091,12 @@ function renderInvoiceSummary(inv){
   let totalPaid = 0;
   if (Array.isArray(inv.payments)){
     inv.payments.forEach(p=>{
-      totalPaid += Number(p.amount || 0);
-    });
+  totalPaid += numMoney(p.amount || 0);
+});
   }
-  const total = Number(inv.total || 0);
-const paidAmount = Number(inv.paidAmount || 0);
+  
+  const total = numMoney(inv.total || 0);
+  const paidAmount = numMoney(inv.paidAmount || 0);
 
 // ✅ On prend la meilleure source: payments OU paidAmount
 const paid = Math.max(totalPaid, paidAmount);
