@@ -1102,13 +1102,17 @@ function renderInvoiceSummary(inv){
 const paid = Math.max(totalPaid, paidAmount);
 
 // ===== STATUT DE PAIEMENT (SOURCE UNIQUE : MONTANTS) =====
+const status = String(inv.status || "").toLowerCase();
+
 const isPaid =
-  total > 0 &&
-  paid >= total;
+  status === "paid" ||
+  status === "payée" ||
+  (total > 0 && paid >= total);
 
 const isPartialPaid =
-  paid > 0 &&
-  paid < total;
+  status === "partielle" ||
+  status === "partial" ||
+  (!isPaid && paid > 0 && paid < total);
 
   return `
   
