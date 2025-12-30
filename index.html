@@ -1085,8 +1085,10 @@ function renderInvoiceSummary(inv){
   const total = Number(inv.total || 0);
 const paidAmount = Number(inv.paidAmount || 0);
 
-const isPaid = totalPaid >= total;
-const isPartialPaid = totalPaid > 0 && totalPaid < total;
+const paid = Math.max(totalPaid, paidAmount);
+
+const isPaid = paid >= total;
+const isPartialPaid = paid > 0 && paid < total;
 
   const isPartial =
   !isPaid &&
