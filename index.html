@@ -3286,7 +3286,7 @@ function renderInvoiceList(){
         <td>${money(inv.total)} $</td>
         <td>${inv.status || ""}</td>
         <td>
-        <button class="ghost" onclick="openInvoiceView('${String(inv.number).replace(/'/g,"\\'")}')">Ouvrir</button>
+        <button class="ghost" onclick="openInvoiceEditModal(${inv.number})">Ouvrir</button>
         <button class="ghost danger btn-delete-invoice">Supprimer</button>
         </td>
       `;
