@@ -1101,16 +1101,14 @@ function renderInvoiceSummary(inv){
 // ✅ On prend la meilleure source: payments OU paidAmount
 const paid = Math.max(totalPaid, paidAmount);
 
-// ✅ Statuts robustes
-const status = String(inv.status || "").toLowerCase();
-
+// ===== STATUT DE PAIEMENT (SOURCE UNIQUE : MONTANTS) =====
 const isPaid =
-  status === "paid" ||
-  (total > 0 && paid >= total);
+  total > 0 &&
+  paid >= total;
 
 const isPartialPaid =
-  status === "pending" &&
-  !isPaid;
+  paid > 0 &&
+  paid < total;
 
   return `
   
