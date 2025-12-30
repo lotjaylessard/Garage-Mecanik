@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -341,27 +342,22 @@ button.link:hover{
 
     /* ===== FACTURE PAYÉE ===== */
 .invoice-paid-badge{
-  padding:6px 16px;
-  border:3px solid #2ecc71;
-  color:#2ecc71;
-  font-weight:900;
-  font-size:1.4rem;
-  border-radius:8px;
-  letter-spacing:2px;
-}
-
-
-.invoice-partial-badge{
-  padding:6px 16px;
-  border:3px solid #f39c12;
-  color:#f39c12;
-  font-weight:900;
-  font-size:1.1rem;
-  border-radius:8px;
+  display:inline-block;
+  margin-left:10px;
+  padding:6px 12px;
+  border:2px solid #1f9d55;
+  color:#1f9d55;
+  font-weight:800;
+  border-radius:10px;
+  font-size:18px;
   letter-spacing:1px;
-  text-transform:uppercase;
 }
+
 @media print{
+  .no-print{display:none !important;}
+  .modal-backdrop{background:transparent !important;}
+  .modal-panel{box-shadow:none !important;}
+
   .invoice-paid-badge{
     color:#2ecc71 !important;
     border-color:#2ecc71 !important;
@@ -974,6 +970,17 @@ const STORAGE = {
   workorders:'ar_workorders_v1'
 };
 
+
+  function escapeHTML(str){
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
 /* ===== MIGRATION LOCALSTORAGE (TEMPORAIRE) ===== */
 (function migrateOldStorage(){
   const map = {
@@ -1015,18 +1022,6 @@ function loadArrayFromStorage(key){
   }
 }
 
-/* ===================== HELPERS – NOMBRES (robuste signaling) ===================== */
-function numMoney(v){
-  if (v == null) return 0;
-  if (typeof v === "number") return isFinite(v) ? v : 0;
-  const s = String(v)
-    .replace(",", ".")
-    .replace(/[^0-9.\-]/g, "");
-  const n = parseFloat(s);
-  return isFinite(n) ? n : 0;
-}
-
-
 
   /* ===================== CALCULS TOTAUX (SAFE) ===================== */
 function calcTotalsFromItems(items){
@@ -1061,31 +1056,32 @@ function renderInvoiceTotals(items){
 function renderInvoiceSummary(inv){
   if (!inv) return '<div class="muted">Facture introuvable.</div>';
 
-  // ===== CALCUL PAIEMENT (robuste) =====
+  // ===== CALCUL FACTURE PAYÉE =====
   let totalPaid = 0;
   if (Array.isArray(inv.payments)){
     inv.payments.forEach(p=>{
-      totalPaid += numMoney(p.amount || 0);
+      totalPaid += Number(p.amount || 0);
     });
   }
-  const total = numMoney(inv.total || 0);
+  const total = Number(inv.total || 0);
+const paidAmount = Number(inv.paidAmount || 0);
 
-  // certaines anciennes versions stockaient aussi inv.paidAmount
-  const paidAmount = numMoney(inv.paidAmount || 0);
-  const paid = Math.max(totalPaid, paidAmount);
+const isPaid =
+  (String(inv.status || "").toLowerCase() === "paid") ||
+  (paidAmount >= total) ||
+  (totalPaid >= total);
 
-  const isPaid = (total > 0) && (paid >= total);
-  const isPartialPaid = !isPaid && (paid > 0) && (total > 0);
 
   return `
     <h3 style="display:flex;align-items:center;gap:14px;">
       Facture #${inv.number}
-      ${isPaid ? `<span class="invoice-paid-badge">PAYÉ</span>` : (isPartialPaid ? `<span class="invoice-partial-badge">PARTIELLEMENT PAYÉ</span>` : ``)}
+      ${isPaid ? `<span class="invoice-paid-badge">PAYÉ</span>` : ``}
     </h3>
+
     <div class="muted">${inv.date || ''}</div>
 
-    <p><b>Client :</b> ${escapeHTML(inv.customer || '')}</p>
-    <p><b>Véhicule / Job :</b> ${escapeHTML(inv.job || '')}</p>
+    <p><b>Client :</b> ${escapeHTML(inv.customer)}</p>
+<p><b>Véhicule / Job :</b> ${escapeHTML(inv.job)}</p>
 
     <table style="width:100%;margin-top:10px;">
       <thead>
@@ -1341,6 +1337,40 @@ function addServiceToCurrentWO(serviceId){
 }
 
 
+  function openInvoiceView(number){
+  loadInvoices();
+
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv){
+    alert("Facture introuvable : " + number);
+    return;
+  }
+
+  // Aller sur la page Factures
+  showPage("page-invoice-list");
+
+  // Injecter le résumé dans un modal
+  if ($("invoiceEditModal")){
+    $("invoiceEditContent").innerHTML = `
+      <div class="card">
+        ${renderInvoiceSummary(inv)}
+      </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+        <button class="ghost" onclick="openInvoiceAsWorkOrder('${inv.number}')">
+          ✏️ Modifier
+        </button>
+        <button onclick="printInvoice()">
+          🖨️ Imprimer
+        </button>
+      </div>
+    `;
+
+    $("invoiceEditModal").style.display = "flex";
+  }
+}
+
+
   function invoiceToTempWO(invoice){
   return {
     __fromInvoice: true,              // 🔒 flag critique
@@ -1587,7 +1617,10 @@ const isPaid = totalPaid >= Number(wo.total || 0);
 </div>
 
     <div class="card">
- <h2>Facture #${wo.number}</h2>
+ <h2>
+  Facture #${wo.number}
+</h2>
+>
 
 
   <p class="muted">Modification de facture (UI bon de travail)</p>
@@ -3258,7 +3291,7 @@ function renderInvoiceList(){
         <td>${money(inv.total)} $</td>
         <td>${inv.status || ""}</td>
         <td>
-        <button class="ghost" onclick="openInvoiceAsWorkOrder(${inv.number})">Ouvrir</button>
+        <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">Ouvrir</button>
         <button class="ghost danger btn-delete-invoice">Supprimer</button>
         </td>
       `;
@@ -5214,6 +5247,20 @@ content.innerHTML = `
     <b style="color:#fff;">${inv.customer || ""}</b>
   </div>
 
+  ${inv.status === "paid" ? `
+    <div class="invoice-paid-badge" style="
+      display:inline-block;
+      margin-top:6px;
+      padding:6px 14px;
+      border-radius:10px;
+      background:#1b5e20;
+      color:#fff;
+      font-weight:900;
+      font-size:1.15rem;
+      letter-spacing:1px;
+    ">PAYÉ</div>
+  ` : ""}
+
   ${clientObj ? `
     <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
       ${clientObj.address || ""}<br>
@@ -5325,7 +5372,7 @@ content.innerHTML = `
       }</b>
     </div>
 
-    <div>
+    <div class="no-print">
   <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePaid('${inv.number}')">✔ Payée</button>
   <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
 
@@ -5340,7 +5387,7 @@ content.innerHTML = `
 
 
   // === AFFICHER LA MODAL ===
-  modal.style.display = "block";
+  modal.style.display = "flex";
 }
 
 
