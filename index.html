@@ -1041,6 +1041,18 @@ function loadArrayFromStorage(key){
   }
 }
 
+/* ===================== HELPERS – NOMBRES (robuste) ===================== */
+function numMoney(v){
+  if (v == null) return 0;
+  if (typeof v === "number") return isFinite(v) ? v : 0;
+  const s = String(v)
+    .replace(",", ".")
+    .replace(/[^0-9.\-]/g, "");
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+
+
 
   /* ===================== CALCULS TOTAUX (SAFE) ===================== */
 function calcTotalsFromItems(items){
