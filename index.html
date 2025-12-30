@@ -353,6 +353,10 @@ button.link:hover{
 }
 
 @media print{
+  .no-print{display:none !important;}
+  .modal-backdrop{background:transparent !important;}
+  .modal-panel{box-shadow:none !important;}
+
   .invoice-paid-badge{
     color:#2ecc71 !important;
     border-color:#2ecc71 !important;
@@ -3286,7 +3290,7 @@ function renderInvoiceList(){
         <td>${money(inv.total)} $</td>
         <td>${inv.status || ""}</td>
         <td>
-        <button class="ghost" onclick="openInvoiceEditModal(${inv.number})">Ouvrir</button>
+        <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">Ouvrir</button>
         <button class="ghost danger btn-delete-invoice">Supprimer</button>
         </td>
       `;
@@ -5242,6 +5246,20 @@ content.innerHTML = `
     <b style="color:#fff;">${inv.customer || ""}</b>
   </div>
 
+  ${inv.status === "paid" ? `
+    <div class="invoice-paid-badge" style="
+      display:inline-block;
+      margin-top:6px;
+      padding:6px 14px;
+      border-radius:10px;
+      background:#1b5e20;
+      color:#fff;
+      font-weight:900;
+      font-size:1.15rem;
+      letter-spacing:1px;
+    ">PAYÉ</div>
+  ` : ""}
+
   ${clientObj ? `
     <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
       ${clientObj.address || ""}<br>
@@ -5353,7 +5371,7 @@ content.innerHTML = `
       }</b>
     </div>
 
-    <div>
+    <div class="no-print">
   <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePaid('${inv.number}')">✔ Payée</button>
   <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
 
@@ -5368,7 +5386,7 @@ content.innerHTML = `
 
 
   // === AFFICHER LA MODAL ===
-  modal.style.display = "block";
+  modal.style.display = "flex";
 }
 
 
