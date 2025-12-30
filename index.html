@@ -341,13 +341,15 @@ button.link:hover{
 
     /* ===== FACTURE PAYÉE ===== */
 .invoice-paid-badge{
-  padding:6px 16px;
-  border:3px solid #2ecc71;
-  color:#2ecc71;
-  font-weight:900;
-  font-size:1.4rem;
-  border-radius:8px;
-  letter-spacing:2px;
+  display:inline-block;
+  margin-left:10px;
+  padding:6px 12px;
+  border:2px solid #1f9d55;
+  color:#1f9d55;
+  font-weight:800;
+  border-radius:10px;
+  font-size:18px;
+  letter-spacing:1px;
 }
 
 @media print{
@@ -1056,7 +1058,14 @@ function renderInvoiceSummary(inv){
       totalPaid += Number(p.amount || 0);
     });
   }
-  const isPaid = totalPaid >= Number(inv.total || 0);
+  const total = Number(inv.total || 0);
+const paidAmount = Number(inv.paidAmount || 0);
+
+const isPaid =
+  (String(inv.status || "").toLowerCase() === "paid") ||
+  (paidAmount >= total) ||
+  (totalPaid >= total);
+
 
   return `
     <h3 style="display:flex;align-items:center;gap:14px;">
@@ -1342,11 +1351,11 @@ function addServiceToCurrentWO(serviceId){
         ${renderInvoiceSummary(inv)}
       </div>
 
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
-        <button class="ghost" onclick="openInvoiceAsWorkOrder(${inv.number})">
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+        <button class="ghost" onclick="openInvoiceAsWorkOrder('${inv.number}')">
           ✏️ Modifier
         </button>
-        <button onclick="printInvoice(${inv.number})">
+        <button onclick="printInvoice()">
           🖨️ Imprimer
         </button>
       </div>
