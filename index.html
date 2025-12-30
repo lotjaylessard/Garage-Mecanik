@@ -1312,6 +1312,40 @@ function addServiceToCurrentWO(serviceId){
 }
 
 
+  function openInvoiceView(number){
+  loadInvoices();
+
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv){
+    alert("Facture introuvable : " + number);
+    return;
+  }
+
+  // Aller sur la page Factures
+  showPage("page-invoice-list");
+
+  // Injecter le résumé dans un modal
+  if ($("invoiceEditModal")){
+    $("invoiceEditContent").innerHTML = `
+      <div class="card">
+        ${renderInvoiceSummary(inv)}
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+        <button class="ghost" onclick="openInvoiceAsWorkOrder(${inv.number})">
+          ✏️ Modifier
+        </button>
+        <button onclick="printInvoice(${inv.number})">
+          🖨️ Imprimer
+        </button>
+      </div>
+    `;
+
+    $("invoiceEditModal").style.display = "flex";
+  }
+}
+
+
   function invoiceToTempWO(invoice){
   return {
     __fromInvoice: true,              // 🔒 flag critique
@@ -3232,7 +3266,7 @@ function renderInvoiceList(){
         <td>${money(inv.total)} $</td>
         <td>${inv.status || ""}</td>
         <td>
-        <button class="ghost" onclick="openInvoiceAsWorkOrder('${inv.number}')">Ouvrir</button>
+        <button class="ghost" onclick="openInvoiceView(${inv.number})">Ouvrir</button>
         <button class="ghost danger btn-delete-invoice">Supprimer</button>
         </td>
       `;
