@@ -363,6 +363,26 @@ button.link:hover{
   }
 }
 
+
+    .invoice-partial-badge{
+  display:inline-block;
+  margin-left:10px;
+  padding:6px 12px;
+  border:2px solid #ff9800;
+  color:#ff9800;
+  font-weight:800;
+  border-radius:10px;
+  font-size:16px;
+  letter-spacing:1px;
+}
+
+    @media print{
+  .invoice-partial-badge{
+    color:#ff9800 !important;
+    border-color:#ff9800 !important;
+  }
+}
+
     
   </style>
 
@@ -6252,24 +6272,6 @@ function woConvertToInvoice(wo) {
   button {
     display: none;
   }
-
-
-.invoice-partial-badge{
-  padding:6px 14px;
-  border:3px solid #f39c12;
-  color:#f39c12;
-  font-weight:900;
-  font-size:1.1rem;
-  border-radius:8px;
-  letter-spacing:1px;
-}
-
-@media print{
-  .invoice-partial-badge{
-    color:#f39c12 !important;
-    border-color:#f39c12 !important;
-  }
-}
 
   
 </style>
