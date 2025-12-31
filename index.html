@@ -1238,15 +1238,40 @@ function payInvoiceWithMethod(number, method){
     return;
   }
 
+  const total = Number(inv.total || 0);
+  const alreadyPaid = Number(inv.paidAmount || 0);
+  const balance = Math.max(0, total - alreadyPaid);
+
+  // 🔒 Rien à payer
+  if (balance <= 0){
+    inv.status = "paid";
+    inv.paymentMethod = method;
+    saveInvoices();
+    openInvoiceEditModal(number);
+    return;
+  }
+
+  // 🧾 Initialiser l'historique si manquant
+  if (!Array.isArray(inv.payments)){
+    inv.payments = [];
+  }
+
+  // ➕ AJOUT DU PAIEMENT FINAL
+  inv.payments.push({
+    date: new Date().toLocaleString("fr-CA"),
+    amount: balance,
+    method: method
+  });
+
+  // 🔢 Mettre la facture complètement payée
+  inv.paidAmount = total;
   inv.status = "paid";
   inv.paymentMethod = method;
 
   saveInvoices();
 
-  // 🔁 rafraîchir la liste des factures IMMÉDIATEMENT
-renderInvoiceList();
-  
-  // 🔁 Rafraîchir CE modal précis
+  // 🔁 RAFRAÎCHIR UI (SANS REFRESH PAGE)
+  renderInvoiceList();
   openInvoiceEditModal(number);
 }
 
