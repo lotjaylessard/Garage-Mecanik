@@ -1243,6 +1243,9 @@ function payInvoiceWithMethod(number, method){
 
   saveInvoices();
 
+  // 🔁 rafraîchir la liste des factures IMMÉDIATEMENT
+renderInvoiceList();
+  
   // 🔁 Rafraîchir CE modal précis
   openInvoiceEditModal(number);
 }
@@ -3318,7 +3321,19 @@ function renderInvoiceList(){
         <td>${inv.date || ""}</td>
         <td>${inv.customer || ""}</td>
         <td>${money(inv.total)} $</td>
-        <td>${inv.status || ""}</td>
+        <td>
+  ${
+    inv.status === "paid"
+      ? (inv.paymentMethod === "cash"
+          ? "Payée (Comptant)"
+          : inv.paymentMethod === "transfer"
+            ? "Payée (Virement)"
+            : "Payée")
+      : inv.status === "partial"
+        ? "Partielle"
+        : "Impayée"
+  }
+</td>
         <td>
         <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">Ouvrir</button>
         <button class="ghost danger btn-delete-invoice">Supprimer</button>
