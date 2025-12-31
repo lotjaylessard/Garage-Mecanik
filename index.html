@@ -1219,6 +1219,35 @@ function saveInvoices(){
 }
 
 
+function toggleInvoicePaymentMenu(number){
+  const menu = document.getElementById("invoicePayMenu-" + number);
+  if (!menu) return;
+
+  menu.style.display = (menu.style.display === "none" || !menu.style.display)
+    ? "block"
+    : "none";
+}
+
+
+function payInvoiceWithMethod(number, method){
+  loadInvoices();
+
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv){
+    alert("Facture introuvable.");
+    return;
+  }
+
+  inv.status = "paid";
+  inv.paymentMethod = method;
+
+  saveInvoices();
+
+  // 🔁 Rafraîchir CE modal précis
+  openInvoiceEditModal(number);
+}
+
+
   /* ===================== PART ICONS ===================== */
         const PART_ICONS = {
   "Moteur": "🧠",
@@ -5258,7 +5287,12 @@ content.innerHTML = `
       font-weight:900;
       font-size:1.15rem;
       letter-spacing:1px;
-    ">PAYÉ</div>
+    ">${inv.paymentMethod === "cash"
+  ? "PAYÉ (Comptant)"
+  : inv.paymentMethod === "transfer"
+    ? "PAYÉ (Virement)"
+    : "PAYÉ"
+}</div>
   ` : ""}
 
   ${clientObj ? `
@@ -5366,16 +5400,46 @@ content.innerHTML = `
     <div class="muted">
       Statut :
       <b>${
-        inv.status === "paid" ? "Payée" :
-        inv.status === "partial" ? "Partielle" :
-        "Impayée"
-      }</b>
+  inv.status === "paid"
+    ? (inv.paymentMethod === "cash"
+        ? "Payée (Comptant)"
+        : inv.paymentMethod === "transfer"
+          ? "Payée (Virement)"
+          : "Payée")
+    : inv.status === "partial"
+      ? "Partielle"
+      : "Impayée"
+}</b>
     </div>
 
     <div class="no-print">
-  <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePaid('${inv.number}')">✔ Payée</button>
-  <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
+  <button class="ghost" ${isLocked ? "disabled" : ""} onclick="toggleInvoicePaymentMenu('${inv.number}')">✔ Payée</button>
+  <div id="invoicePayMenu-${inv.number}"
+     style="
+       display:none;
+       position:absolute;
+       right:0;
+       top:40px;
+       background:#111;
+       border:1px solid #444;
+       border-radius:6px;
+       z-index:50;
+       overflow:hidden;
+     ">
 
+  <button class="ghost"
+          style="width:100%;text-align:left;"
+          onclick="payInvoiceWithMethod('${inv.number}','cash')">
+    💵 Comptant
+  </button>
+
+  <button class="ghost"
+          style="width:100%;text-align:left;"
+          onclick="payInvoiceWithMethod('${inv.number}','transfer')">
+    🔁 Virement
+  </button>
+</div>
+  <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
   <button class="ghost"
   ${isLocked ? "disabled title='Facture payée — modification verrouillée'" : ""}
   onclick="openInvoiceAsWO('${inv.number}')">✏️ Modifier</button>
