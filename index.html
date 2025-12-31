@@ -5321,9 +5321,9 @@ content.innerHTML = `
 
   ${clientObj ? `
     <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
-      ${clientObj.address || ""}<br>
-      ${clientObj.phone || ""}
-    </div>
+  ${clientObj.address ? `<div><b>Adresse :</b> ${clientObj.address}</div>` : ""}
+  ${clientObj.phone ? `<div><b>Téléphone :</b> ${clientObj.phone}</div>` : ""}
+</div>
   ` : ""}
 
   <div style="margin-top:6px;">
