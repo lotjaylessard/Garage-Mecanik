@@ -364,6 +364,16 @@ button.link:hover{
   }
 }
 
+    .client-name-link{
+  cursor: pointer;
+  font-weight: 600;
+  color: #2b78ff;
+}
+
+.client-name-link:hover{
+  text-decoration: underline;
+}
+
     
   </style>
 
@@ -539,7 +549,6 @@ button.link:hover{
               <th>Email</th>
               <th>Adresse</th>
               <th>Véhicules</th>
-              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -4137,22 +4146,27 @@ function renderClientsTable(){
     if(q && !hay.includes(q)) return;
     const vehicleCount = Array.isArray(c.vehicles)?c.vehicles.length:0;
     const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${c.lastName || ''}${c.firstName ? ', ' + c.firstName : ''}</td>
-      <td>${c.phone||''}</td>
-      <td>${c.email||''}</td>
-      <td>${c.address||''}</td>
-      <td>${vehicleCount}</td>
-      <td><button class="ghost" data-action="open-client" data-id="${c.id}">Fiche</button></td>
-    `;
+    tr.innerHTML = `
+  <td 
+    class="client-name-link"
+    data-action="open-client"
+    data-id="${c.id}"
+  >
+    ${c.lastName || ''}${c.firstName ? ', ' + c.firstName : ''}
+  </td>
+  <td>${c.phone||''}</td>
+  <td>${c.email||''}</td>
+  <td>${c.address||''}</td>
+  <td>${vehicleCount}</td>
+`;
     tbody.appendChild(tr);
   });
-  tbody.querySelectorAll('button[data-action="open-client"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id = btn.dataset.id;
-      openClientModal(id);
-    });
+  tbody.querySelectorAll('[data-action="open-client"]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const id = el.dataset.id;
+    openClientModal(id);
   });
+});
   renderVehiclesPage();
   renderDashboard();
 }
