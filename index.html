@@ -3364,7 +3364,21 @@ function renderInvoiceList(){
     .filter(inv => {
       if (statusFilter && inv.status !== statusFilter) return false;
       if (search){
-        const hay = `${inv.number} ${inv.customer} ${inv.job}`.toLowerCase();
+        const clientObj = CLIENTS.find(c =>
+  c.id === inv.customerId ||
+  c.name === inv.customer
+);
+
+const clientNameSearch = clientObj
+  ? `${clientObj.lastName || ""} ${clientObj.firstName || ""}`
+  : (inv.customer || "");
+
+const hay = `
+  ${inv.number}
+  ${clientNameSearch}
+  ${inv.job || ""}
+`.toLowerCase();
+        
         if (!hay.includes(search)) return false;
       }
       return true;
@@ -3373,10 +3387,21 @@ function renderInvoiceList(){
       const tr = document.createElement("tr");
       tr.dataset.number = inv.number;
 
+      // 🔎 Résoudre le client depuis CLIENTS (source fiable)
+const clientObj = CLIENTS.find(c =>
+  c.id === inv.customerId ||
+  c.name === inv.customer
+);
+
+// Format Nom, Prénom (comme page Clients)
+const clientNameDisplay = clientObj
+  ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
+  : (inv.customer || "");
+
       tr.innerHTML = `
         <td>${inv.number}</td>
         <td>${inv.date || ""}</td>
-        <td>${inv.customer || ""}</td>
+        <td>${clientNameDisplay}</td>
         <td>${money(inv.total)} $</td>
         <td>
   ${
