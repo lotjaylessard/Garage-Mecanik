@@ -3930,16 +3930,19 @@ const vehiclesFlat = [];
 CLIENTS.forEach(c => {
   (c.vehicles || []).forEach(v => {
     vehiclesFlat.push({
-      clientId: c.id,
-      vehicleId: v.id,
-      
-      clientName: c.name || "",
-      year: Number(v.year || 0),
-      make: v.make || "",
-      model: v.model || "",
-      plate: v.plate || "",
-      vin: v.vin || "",
-      km: v.km || ""
+  clientId: c.id,
+  vehicleId: v.id,
+
+  clientLastName: c.lastName || "",
+  clientFirstName: c.firstName || "",
+  clientNameDisplay: `${c.lastName || ""}${c.firstName ? ", " + c.firstName : ""}`.trim(),
+
+  year: Number(v.year || 0),
+  make: v.make || "",
+  model: v.model || "",
+  plate: v.plate || "",
+  vin: v.vin || "",
+  km: v.km || ""
     });
   });
 });
@@ -3951,9 +3954,9 @@ vehiclesFlat.sort((a, b) => {
 
   switch (VEHICLES_SORT.key) {
     case "client":
-      va = a.clientName;
-      vb = b.clientName;
-      break;
+  va = a.clientLastName;
+  vb = b.clientLastName;
+  break;
     case "make":
       va = a.make;
       vb = b.make;
@@ -3981,7 +3984,7 @@ vehiclesFlat.forEach(v => {
   // 🔍 Filtre recherche
   if (q) {
     const hay = `
-      ${v.clientName}
+      ${v.clientNameDisplay}
       ${v.year}
       ${v.make}
       ${v.model}
@@ -3998,7 +4001,7 @@ vehiclesFlat.forEach(v => {
     <td>
       <button class="link"
         onclick="openClientFromVehicles('${v.clientId}')">
-        ${v.clientName}
+        ${v.clientNameDisplay}
       </button>
     </td>
     <td>${v.year || ""}</td>
