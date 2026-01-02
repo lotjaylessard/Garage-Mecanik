@@ -896,6 +896,21 @@ button.link:hover{
     </div>
   </div>
 
+
+  <!-- ===================== VEHICLE MODAL ===================== -->
+<div class="modal" id="vehicleModal" style="display:none;">
+  <div class="modal-content" style="max-width:900px;">
+    <h2>Fiche véhicule</h2>
+
+    <div id="vehicleModalContent"></div>
+
+    <div style="text-align:right;margin-top:15px;">
+      <button class="ghost" onclick="closeVehicleModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+
   <!-- MODAL SERVICES PICKER -->
   <div id="servicePickerModal" class="modal-backdrop">
     <div class="modal-panel" style="width:700px;">
@@ -4164,9 +4179,13 @@ vehiclesFlat.forEach(v => {
     <td>${v.vin}</td>
     <td>${v.km}</td>
     <td>
-      <button class="ghost"
-        onclick="editVehicle('${v.clientId}','${v.vehicleId}')">✏️</button>
-    </td>
+  <button class="ghost"
+    onclick="openVehicleModal('${v.clientId}','${v.vehicleId}')">
+    Fiche
+  </button>
+  <button class="ghost"
+    onclick="editVehicle('${v.clientId}','${v.vehicleId}')">✏️</button>
+</td>
   `;
   tbody.appendChild(tr);
 });
@@ -4450,6 +4469,100 @@ function renderClientModal(id){
       </div>
     </div>
   `;
+
+
+  function openVehicleModal(clientId, vehicleId){
+  const modal = $("vehicleModal");
+  const content = $("vehicleModalContent");
+  if (!modal || !content) return;
+
+  const client = CLIENTS.find(c => String(c.id) === String(clientId));
+  if (!client){
+    alert("Client introuvable.");
+    return;
+  }
+
+  const vehicle = (client.vehicles || [])
+    .find(v => String(v.id) === String(vehicleId));
+
+  if (!vehicle){
+    alert("Véhicule introuvable.");
+    return;
+  }
+
+  modal.style.display = "block";
+
+  renderVehicleModalContent(client, vehicle);
+}
+
+
+  function renderVehicleModalContent(client, vehicle){
+  const content = $("vehicleModalContent");
+  if (!content) return;
+
+  const vehicleLabel = `${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}`.trim();
+
+  // 🔍 Bons de travail liés à ce véhicule
+  const relatedWO = WORKORDERS.filter(wo =>
+    String(wo.clientId) === String(client.id) &&
+    wo.vehicleLabel === vehicleLabel
+  );
+
+  let woHtml = `
+    <tr>
+      <td colspan="4" class="muted">Aucun bon de travail pour ce véhicule.</td>
+    </tr>
+  `;
+
+  if (relatedWO.length){
+    woHtml = relatedWO.map(wo => `
+      <tr>
+        <td>${wo.number}</td>
+        <td>${wo.date || ""}</td>
+        <td>${wo.status || ""}</td>
+        <td>
+          <button class="ghost"
+            onclick="openWorkOrderDetail(${wo.id})">
+            Ouvrir
+          </button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  content.innerHTML = `
+    <div class="card">
+      <h3>${vehicleLabel}</h3>
+      <p><strong>Client :</strong> ${client.lastName}, ${client.firstName}</p>
+      <p><strong>Plaque :</strong> ${vehicle.plate || "-"}</p>
+      <p><strong>VIN :</strong> ${vehicle.vin || "-"}</p>
+      <p><strong>Kilométrage :</strong> ${vehicle.km || "-"}</p>
+    </div>
+
+    <div class="card">
+      <h3>Historique des bons de travail</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${woHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+
+  function closeVehicleModal(){
+  const m = $("vehicleModal");
+  if (m) m.style.display = "none";
+}
 
 
   function renderVehiclesList(){
