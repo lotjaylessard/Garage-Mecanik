@@ -2258,11 +2258,10 @@ if (manualLaborBtn && manualLaborBox){
   manualLaborBtn.onclick = () => {
   manualLaborBox.style.display = "block";
 
-  // 🔑 taux horaire par défaut (paramètres)
-  if (document.getElementById("woManualLaborRate")){
-    document.getElementById("woManualLaborRate").value =
-      SETTINGS.defaultHourlyRate || 0;
-  }
+  // 🧼 RESET COMPLET DU FORMULAIRE (AJOUT)
+  $("woManualLaborDesc").value  = "";
+  $("woManualLaborHours").value = 1;
+  $("woManualLaborRate").value  = SETTINGS.defaultHourlyRate || 0;
 };
 }
 
