@@ -1037,56 +1037,7 @@ const STORAGE = {
       }
     }
   });
-})
-
-  
- function migrateInvoicesMissingWorkOrder(){
-  let fixed = 0;
-  let unresolved = 0;
-
-  INVOICES.forEach(inv => {
-
-    // Déjà valide → on touche pas
-    if (inv.workOrderId && inv.workOrderNumber) return;
-
-    // Tentative 1️⃣ : retrouver le BT par numéro de facture
-    let wo = WORKORDERS.find(w =>
-      String(w.number) === String(inv.workOrderNumber)
-    );
-
-    // Tentative 2️⃣ : retrouver par client + véhicule
-    if (!wo){
-      wo = WORKORDERS.find(w =>
-        w.clientName === inv.customer &&
-        inv.job &&
-        w.vehicleLabel &&
-        inv.job.includes(w.vehicleLabel)
-      );
-    }
-
-    if (wo){
-      inv.workOrderId = wo.id;
-      inv.workOrderNumber = wo.number;
-      fixed++;
-    } else {
-      // ❌ Facture invalide → on la marque clairement
-      inv.invalid = true;
-      unresolved++;
-    }
-  });
-
-  saveInvoices();
-
-  alert(
-    `Migration terminée\n\n` +
-    `✔ Factures corrigées : ${fixed}\n` +
-    `⚠ Factures invalides : ${unresolved}\n\n` +
-    `Les factures invalides sont maintenant bloquées.`
-  );
-
-  console.log("Migration factures terminée", { fixed, unresolved });
-}
-();
+})();
 
 
 const $ = id => document.getElementById(id);
@@ -1136,14 +1087,6 @@ function renderInvoiceTotals(items){
 /* ===================== FACTURES – RENDU UNIQUE ===================== */
 function renderInvoiceSummary(inv){
   if (!inv) return '<div class="muted">Facture introuvable.</div>';
-
-  if (!inv.workOrderNumber) {
-  console.warn(
-    "Facture sans bon de travail détectée :",
-    inv.number,
-    inv
-  );
-}
 
   // ===== CALCUL FACTURE PAYÉE =====
   let totalPaid = 0;
@@ -5383,15 +5326,6 @@ if(!inv){
   return;
 }
 
-  // 🔒 VERROU ABSOLU : une facture DOIT être liée à un bon de travail
-if (!inv.workOrderId || !inv.workOrderNumber){
-  alert(
-    "Erreur critique : cette facture n’est liée à aucun bon de travail.\n\n" +
-    "L’édition est bloquée pour éviter une incohérence."
-  );
-  return;
-}
-
   // ✅ clientObj manquant (corrige: clientObj is not defined)
 const clientObj = CLIENTS.find(c => String(c.name) === String(inv.customer));
 
@@ -6441,9 +6375,6 @@ function woConvertToInvoice(wo) {
     status: "pending",
     locked: true
   };
-
-invoice.workOrderNumber = wo.number;
-invoice.workOrderId     = wo.id;
 
   // === PIÈCES ===
   wo.parts.forEach(p => {
