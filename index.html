@@ -2256,8 +2256,14 @@ const manualLaborBox = document.getElementById("woManualLaborBox");
 
 if (manualLaborBtn && manualLaborBox){
   manualLaborBtn.onclick = () => {
-    manualLaborBox.style.display = "block";
-  };
+  manualLaborBox.style.display = "block";
+
+  // 🔑 taux horaire par défaut (paramètres)
+  if (document.getElementById("woManualLaborRate")){
+    document.getElementById("woManualLaborRate").value =
+      SETTINGS.defaultHourlyRate || 0;
+  }
+};
 }
 
 const manualLaborSave = document.getElementById("woManualLaborSave");
@@ -2286,7 +2292,8 @@ if (manualLaborSave){
     // reset + fermer
     document.getElementById("woManualLaborDesc").value = "";
     document.getElementById("woManualLaborHours").value = 1;
-    document.getElementById("woManualLaborRate").value = 60;
+    document.getElementById("woManualLaborRate").value =
+  SETTINGS.defaultHourlyRate || 0;
     manualLaborBox.style.display = "none";
   };
 }
