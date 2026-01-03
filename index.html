@@ -1293,6 +1293,83 @@ async function supabaseLogin(){
   console.log("✅ Supabase connecté :", SUPABASE_USER.email);
 }
 
+
+  /* ===================== CLOUD LOAD ===================== */
+async function loadCloudData(){
+  if (!SUPABASE_USER) return false;
+
+  const { data, error } = await sb
+    .from("garage_data")
+    .select("data")
+    .eq("user_id", SUPABASE_USER.id)
+    .single();
+
+  if (error && error.code !== "PGRST116"){
+    console.error("Cloud load error:", error);
+    return false;
+  }
+
+  // 🔰 Aucune donnée cloud → première utilisation
+  if (!data){
+    console.log("☁️ Aucun data cloud, création initiale...");
+    await createInitialCloudData();
+    return true;
+  }
+
+  // ✅ Charger le cloud dans le localStorage
+  hydrateLocalFromCloud(data.data);
+  console.log("☁️ Données cloud chargées");
+  return true;
+}
+
+
+  /* ===================== CLOUD INIT ===================== */
+async function createInitialCloudData(){
+  const payload = {
+    clients: loadArrayFromStorage(STORAGE.clients),
+    invoices: loadArrayFromStorage(STORAGE.invoices),
+    workorders: loadArrayFromStorage(STORAGE.workorders),
+    notes: loadArrayFromStorage(STORAGE.notes),
+    parts: loadArrayFromStorage(STORAGE.parts),
+    services: loadArrayFromStorage(STORAGE.services),
+    settings: JSON.parse(localStorage.getItem(STORAGE.settings) || "{}")
+  };
+
+  const { error } = await sb.from("garage_data").insert({
+    user_id: SUPABASE_USER.id,
+    data: payload
+  });
+
+  if (error){
+    console.error("Cloud init error:", error);
+    alert("Erreur initialisation cloud");
+  } else {
+    console.log("☁️ Cloud initialisé");
+  }
+}
+
+
+  /* ===================== CLOUD → LOCAL ===================== */
+function hydrateLocalFromCloud(data){
+  if (!data) return;
+
+  localStorage.setItem(STORAGE.clients, JSON.stringify(data.clients || []));
+  localStorage.setItem(STORAGE.invoices, JSON.stringify(data.invoices || []));
+  localStorage.setItem(STORAGE.workorders, JSON.stringify(data.workorders || []));
+  localStorage.setItem(STORAGE.notes, JSON.stringify(data.notes || []));
+  localStorage.setItem(STORAGE.parts, JSON.stringify(data.parts || []));
+  localStorage.setItem(STORAGE.services, JSON.stringify(data.services || []));
+  localStorage.setItem(STORAGE.settings, JSON.stringify(data.settings || {}));
+
+  // 🔁 Recharger les variables mémoire
+  loadInvoices();
+  loadWorkOrders();
+  CLIENTS = loadArrayFromStorage(STORAGE.clients);
+  PARTS   = loadArrayFromStorage(STORAGE.parts);
+  SERVICES= loadArrayFromStorage(STORAGE.services);
+}
+
+
   
 /* ===================== GLOBAL DATA ===================== */
 let SETTINGS = {
@@ -6944,6 +7021,7 @@ function formatVehicleLabel(v){
   /* ===================== APP INIT (SUPABASE) ===================== */
 (async function initApp(){
   await supabaseLogin();
+  await loadCloudData();
 })();
 
   
