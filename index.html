@@ -1079,7 +1079,7 @@ function money(n){return Number(n||0).toFixed(2);}
 const SUPABASE_URL = "https://XXXX.supabase.co";
 const SUPABASE_KEY = "PUBLIC_ANON_KEY_ICI";
 
-const supabase = window.supabase.createClient(
+const sb = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
@@ -1278,7 +1278,7 @@ async function supabaseLogin(){
   const email = "TON_EMAIL_ICI";
   const password = "TON_MOT_DE_PASSE_ICI";
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await sb.auth.signInWithPassword({
     email,
     password
   });
