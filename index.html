@@ -1114,6 +1114,24 @@ function calcTotalsFromItems(items){
 }
 
 
+  function calcInvoiceTotals(inv){
+  const subTotal = (inv.items || []).reduce(
+    (sum, it) => sum + (Number(it.qty || 0) * Number(it.rate || 0)),
+    0
+  );
+
+  const applyGST = inv.applyGST !== false;
+  const applyQST = inv.applyQST !== false;
+
+  const gst = applyGST ? subTotal * (SETTINGS.gst / 100) : 0;
+  const qst = applyQST ? (subTotal + gst) * (SETTINGS.qst / 100) : 0;
+
+  const total = subTotal + gst + qst;
+
+  return { subTotal, gst, qst, total };
+}
+
+
   /* ===================== RENDU TOTAUX FACTURE (SAFE) ===================== */
 function renderInvoiceTotals(items){
   const totals = calcTotalsFromItems(items || []);
@@ -1181,6 +1199,26 @@ const isPaid =
         `).join('')}
       </tbody>
     </table>
+
+
+<div class="card" style="margin-top:10px;">
+  <h4>Taxes applicables</h4>
+
+  <label style="display:flex;align-items:center;gap:8px;">
+    <input type="checkbox"
+           id="invApplyGST"
+           ${inv.applyGST !== false ? 'checked' : ''}>
+    Appliquer TPS (${SETTINGS.gst}%)
+  </label>
+
+  <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+    <input type="checkbox"
+           id="invApplyQST"
+           ${inv.applyQST !== false ? 'checked' : ''}>
+    Appliquer TVQ (${SETTINGS.qst}%)
+  </label>
+</div>
+
 
     <div style="text-align:right;margin-top:12px;">
       <div>Sous-total : ${money(inv.subTotal)} $</div>
@@ -1657,6 +1695,43 @@ function addServiceToCurrentWO(serviceId){
     `;
 
     $("invoiceEditModal").style.display = "flex";
+
+
+    // ===================== TAXES PAR FACTURE =====================
+setTimeout(() => {
+  const gstBox = document.getElementById("invApplyGST");
+  const qstBox = document.getElementById("invApplyQST");
+
+  if (gstBox){
+    gstBox.onchange = () => {
+      inv.applyGST = gstBox.checked;
+
+      const totals = calcInvoiceTotals(inv);
+      inv.subTotal = totals.subTotal;
+      inv.gst      = totals.gst;
+      inv.qst      = totals.qst;
+      inv.total    = totals.total;
+
+      saveInvoices();
+      openInvoiceView(inv.number); // 🔁 refresh UI
+    };
+  }
+
+  if (qstBox){
+    qstBox.onchange = () => {
+      inv.applyQST = qstBox.checked;
+
+      const totals = calcInvoiceTotals(inv);
+      inv.subTotal = totals.subTotal;
+      inv.gst      = totals.gst;
+      inv.qst      = totals.qst;
+      inv.total    = totals.total;
+
+      saveInvoices();
+      openInvoiceView(inv.number); // 🔁 refresh UI
+    };
+  }
+}, 0);
   }
 }
 
@@ -1867,7 +1942,7 @@ function saveTempWOToInvoice(tempWO){
   inv.items = items;
 
   // Totaux (centralisés)
-const totals = calcTotalsFromItems(items);
+const totals = calcInvoiceTotals(inv);
 inv.subTotal = totals.subTotal;
 inv.gst      = totals.gst;
 inv.qst      = totals.qst;
@@ -4118,6 +4193,8 @@ if (window.currentEditingInvoice){
       subTotal:sub,
       gst,
       qst,
+      applyGST: true,
+      applyQST: true,
       total,
       status: $("invoiceStatus").value
     };
