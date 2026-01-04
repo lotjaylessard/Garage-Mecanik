@@ -1745,31 +1745,43 @@ recalcInvoice(inv);
     // ===================== TAXES PAR FACTURE =====================
 setTimeout(() => {
   const gstBox = document.getElementById("invApplyGST");
-const qstBox = document.getElementById("invApplyQST");
+  const qstBox = document.getElementById("invApplyQST");
 
-if (gstBox){
-gstBox.onchange = () => {
-  inv.applyGST = gstBox.checked;
-  recalcInvoice(inv);
-  saveInvoices();
+  // petite fonction pour rafraîchir les montants sans réouvrir le modal
+  const refreshTotalsUI = () => {
+    const elSub = document.getElementById("invSubTotal");
+    const elGST = document.getElementById("invGST");
+    const elQST = document.getElementById("invQST");
+    const elTot = document.getElementById("invTotal");
+    if (elSub) elSub.textContent = money(inv.subTotal) + " $";
+    if (elGST) elGST.textContent = money(inv.gst) + " $";
+    if (elQST) elQST.textContent = money(inv.qst) + " $";
+    if (elTot) elTot.textContent = money(inv.total) + " $";
+  };
 
-  // 🔄 Mise à jour UI directe
-  document.getElementById("invSubTotal").textContent = money(inv.subTotal) + " $";
-  document.getElementById("invGST").textContent      = money(inv.gst) + " $";
-  document.getElementById("invQST").textContent      = money(inv.qst) + " $";
-  document.getElementById("invTotal").textContent    = money(inv.total) + " $";
-};
+  const applyChange = () => {
+    recalcInvoice(inv);
+    saveInvoices(); // ✅ persiste inv.applyGST / inv.applyQST
+    refreshTotalsUI();
+  };
 
-qstBox.onchange = () => {
-  inv.applyQST = qstBox.checked;
-  recalcInvoice(inv);
-  saveInvoices();
+  if (gstBox){
+    // état initial
+    gstBox.checked = (inv.applyGST !== false);
+    gstBox.onchange = () => {
+      inv.applyGST = gstBox.checked;
+      applyChange();
+    };
+  }
 
-  document.getElementById("invSubTotal").textContent = money(inv.subTotal) + " $";
-  document.getElementById("invGST").textContent      = money(inv.gst) + " $";
-  document.getElementById("invQST").textContent      = money(inv.qst) + " $";
-  document.getElementById("invTotal").textContent    = money(inv.total) + " $";
-};
+  if (qstBox){
+    // état initial
+    qstBox.checked = (inv.applyQST !== false);
+    qstBox.onchange = () => {
+      inv.applyQST = qstBox.checked;
+      applyChange();
+    };
+  }
 }, 0);
   }
 }
