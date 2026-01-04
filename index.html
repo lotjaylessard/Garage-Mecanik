@@ -1750,7 +1750,7 @@ if (gstBox){
 
     recalcInvoice(inv);     // 🔥 MANQUAIT
     saveInvoices();         // 🔥
-    openInvoiceEditModal(inv.number); // refresh UI
+    openInvoiceView(inv.number);
   };
 }
 
@@ -1760,25 +1760,9 @@ if (qstBox){
 
     recalcInvoice(inv);     // 🔥 MANQUAIT
     saveInvoices();         // 🔥
-    openInvoiceEditModal(inv.number); // refresh UI
+    openInvoiceView(inv.number);
   };
 }
-
-
-  if (qstBox){
-    qstBox.onchange = () => {
-      inv.applyQST = qstBox.checked;
-
-      const totals = calcInvoiceTotals(inv);
-      inv.subTotal = totals.subTotal;
-      inv.gst      = totals.gst;
-      inv.qst      = totals.qst;
-      inv.total    = totals.total;
-
-      saveInvoices();
-      openInvoiceView(inv.number); // 🔁 refresh UI
-    };
-  }
 }, 0);
   }
 }
@@ -2357,7 +2341,7 @@ setTimeout(() => {
       inv.total    = totals.total;
 
       saveInvoices();
-      openInvoiceEditModal(inv.number); // refresh modal
+      openInvoiceView(inv.number);
     };
   }
 
@@ -2372,7 +2356,7 @@ setTimeout(() => {
       inv.total    = totals.total;
 
       saveInvoices();
-      openInvoiceEditModal(inv.number); // refresh modal
+      openInvoiceView(inv.number);
     };
   }
 }
@@ -3903,6 +3887,14 @@ const clientNameDisplay = clientObj
   loadInvoices();
 
   const inv = INVOICES.find(i => String(i.number) === String(number));
+
+    // 🔒 Normalisation des flags de taxes (OBLIGATOIRE)
+if (inv.applyGST === undefined) inv.applyGST = true;
+if (inv.applyQST === undefined) inv.applyQST = true;
+
+// 🔁 Toujours recalculer avant affichage
+recalcInvoice(inv);
+
   if (!inv){
     alert("Facture introuvable.");
     return;
