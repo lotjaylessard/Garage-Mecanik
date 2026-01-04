@@ -1716,6 +1716,9 @@ function addServiceToCurrentWO(serviceId){
     return;
   }
 
+        // 🔒 TOUJOURS recalculer avant affichage
+recalcInvoice(inv);
+
   // Aller sur la page Factures
   showPage("page-invoice-list");
 
@@ -1745,24 +1748,28 @@ setTimeout(() => {
 const qstBox = document.getElementById("invApplyQST");
 
 if (gstBox){
-  gstBox.onchange = () => {
-    inv.applyGST = gstBox.checked;
+gstBox.onchange = () => {
+  inv.applyGST = gstBox.checked;
+  recalcInvoice(inv);
+  saveInvoices();
 
-    recalcInvoice(inv);     // 🔥 MANQUAIT
-    saveInvoices();         // 🔥
-    openInvoiceView(inv.number);
-  };
-}
+  // 🔄 Mise à jour UI directe
+  document.getElementById("invSubTotal").textContent = money(inv.subTotal) + " $";
+  document.getElementById("invGST").textContent      = money(inv.gst) + " $";
+  document.getElementById("invQST").textContent      = money(inv.qst) + " $";
+  document.getElementById("invTotal").textContent    = money(inv.total) + " $";
+};
 
-if (qstBox){
-  qstBox.onchange = () => {
-    inv.applyQST = qstBox.checked;
+qstBox.onchange = () => {
+  inv.applyQST = qstBox.checked;
+  recalcInvoice(inv);
+  saveInvoices();
 
-    recalcInvoice(inv);     // 🔥 MANQUAIT
-    saveInvoices();         // 🔥
-    openInvoiceView(inv.number);
-  };
-}
+  document.getElementById("invSubTotal").textContent = money(inv.subTotal) + " $";
+  document.getElementById("invGST").textContent      = money(inv.gst) + " $";
+  document.getElementById("invQST").textContent      = money(inv.qst) + " $";
+  document.getElementById("invTotal").textContent    = money(inv.total) + " $";
+};
 }, 0);
   }
 }
