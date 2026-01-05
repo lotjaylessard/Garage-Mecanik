@@ -1173,6 +1173,22 @@ function recalcInvoice(inv){
 }
 
 
+  /* ===================== RENDU LIVE DES TOTAUX FACTURE ===================== */
+function renderInvoiceTotals(inv, container){
+  if (!container) return;
+
+  const elSub = container.querySelector("#invSubTotal");
+  const elGST = container.querySelector("#invGST");
+  const elQST = container.querySelector("#invQST");
+  const elTot = container.querySelector("#invTotal");
+
+  if (elSub) elSub.textContent = money(inv.subTotal) + " $";
+  if (elGST) elGST.textContent = money(inv.gst) + " $";
+  if (elQST) elQST.textContent = money(inv.qst) + " $";
+  if (elTot) elTot.textContent = money(inv.total) + " $";
+}
+
+
   /* ===================== NORMALISATION TAXES FACTURE ===================== */
 function normalizeInvoiceTaxes(inv){
   if (inv.applyGST === undefined) inv.applyGST = true;
@@ -1775,25 +1791,14 @@ setTimeout(() => {
   recalcInvoice(inv);
   saveInvoices();
 
-  // 🔄 Mise à jour MODAL (live)
-  const elSub = container.querySelector?.("#invSubTotal") || document.getElementById("invSubTotal");
-  const elGST = container.querySelector?.("#invGST") || document.getElementById("invGST");
-  const elQST = container.querySelector?.("#invQST") || document.getElementById("invQST");
-  const elTot = container.querySelector?.("#invTotal") || document.getElementById("invTotal");
+  // 🔥 UPDATE LIVE (LA CLÉ)
+  const container = document.getElementById("invoiceEditContent");
+  renderInvoiceTotals(inv, container);
 
-  if (elSub) elSub.textContent = money(inv.subTotal) + " $";
-  if (elGST) elGST.textContent = money(inv.gst) + " $";
-  if (elQST) elQST.textContent = money(inv.qst) + " $";
-  if (elTot) elTot.textContent = money(inv.total) + " $";
-
-  // 🔄 Mise à jour LISTE (et autres vues) immédiatement
+  // 🔄 Liste des factures
   if (typeof renderInvoiceList === "function") renderInvoiceList();
-  if (typeof renderHistoryTable === "function") renderHistoryTable();
-  if (typeof renderDashboard === "function") renderDashboard();
-
-  // Fallback (si jamais tu changes le rendu de la liste plus tard)
-  if (typeof updateInvoiceRow === "function") updateInvoiceRow(inv);
 };
+
 
   if (gstBox){
   gstBox.onchange = () => {
@@ -6325,6 +6330,7 @@ setTimeout(() => {
   }
 }, 0);
 
+  renderInvoiceTotals(inv, content);
 
   // === AFFICHER LA MODAL ===
   modal.style.display = "flex";
