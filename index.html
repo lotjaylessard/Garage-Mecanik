@@ -1197,7 +1197,7 @@ function normalizeInvoiceTaxes(inv){
 
 
   /* ===================== RENDU TOTAUX FACTURE (SAFE) ===================== */
-function renderInvoiceTotals(items){
+function renderInvoiceTotalsHTML(items){
   const totals = calcTotalsFromItems(items || []);
   return `
     <div style="text-align:right;margin-top:12px;">
@@ -1794,6 +1794,9 @@ setTimeout(() => {
   // 🔥 UPDATE LIVE (LA CLÉ)
   const container = document.getElementById("invoiceEditContent");
   renderInvoiceTotals(inv, container);
+  if (typeof renderInvoiceList === "function") renderInvoiceList();
+  if (typeof renderHistoryTable === "function") renderHistoryTable();
+  if (typeof renderDashboard === "function") renderDashboard();
 
   // 🔄 Liste des factures
   if (typeof renderInvoiceList === "function") renderInvoiceList();
@@ -6298,6 +6301,20 @@ setTimeout(() => {
   const gstBox = $("invApplyGST");
   const qstBox = $("invApplyQST");
 
+  const applyChange = () => {
+    normalizeInvoiceTaxes(inv);
+    recalcInvoice(inv);
+    saveInvoices();
+
+    // Met à jour les montants dans le modal (live)
+    renderInvoiceTotals(inv, content);
+
+    // Met à jour la liste et les autres vues (live)
+    if (typeof renderInvoiceList === "function") renderInvoiceList();
+    if (typeof renderHistoryTable === "function") renderHistoryTable();
+    if (typeof renderDashboard === "function") renderDashboard();
+  };
+
   const subEl = $("invSubTotal");
   const gstEl = $("invGST");
   const qstEl = $("invQST");
@@ -6318,14 +6335,14 @@ setTimeout(() => {
   if (gstBox){
     gstBox.onchange = () => {
       inv.applyGST = !!gstBox.checked;
-      refreshTotalsUI();
+      applyChange();
     };
   }
 
   if (qstBox){
     qstBox.onchange = () => {
       inv.applyQST = !!qstBox.checked;
-      refreshTotalsUI();
+      applyChange();
     };
   }
 }, 0);
