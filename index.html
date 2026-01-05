@@ -6072,6 +6072,12 @@ if (clientObj && Array.isArray(clientObj.vehicles)){
 
 const isLocked = inv.status === "paid";
 
+  console.log(
+  "OPEN INVOICE TAX STATE →",
+  inv.applyGST, typeof inv.applyGST,
+  inv.applyQST, typeof inv.applyQST
+);
+
   // ✅ IMPORTANT: convertir applyGST/applyQST en vrais booléens AVANT le rendu
 normalizeInvoiceTaxes(inv);
 recalcInvoice(inv);
