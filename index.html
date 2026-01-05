@@ -1269,7 +1269,7 @@ const isPaid =
 
 
     <div style="text-align:right;margin-top:12px;">
-      <div>Sous-total : <span id="invSubTotal">${money(inv.subTotal)} $</span></div>
+<div>Sous-total : <span id="invSubTotal">${money(inv.subTotal)} $</span></div>
 <div>TPS : <span id="invGST">${money(inv.gst)} $</span></div>
 <div>TVQ : <span id="invQST">${money(inv.qst)} $</span></div>
 <h3>Total : <span id="invTotal">${money(inv.total)} $</span></h3>
@@ -1770,26 +1770,31 @@ setTimeout(() => {
   normalizeInvoiceTaxes(inv);
   recalcInvoice(inv);
   saveInvoices();
-  refreshTotalsUI();
+
+  const elSub = document.getElementById("invSubTotal");
+  const elGST = document.getElementById("invGST");
+  const elQST = document.getElementById("invQST");
+  const elTot = document.getElementById("invTotal");
+
+  if (elSub) elSub.textContent = money(inv.subTotal) + " $";
+  if (elGST) elGST.textContent = money(inv.gst) + " $";
+  if (elQST) elQST.textContent = money(inv.qst) + " $";
+  if (elTot) elTot.textContent = money(inv.total) + " $";
 };
 
   if (gstBox){
-    // état initial
-    gstBox.checked = (inv.applyGST !== false);
-    gstBox.onchange = () => {
-      inv.applyGST = gstBox.checked;
-      applyChange();
-    };
-  }
+  gstBox.onchange = () => {
+    inv.applyGST = gstBox.checked;
+    applyChange();
+  };
+}
 
-  if (qstBox){
-    // état initial
-    qstBox.checked = (inv.applyQST !== false);
-    qstBox.onchange = () => {
-      inv.applyQST = qstBox.checked;
-      applyChange();
-    };
-  }
+if (qstBox){
+  qstBox.onchange = () => {
+    inv.applyQST = qstBox.checked;
+    applyChange();
+  };
+}
 }, 0);
   }
 }
