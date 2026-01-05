@@ -1575,6 +1575,12 @@ let VEHICLES_SORT = {key: "client", dir: 1 // 1 = asc, -1 = desc
 
 function loadInvoices(){
   INVOICES = loadArrayFromStorage(STORAGE.invoices);
+
+  // 🔒 Normalisation ABSOLUE des taxes (évite tout reset)
+  INVOICES.forEach(inv => {
+    if (typeof inv.applyGST !== "boolean") inv.applyGST = true;
+    if (typeof inv.applyQST !== "boolean") inv.applyQST = true;
+  });
 }
 
 
