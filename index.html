@@ -1173,29 +1173,6 @@ function recalcInvoice(inv){
 }
 
 
-  /* ===================== NORMALISATION TAXES FACTURE ===================== */
-function normalizeInvoiceTaxes(inv){
-  if (typeof inv.applyGST !== "boolean") inv.applyGST = true;
-  if (typeof inv.applyQST !== "boolean") inv.applyQST = true;
-}
-
-
-  /* ===================== RENDU LIVE DES TOTAUX ===================== */
-function renderInvoiceTotalsLive(inv, container){
-  if (!container) return;
-
-  const elSub = container.querySelector("#invSubTotal");
-  const elGST = container.querySelector("#invGST");
-  const elQST = container.querySelector("#invQST");
-  const elTot = container.querySelector("#invTotal");
-
-  if (elSub) elSub.textContent = money(inv.subTotal) + " $";
-  if (elGST) elGST.textContent = money(inv.gst) + " $";
-  if (elQST) elQST.textContent = money(inv.qst) + " $";
-  if (elTot) elTot.textContent = money(inv.total) + " $";
-}
-
-
   /* ===================== RENDU LIVE DES TOTAUX FACTURE ===================== */
 function renderInvoiceTotals(inv, container){
   if (!container) return;
@@ -6017,19 +5994,52 @@ function openInvoiceEditModal(invoiceNumber){
   }
 
   const inv = INVOICES.find(x =>
-    String(x.number) === String(invoiceNumber) ||
-    String(x.workOrderNumber) === String(invoiceNumber)
+  String(x.number) === String(invoiceNumber) ||
+  String(x.workOrderNumber) === String(invoiceNumber)
+);
+
+if(!inv){
+  alert("Facture introuvable.");
+  return;
+}
+
+  // ✅ clientObj manquant (corrige: clientObj is not defined)
+const clientObj = CLIENTS.find(c => String(c.name) === String(inv.customer));
+
+// ✅ véhicule du client (si présent)
+let vehicleObj = null;
+if (clientObj && Array.isArray(clientObj.vehicles)){
+  vehicleObj = clientObj.vehicles.find(v =>
+    `${v.year} ${v.make} ${v.model}` === inv.vehicle
   );
-  if(!inv){
-    alert("Facture introuvable.");
-    return;
-  }
+}
 
-  normalizeInvoiceTaxes(inv);
-  recalcInvoice(inv);
+  if (!inv.number && inv.workOrderNumber){
+  inv.number = btToInvoiceNumber(inv.workOrderNumber);
+  saveInvoices(); // recommandé
+}
 
-  // === RENDU FACTURE ===
+
+  // Lecture seule
+  inv.locked = true;
+
+  // Calcul Balance paiement partiel
+  const balance = Math.max(0, (inv.total || 0) - (inv.paidAmount || 0));
+
+  let paymentsHtml = "";
+(inv.payments || []).forEach((p,i)=>{
+  paymentsHtml += `
+    <tr>
+      <td>${i+1}</td>
+      <td>${p.date}</td>
+      <td style="text-align:right;">${money(p.amount)} $</td>
+    </tr>
+  `;
+});
+
+  // === RENDU FACTURE (résumé propre) ===
   let rows = "";
+
   (inv.items || []).forEach(it=>{
     rows += `
       <tr>
@@ -6042,80 +6052,287 @@ function openInvoiceEditModal(invoiceNumber){
     `;
   });
 
-  content.innerHTML = `
-    <h2>Facture #${inv.number}</h2>
+const isLocked = inv.status === "paid";
+
+  
+content.innerHTML = `
+  <!-- EN-TÊTE -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <div>
+      <h2 style="margin:0;">Facture #${inv.number}</h2>
+      <div class="muted">Date : ${inv.date || ""}</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-weight:bold;">${SETTINGS.garageName || ""}</div>
+      <div class="muted">Bon de travail : ${inv.referenceWO || "-"}</div>
+    </div>
+  </div>
+
+
+<!-- CLIENT / VÉHICULE -->
+<div style="
+  border:1px solid #444;
+  border-radius:8px;
+  padding:12px;
+  margin-bottom:15px;
+  background:#2b2b2b;
+  color:#f1f1f1;
+">
+  <div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:4px;
+">
+  <div>
+    <span style="color:#aaa;">Client :</span>
+    <b style="color:#fff;">${inv.customer || ""}</b>
+  </div>
+
+  ${inv.status === "paid" ? `
+    <div class="invoice-paid-badge" style="
+      padding:6px 14px;
+      border-radius:10px;
+      background:#1b5e20;
+      color:#fff;
+      font-weight:900;
+      font-size:1.15rem;
+      letter-spacing:1px;
+      white-space:nowrap;
+    ">
+      ${
+        inv.paymentMethod === "cash"
+          ? "PAYÉ (Comptant)"
+          : inv.paymentMethod === "transfer"
+            ? "PAYÉ (Virement)"
+            : "PAYÉ"
+      }
+    </div>
+  ` : ""}
+</div>
+
+  ${clientObj ? `
+    <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
+  ${clientObj.address ? `<div><b>Adresse :</b> ${clientObj.address}</div>` : ""}
+  ${clientObj.phone ? `<div><b>Téléphone :</b> ${clientObj.phone}</div>` : ""}
+</div>
+  ` : ""}
+
+  <div style="margin-top:6px;">
+    <span style="color:#aaa;">Véhicule :</span>
+    <b style="color:#fff;">${inv.vehicle || ""}</b>
+  </div>
+
+  ${vehicleObj ? `
+    <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
+      ${vehicleObj.vin ? "VIN : " + vehicleObj.vin + "<br>" : ""}
+      ${vehicleObj.plate ? "Plaque : " + vehicleObj.plate : ""}
+    </div>
+  ` : ""}
+</div>
+
+
+  <!-- DÉTAILS -->
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th style="text-align:right;">Qté</th>
+        <th style="text-align:right;">Prix</th>
+        <th style="text-align:right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+
+  <!-- TOTAUX -->
+  <div style="
+    display:flex;
+    justify-content:flex-end;
+    margin-top:15px;
+  ">
+    <div style="min-width:280px;">
+      <div style="display:flex; justify-content:space-between;">
+        <span>Sous-total</span>
+        <b>${money(inv.subTotal)} $</b>
+      </div>
+
+      <!-- ✅ TAXES PAR FACTURE (TPS/TVQ) -->
+      <div style="margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:8px;">
+        <div style="font-weight:600;margin-bottom:6px;">Taxes</div>
+
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="invApplyGST" ${inv.applyGST !== false ? 'checked' : ''}>
+          Appliquer TPS (${SETTINGS.gst}%)
+        </label>
+
+        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+          <input type="checkbox" id="invApplyQST" ${inv.applyQST !== false ? 'checked' : ''}>
+          Appliquer TVQ (${SETTINGS.qst}%)
+        </label>
+      </div>
+
+      <div style="display:flex; justify-content:space-between;">
+        <span>TPS</span>
+        <b>${money(inv.gst)} $</b>
+      </div>
+      <div style="display:flex; justify-content:space-between;">
+        <span>TVQ</span>
+        <b>${money(inv.qst)} $</b>
+      </div>
+      <hr>
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        font-size:1.3em;
+      ">
+        <span>TOTAL</span>
+        <b>${money(inv.total)} $</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAIEMENTS -->
+  ${(inv.payments && inv.payments.length) ? `
+    <h3 style="margin-top:25px;">Historique des paiements</h3>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Type</th>
-          <th>Description</th>
-          <th style="text-align:right;">Qté</th>
-          <th style="text-align:right;">Prix</th>
-          <th style="text-align:right;">Total</th>
+          <th>#</th>
+          <th>Date</th>
+          <th style="text-align:right;">Montant</th>
         </tr>
       </thead>
-      <tbody>${rows}</tbody>
+      <tbody>
+        ${paymentsHtml}
+      </tbody>
     </table>
 
-    <div style="max-width:320px;margin-left:auto;margin-top:12px;">
+    <div style="
+      margin-top:10px;
+      text-align:right;
+      font-size:1.1em;
+    ">
+      <div>Total payé : <b>${money(inv.paidAmount)} $</b></div>
+      <div>Solde restant : <b>${money(balance)} $</b></div>
+    </div>
+  ` : ""}
 
-      <label>
-        <input type="checkbox" id="invApplyGST">
-        Appliquer TPS (${SETTINGS.gst}%)
-      </label><br>
+<!-- ACTIONS -->
+<div style="
+  margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+">
+  <div class="muted">
+    Statut :
+    <b>${
+      inv.status === "paid"
+        ? (inv.paymentMethod === "cash"
+            ? "Payée (Comptant)"
+            : inv.paymentMethod === "transfer"
+              ? "Payée (Virement)"
+              : "Payée")
+        : inv.status === "partial"
+          ? "Partielle"
+          : "Impayée"
+    }</b>
+  </div>
 
-      <label>
-        <input type="checkbox" id="invApplyQST">
-        Appliquer TVQ (${SETTINGS.qst}%)
-      </label>
+  <div class="no-print">
 
-      <hr>
+    <!-- ✔ Payée + menu -->
+    <div style="position:relative; display:inline-block;">
+      <button class="ghost" ${isLocked ? "disabled" : ""} onclick="toggleInvoicePaymentMenu('${inv.number}')">
+        ✔ Payée
+      </button>
 
-      <div>Sous-total : <b id="invSubTotal"></b></div>
-      <div>TPS : <b id="invGST"></b></div>
-      <div>TVQ : <b id="invQST"></b></div>
-      <div style="font-size:1.2em;">
-        TOTAL : <b id="invTotal"></b>
+      <div id="invoicePayMenu-${inv.number}"
+           style="
+             display:none;
+             position:absolute;
+             right:0;
+             bottom:100%;
+             margin-bottom:6px;
+             background:#111;
+             border:1px solid #444;
+             border-radius:6px;
+             z-index:50;
+             overflow:hidden;
+             min-width:160px;
+           ">
+        <button class="ghost"
+                style="width:100%;text-align:left;"
+                onclick="payInvoiceWithMethod('${inv.number}','cash')">
+          💵 Comptant
+        </button>
+
+        <button class="ghost"
+                style="width:100%;text-align:left;"
+                onclick="payInvoiceWithMethod('${inv.number}','transfer')">
+          🔁 Virement
+        </button>
       </div>
     </div>
 
-    <div style="margin-top:20px;text-align:right;">
-      <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
-    </div>
-  `;
+    <!-- autres boutons -->
+    <button class="ghost" ${isLocked ? "disabled" : ""} onclick="markInvoicePartial('${inv.number}')">➗ Partielle</button>
+    <button class="ghost"
+      ${isLocked ? "disabled title='Facture payée — modification verrouillée'" : ""}
+      onclick="openInvoiceAsWO('${inv.number}')">✏️ Modifier</button>
+    <button class="ghost" onclick="printInvoice()">🖨 Imprimer</button>
+    <button class="ghost" onclick="closeInvoiceModal()">Fermer</button>
 
-  // === RENDU INITIAL DES MONTANTS ===
-  renderInvoiceTotalsLive(inv, content);
+  </div>
+</div>
+`;
 
-  // === CHECKBOXES ===
+  
+  // ===================== TAXES PAR FACTURE (UI LIVE) =====================
+setTimeout(() => {
   const gstBox = $("invApplyGST");
   const qstBox = $("invApplyQST");
 
+  const subEl = $("invSubTotal");
+  const gstEl = $("invGST");
+  const qstEl = $("invQST");
+  const totEl = $("invTotal");
+
+  if (!gstBox && !qstBox) return;
+
+  const refreshTotalsUI = () => {
+    recalcInvoice(inv);
+    saveInvoices();
+
+    if (subEl) subEl.textContent = money(inv.subTotal) + " $";
+    if (gstEl) gstEl.textContent = money(inv.gst) + " $";
+    if (qstEl) qstEl.textContent = money(inv.qst) + " $";
+    if (totEl) totEl.textContent = money(inv.total) + " $";
+  };
+
   if (gstBox){
-    gstBox.checked = inv.applyGST;
     gstBox.onchange = () => {
-      inv.applyGST = gstBox.checked;
-      normalizeInvoiceTaxes(inv);
-      recalcInvoice(inv);
-      saveInvoices();
-      renderInvoiceTotalsLive(inv, content);
-      renderInvoiceList();
+      inv.applyGST = !!gstBox.checked;
+      refreshTotalsUI();
     };
   }
 
   if (qstBox){
-    qstBox.checked = inv.applyQST;
     qstBox.onchange = () => {
-      inv.applyQST = qstBox.checked;
-      normalizeInvoiceTaxes(inv);
-      recalcInvoice(inv);
-      saveInvoices();
-      renderInvoiceTotalsLive(inv, content);
-      renderInvoiceList();
+      inv.applyQST = !!qstBox.checked;
+      refreshTotalsUI();
     };
   }
+}, 0);
 
+  renderInvoiceTotals(inv, content);
+
+  // === AFFICHER LA MODAL ===
   modal.style.display = "flex";
 }
 
