@@ -1751,15 +1751,16 @@ recalcInvoice(inv);
 
     // ===================== TAXES PAR FACTURE =====================
 setTimeout(() => {
-  const gstBox = document.getElementById("invApplyGST");
-  const qstBox = document.getElementById("invApplyQST");
+  const container = document.getElementById("invoiceEditContent") || document;
+  const gstBox = container.querySelector?.("#invApplyGST") || document.getElementById("invApplyGST");
+  const qstBox = container.querySelector?.("#invApplyQST") || document.getElementById("invApplyQST");
 
   // petite fonction pour rafraîchir les montants sans réouvrir le modal
   const refreshTotalsUI = () => {
-    const elSub = document.getElementById("invSubTotal");
-    const elGST = document.getElementById("invGST");
-    const elQST = document.getElementById("invQST");
-    const elTot = document.getElementById("invTotal");
+    const elSub = container.querySelector?.("#invSubTotal") || document.getElementById("invSubTotal");
+    const elGST = container.querySelector?.("#invGST") || document.getElementById("invGST");
+    const elQST = container.querySelector?.("#invQST") || document.getElementById("invQST");
+    const elTot = container.querySelector?.("#invTotal") || document.getElementById("invTotal");
     if (elSub) elSub.textContent = money(inv.subTotal) + " $";
     if (elGST) elGST.textContent = money(inv.gst) + " $";
     if (elQST) elQST.textContent = money(inv.qst) + " $";
@@ -1772,10 +1773,10 @@ setTimeout(() => {
   saveInvoices();
 
   // 🔄 Mise à jour MODAL (live)
-  const elSub = document.getElementById("invSubTotal");
-  const elGST = document.getElementById("invGST");
-  const elQST = document.getElementById("invQST");
-  const elTot = document.getElementById("invTotal");
+  const elSub = container.querySelector?.("#invSubTotal") || document.getElementById("invSubTotal");
+  const elGST = container.querySelector?.("#invGST") || document.getElementById("invGST");
+  const elQST = container.querySelector?.("#invQST") || document.getElementById("invQST");
+  const elTot = container.querySelector?.("#invTotal") || document.getElementById("invTotal");
 
   if (elSub) elSub.textContent = money(inv.subTotal) + " $";
   if (elGST) elGST.textContent = money(inv.gst) + " $";
@@ -3921,26 +3922,42 @@ const clientNameDisplay = clientObj
 
   /* ===================== UPDATE FACTURE DANS LA LISTE ===================== */
 function updateInvoiceRow(inv){
-  const row = document.querySelector(
-    `tr[data-invoice-number="${inv.number}"]`
-  );
+  // Supporte les 2 formats possibles de dataset (ancien + nouveau)
+  const row =
+    document.querySelector(`tr[data-number="${inv.number}"]`) ||
+    document.querySelector(`tr[data-invoice-number="${inv.number}"]`);
   if (!row) return;
 
-  // total
-  const totalCell = row.querySelector(".invoice-total");
+  // ✅ Total: dans ton tableau c'est la 4e colonne (index 3)
+  const totalCell =
+    row.querySelector(".invoice-total") ||
+    row.children?.[3] ||
+    null;
   if (totalCell){
     totalCell.textContent = money(inv.total) + " $";
   }
 
-  // statut payé / partiel (si applicable chez toi)
-  if (typeof renderInvoiceStatusBadge === "function"){
-    const badgeCell = row.querySelector(".invoice-status");
-    if (badgeCell){
-      badgeCell.innerHTML = renderInvoiceStatusBadge(inv);
-    }
+  // ✅ Statut: dans ton tableau c'est la 5e colonne (index 4)
+  const statusCell =
+    row.querySelector(".invoice-status") ||
+    row.children?.[4] ||
+    null;
+  if (statusCell){
+    statusCell.innerHTML = `
+      ${
+        inv.status === "paid"
+          ? (inv.paymentMethod === "cash"
+              ? "Payée (Comptant)"
+              : inv.paymentMethod === "transfer"
+                ? "Payée (Virement)"
+                : "Payée")
+          : inv.status === "partial"
+            ? "Partielle"
+            : "Impayée"
+      }
+    `.trim();
   }
 }
-
 
   function openInvoiceView(number){
   loadInvoices();
