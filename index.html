@@ -1202,8 +1202,15 @@ function renderInvoiceTotals(inv, container){
 
   /* ===================== NORMALISATION TAXES FACTURE ===================== */
 function normalizeInvoiceTaxes(inv){
-  if (inv.applyGST === undefined) inv.applyGST = true;
-  if (inv.applyQST === undefined) inv.applyQST = true;
+  const toBoolDefaultTrue = (v) => {
+    if (v === false || v === 0 || v === "0" || v === "false") return false;
+    if (v === true  || v === 1 || v === "1" || v === "true")  return true;
+    // undefined / null / vide => true par défaut
+    return true;
+  };
+
+  inv.applyGST = toBoolDefaultTrue(inv.applyGST);
+  inv.applyQST = toBoolDefaultTrue(inv.applyQST);
 }
 
 
@@ -6065,6 +6072,9 @@ if (clientObj && Array.isArray(clientObj.vehicles)){
 
 const isLocked = inv.status === "paid";
 
+  // ✅ IMPORTANT: convertir applyGST/applyQST en vrais booléens AVANT le rendu
+normalizeInvoiceTaxes(inv);
+recalcInvoice(inv);
   
 content.innerHTML = `
   <!-- EN-TÊTE -->
@@ -6176,12 +6186,12 @@ content.innerHTML = `
         <div style="font-weight:600;margin-bottom:6px;">Taxes</div>
 
         <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="invApplyGST" ${inv.applyGST !== false ? 'checked' : ''}>
+          <input type="checkbox" id="invApplyGST" ${inv.applyGST ? 'checked' : ''}>
           Appliquer TPS (${SETTINGS.gst}%)
         </label>
 
         <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-          <input type="checkbox" id="invApplyQST" ${inv.applyQST !== false ? 'checked' : ''}>
+          <input type="checkbox" id="invApplyQST" ${inv.applyQST ? 'checked' : ''}>
           Appliquer TVQ (${SETTINGS.qst}%)
         </label>
       </div>
@@ -6308,7 +6318,7 @@ setTimeout(() => {
   if (!gstBox && !qstBox) return;
 
   if (gstBox){
-    gstBox.checked = inv.applyGST;
+    gstBox.checked = (inv.applyGST === true);
     gstBox.onchange = () => {
       inv.applyGST = gstBox.checked;
       normalizeInvoiceTaxes(inv);
@@ -6324,7 +6334,7 @@ setTimeout(() => {
   }
 
   if (qstBox){
-    qstBox.checked = inv.applyQST;
+    qstBox.checked = (inv.applyQST === true);
     qstBox.onchange = () => {
       inv.applyQST = qstBox.checked;
       normalizeInvoiceTaxes(inv);
