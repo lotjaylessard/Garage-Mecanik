@@ -6228,52 +6228,68 @@ content.innerHTML = `
     </tbody>
   </table>
 
-  <!-- TOTAUX -->
-  <div style="
-    display:flex;
-    justify-content:flex-end;
-    margin-top:15px;
-  ">
+ <!-- TOTAUX -->
+<div style="
+  display:flex;
+  justify-content:flex-end;
+  margin-top:15px;
+">
+
+  <!-- CONTENEUR 2 COLONNES -->
+  <div style="display:flex; gap:24px; align-items:flex-start; width:100%;">
+
+    <!-- 🟨 COLONNE GAUCHE : TAXES -->
+    <div style="
+      min-width:220px;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:8px;
+    ">
+      <div style="font-weight:600;margin-bottom:6px;">Taxes</div>
+
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="invApplyGST" ${inv.applyGST !== false ? 'checked' : ''}>
+        Appliquer TPS (${SETTINGS.gst}%)
+      </label>
+
+      <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+        <input type="checkbox" id="invApplyQST" ${inv.applyQST !== false ? 'checked' : ''}>
+        Appliquer TVQ (${SETTINGS.qst}%)
+      </label>
+    </div>
+
+    <!-- 🟦 COLONNE DROITE : MONTANTS -->
     <div style="min-width:280px;">
       <div style="display:flex; justify-content:space-between;">
         <span>Sous-total</span>
-          <b id="invSubTotal">${money(inv.subTotal)} $</b>
-      </div>
-
-      <!-- ✅ TAXES PAR FACTURE (TPS/TVQ) -->
-      <div style="margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:8px;">
-        <div style="font-weight:600;margin-bottom:6px;">Taxes</div>
-
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="invApplyGST" ${inv.applyGST !== false ? 'checked' : ''}>
-          Appliquer TPS (${SETTINGS.gst}%)
-        </label>
-
-        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-          <input type="checkbox" id="invApplyQST" ${inv.applyQST !== false ? 'checked' : ''}>
-          Appliquer TVQ (${SETTINGS.qst}%)
-        </label>
+        <b id="invSubTotal">${money(inv.subTotal)} $</b>
       </div>
 
       <div style="display:flex; justify-content:space-between;">
-  <span>TPS</span>
-  <b id="invGST">${money(inv.gst)} $</b>
-</div>
-<div style="display:flex; justify-content:space-between;">
-  <span>TVQ</span>
-  <b id="invQST">${money(inv.qst)} $</b>
-</div>
-<hr>
-<div style="
-  display:flex;
-  justify-content:space-between;
-  font-size:1.3em;
-">
-  <span>TOTAL</span>
-  <b id="invTotal">${money(inv.total)} $</b>
-</div>
+        <span>TPS</span>
+        <b id="invGST">${money(inv.gst)} $</b>
+      </div>
+
+      <div style="display:flex; justify-content:space-between;">
+        <span>TVQ</span>
+        <b id="invQST">${money(inv.qst)} $</b>
+      </div>
+
+      <hr>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        font-size:1.3em;
+      ">
+        <span>TOTAL</span>
+        <b id="invTotal">${money(inv.total)} $</b>
+      </div>
     </div>
+
   </div>
+</div>
+
 
   <!-- PAIEMENTS -->
   ${(inv.payments && inv.payments.length) ? `
