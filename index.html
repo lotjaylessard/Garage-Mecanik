@@ -5982,13 +5982,24 @@ function openInvoiceEditModal(invoiceNumber){
     return;
   }
 
-  const inv = INVOICES.find(x =>
+const inv = INVOICES.find(x =>
   String(x.number) === String(invoiceNumber) ||
   String(x.workOrderNumber) === String(invoiceNumber)
 );
 
-  normalizeInvoiceTaxes(inv);
+if (!inv){
+  alert("Facture introuvable.");
+  return;
+}
+
+// 🔒 VERROUILLAGE DE L'ÉTAT DES TAXES (CRITIQUE)
+inv.applyGST = (inv.applyGST === true);
+inv.applyQST = (inv.applyQST === true);
+
+// ⚠️ normalisation APRÈS verrouillage
+normalizeInvoiceTaxes(inv);
 recalcInvoice(inv);
+
 
 if(!inv){
   alert("Facture introuvable.");
