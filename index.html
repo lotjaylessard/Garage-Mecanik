@@ -1178,7 +1178,7 @@ function calcTotalsFromItems(items, inv){
     : 0;
 
   const qst = applyQST
-    ? (subTotal + gst) * (Number(SETTINGS.qst || 0) / 100)
+    ? subTotal * (Number(SETTINGS.qst || 0) / 100)
     : 0;
 
   const total = subTotal + gst + qst;
