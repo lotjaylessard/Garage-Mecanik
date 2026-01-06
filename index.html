@@ -3875,8 +3875,6 @@ function renderInvoiceList(){
   const tbody = table?.querySelector("tbody");
   if (!tbody) return;
 
-  loadInvoices();
-
   if (!INVOICES.length){
     tbody.innerHTML = `
       <tr>
