@@ -1756,7 +1756,7 @@ function addServiceToCurrentWO(serviceId){
     return;
   }
 
-// 🔒 Normaliser + recalculer avant affichage
+// 🔒 normalisation + calcul AU MOMENT D’OUVRIR
 normalizeInvoiceTaxes(inv);
 recalcInvoice(inv);
 
@@ -1785,55 +1785,28 @@ recalcInvoice(inv);
 
     $("invoiceEditModal").style.display = "flex";
 
+    setTimeout(() => {
+  const gstBox = document.getElementById("invApplyGST");
+  const qstBox = document.getElementById("invApplyQST");
 
-    // ===================== TAXES PAR FACTURE =====================
-setTimeout(() => {
-  const container = document.getElementById("invoiceEditContent") || document;
-  const gstBox = container.querySelector?.("#invApplyGST") || document.getElementById("invApplyGST");
-  const qstBox = container.querySelector?.("#invApplyQST") || document.getElementById("invApplyQST");
+  // refléter l'état sauvegardé
+  if (gstBox) gstBox.checked = inv.applyGST !== false;
+  if (qstBox) qstBox.checked = inv.applyQST !== false;
 
-  // petite fonction pour rafraîchir les montants sans réouvrir le modal
-  
-  // S'assurer que les cases reflètent l'état sauvegardé
-  if (gstBox) gstBox.checked = (inv.applyGST !== false);
-  if (qstBox) qstBox.checked = (inv.applyQST !== false);
+  // sauvegarde SEULEMENT (pas de calcul live)
+  if (gstBox) {
+    gstBox.onchange = () => {
+      inv.applyGST = gstBox.checked;
+      saveInvoices();
+    };
+  }
 
-const refreshTotalsUI = () => {
-    const elSub = container.querySelector?.("#invSubTotal") || document.getElementById("invSubTotal");
-    const elGST = container.querySelector?.("#invGST") || document.getElementById("invGST");
-    const elQST = container.querySelector?.("#invQST") || document.getElementById("invQST");
-    const elTot = container.querySelector?.("#invTotal") || document.getElementById("invTotal");
-    if (elSub) elSub.textContent = money(inv.subTotal) + " $";
-    if (elGST) elGST.textContent = money(inv.gst) + " $";
-    if (elQST) elQST.textContent = money(inv.qst) + " $";
-    if (elTot) elTot.textContent = money(inv.total) + " $";
-  };
-
-  const applyChange = () => {
-  // ⚠️ IMPORTANT: on lit les 2 cases à chaque changement (sinon une peut "revenir" à l'ancien état)
-  if (gstBox) inv.applyGST = !!gstBox.checked;
-  if (qstBox) inv.applyQST = !!qstBox.checked;
-
-  normalizeInvoiceTaxes(inv);
-  recalcInvoice(inv);
-  saveInvoices();
-
-  // 🔥 Mise à jour LIVE des montants (sans rerender qui détruit les listeners)
-  refreshTotalsUI();
-
-  // 🔄 Mise à jour de la ligne dans la liste (sans loadInvoices())
-  if (typeof updateInvoiceRow === "function") updateInvoiceRow(inv);
-};
-
-
-
-  if (gstBox){
-  gstBox.onchange = applyChange;
-}
-
-if (qstBox){
-  qstBox.onchange = applyChange;
-}
+  if (qstBox) {
+    qstBox.onchange = () => {
+      inv.applyQST = qstBox.checked;
+      saveInvoices();
+    };
+  }
 }, 0);
   }
 }
@@ -3991,42 +3964,6 @@ function updateInvoiceRow(inv){
       }
     `.trim();
   }
-}
-
-  function openInvoiceView(number){
-  loadInvoices();
-
-  const inv = INVOICES.find(i => String(i.number) === String(number));
-
-    // 🔒 Normalisation des flags de taxes (OBLIGATOIRE)
-if (inv.applyGST === undefined) inv.applyGST = true;
-if (inv.applyQST === undefined) inv.applyQST = true;
-
-// 🔁 Toujours recalculer avant affichage
-recalcInvoice(inv);
-
-  if (!inv){
-    alert("Facture introuvable.");
-    return;
-  }
-
-  // Aller sur une page simple d’affichage
-  showPage("page-workorders"); // page neutre déjà utilisée
-
-  // Masquer la liste WO
-  if ($("woListCard")) $("woListCard").style.display = "none";
-  if ($("woDetailCard")) $("woDetailCard").style.display = "block";
-
-  // Affichage LECTURE SEULE
-  $("woDetailContent").innerHTML = `
-    <div class="card">
-      <button class="ghost" onclick="backToInvoiceList()">⬅ Retour aux factures</button>
-    </div>
-
-    <div class="card">
-      ${renderInvoiceSummary(inv)}
-    </div>
-  `;
 }
 
   
