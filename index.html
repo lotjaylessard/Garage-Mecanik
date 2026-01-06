@@ -409,11 +409,18 @@ button.link:hover{
 
     
 .invoice-totals-grid{
-  display: flex;
-  gap: 20px;
-  justify-content: space-between; /* ⬅️ clé */
-  align-items: flex-start;
-  margin-top: 15px;
+  display:flex;
+  gap:20px;
+  justify-content:space-between;   /* ✅ taxes à gauche, totaux à droite */
+  align-items:flex-start;
+  width:100%;                     /* ✅ le conteneur prend toute la largeur (remplit le “mauve”) */
+  margin-top:15px;
+}
+
+@media (max-width: 800px){
+  .invoice-totals-grid{
+    flex-wrap:wrap;
+  }
 }
 
     .invoice-taxes-box{
