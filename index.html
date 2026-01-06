@@ -1212,17 +1212,19 @@ function normalizeInvoiceTaxes(inv){
 }
 
 
-  /* ===================== RENDU TOTAUX FACTURE (SAFE) ===================== */
-function renderInvoiceTotals(items){
-  const totals = calcTotalsFromItems(items || []);
-  return `
-    <div style="text-align:right;margin-top:12px;">
-      <div>Sous-total : ${money(totals.subTotal)} $</div>
-      <div>TPS : ${money(totals.gst)} $</div>
-      <div>TVQ : ${money(totals.qst)} $</div>
-      <h3>Total : ${money(totals.total)} $</h3>
-    </div>
-  `;
+/* ===================== RENDU LIVE DES TOTAUX FACTURE ===================== */
+function renderInvoiceTotals(inv, container){
+  if (!container) return;
+
+  const elSub = container.querySelector("#invSubTotal");
+  const elGST = container.querySelector("#invGST");
+  const elQST = container.querySelector("#invQST");
+  const elTot = container.querySelector("#invTotal");
+
+  if (elSub) elSub.textContent = money(inv.subTotal) + " $";
+  if (elGST) elGST.textContent = money(inv.gst) + " $";
+  if (elQST) elQST.textContent = money(inv.qst) + " $";
+  if (elTot) elTot.textContent = money(inv.total) + " $";
 }
 
 
@@ -6017,10 +6019,14 @@ function openInvoiceEditModal(invoiceNumber){
   String(x.workOrderNumber) === String(invoiceNumber)
 );
 
+  normalizeInvoiceTaxes(inv);
+recalcInvoice(inv);
+
 if(!inv){
   alert("Facture introuvable.");
   return;
 }
+
 
   // ✅ clientObj manquant (corrige: clientObj is not defined)
 const clientObj = CLIENTS.find(c => String(c.name) === String(inv.customer));
@@ -6176,7 +6182,7 @@ content.innerHTML = `
     <div style="min-width:280px;">
       <div style="display:flex; justify-content:space-between;">
         <span>Sous-total</span>
-        <b>${money(inv.subTotal)} $</b>
+          <b id="invSubTotal">${money(inv.subTotal)} $</b>
       </div>
 
       <!-- ✅ TAXES PAR FACTURE (TPS/TVQ) -->
@@ -6316,38 +6322,30 @@ content.innerHTML = `
 setTimeout(() => {
   const gstBox = $("invApplyGST");
   const qstBox = $("invApplyQST");
-
-  const subEl = $("invSubTotal");
-  const gstEl = $("invGST");
-  const qstEl = $("invQST");
-  const totEl = $("invTotal");
-
   if (!gstBox && !qstBox) return;
 
-  const refreshTotalsUI = () => {
+  // 🔒 Re-synchroniser l'UI sur l'objet inv (au cas où)
+  if (gstBox) gstBox.checked = (inv.applyGST !== false);
+  if (qstBox) qstBox.checked = (inv.applyQST !== false);
+
+  const applyAndRefresh = () => {
+    if (gstBox) inv.applyGST = !!gstBox.checked;
+    if (qstBox) inv.applyQST = !!qstBox.checked;
+
     recalcInvoice(inv);
     saveInvoices();
 
-    if (subEl) subEl.textContent = money(inv.subTotal) + " $";
-    if (gstEl) gstEl.textContent = money(inv.gst) + " $";
-    if (qstEl) qstEl.textContent = money(inv.qst) + " $";
-    if (totEl) totEl.textContent = money(inv.total) + " $";
+    // ✅ update visuel immédiat
+    renderInvoiceTotals(inv, content);
+
+    // ✅ update la liste des factures (montant)
+    if (typeof renderInvoiceList === "function") renderInvoiceList();
   };
 
-  if (gstBox){
-    gstBox.onchange = () => {
-      inv.applyGST = !!gstBox.checked;
-      refreshTotalsUI();
-    };
-  }
-
-  if (qstBox){
-    qstBox.onchange = () => {
-      inv.applyQST = !!qstBox.checked;
-      refreshTotalsUI();
-    };
-  }
+  if (gstBox) gstBox.onchange = applyAndRefresh;
+  if (qstBox) qstBox.onchange = applyAndRefresh;
 }, 0);
+
 
   renderInvoiceTotals(inv, content);
 
