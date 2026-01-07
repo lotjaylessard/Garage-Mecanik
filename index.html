@@ -7592,30 +7592,54 @@ clone.querySelectorAll("h3").forEach(h=>{
 
 /* ================= PDF LAYOUT ================= */
 
-/* ===== Totaux en bas à droite ===== */
+/* ====== BLOC TOTAUX PDF — LAYOUT SOLIDE ====== */
+
 .pdf-totals{
   position: fixed;
   right: 25px;
   bottom: 25px;
   width: 260px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  font-size: 12px;
+  line-height: 1.25;
 }
 
-/* ===== Alignement propre du bloc TOTAL ===== */
+/* lignes normales (Escompte, Sous-total, TPS, TVQ) */
+.pdf-totals > div{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  padding: 0;
+}
 
+/* ligne de séparation */
 .pdf-totals hr{
-  margin: 6px 0 6px 0;   /* réduit l’espace avant TOTAL */
-}
-
-.pdf-totals div{
-  line-height: 1.2;     /* empêche les sauts trop grands */
-}
-
-.pdf-totals .total-row{
-  margin-top: 4px;      /* colle TOTAL au reste */
-  padding-top: 4px;
+  margin: 6px 0;
+  border: none;
   border-top: 1px solid #000;
+}
+
+/* ===== TOTAL ===== */
+.pdf-totals .total-row{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  margin-top: 4px;
+  padding-top: 4px;
+
   font-size: 15px;
   font-weight: bold;
+}
+
+.pdf-totals *{
+  position: static !important;
+  float: none !important;
 }
 
 
