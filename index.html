@@ -7465,6 +7465,78 @@ function printInvoice(){
   // ❌ Supprimer toute UI interactive restante
   clone.querySelectorAll("input, select, textarea, button, label").forEach(el => el.remove());
 
+
+  // ================== PDF LAYOUT (position bas gauche/droite) ==================
+
+// --- A) TOTAUX : trouver le conteneur qui contient TOUTES les lignes ---
+(function(){
+  const needIds = ["invSubTotal", "invGST", "invQST", "invTotal"]; // + invDiscountLine si tu l'ajoutes un jour
+  const totalEl = clone.querySelector("#invTotal");
+  if (!totalEl) return;
+
+  // remonte jusqu'à trouver un parent qui contient tous les IDs de montants
+  let box = totalEl.parentElement;
+  while (box && box !== clone && !needIds.every(id => box.querySelector("#" + id))){
+    box = box.parentElement;
+  }
+
+  if (box && box !== clone){
+    box.classList.add("pdf-totals");
+  }
+})();
+
+
+// --- B) PAIEMENTS : regrouper Historique + table + résumé dans un wrapper ---
+(function(){
+  const headers = Array.from(clone.querySelectorAll("h1,h2,h3,h4"));
+  const h = headers.find(x => (x.textContent || "").toLowerCase().includes("historique des paiements"));
+  if (!h) return;
+
+  // wrapper bas-gauche
+  const wrap = clone.ownerDocument.createElement("div");
+  wrap.className = "pdf-payments";
+
+  // insérer wrapper avant le titre
+  h.parentNode.insertBefore(wrap, h);
+
+  // déplacer le titre
+  wrap.appendChild(h);
+
+  // déplacer la table qui suit (la première table après le titre)
+  let next = wrap.nextElementSibling; // élément juste après le wrapper (qui était après h)
+  // On cherche la prochaine table dans les siblings
+  let table = null;
+  while (next){
+    if (next.tagName && next.tagName.toLowerCase() === "table"){
+      table = next;
+      break;
+    }
+    // stop si on tombe sur le bloc Totaux
+    if (next.querySelector && next.querySelector("#invTotal")) break;
+    next = next.nextElementSibling;
+  }
+  if (table) wrap.appendChild(table);
+
+  // déplacer le petit résumé "Total payé / Solde restant" (div texte à droite)
+  // On prend les 1-2 div suivants qui contiennent "Total payé" ou "Solde restant"
+  let scan = wrap.nextElementSibling;
+  let moved = 0;
+  while (scan && moved < 3){
+    const txt = (scan.textContent || "").toLowerCase();
+    const looksLikeSummary = txt.includes("total payé") || txt.includes("solde restant");
+    if (looksLikeSummary){
+      const keep = scan;
+      scan = scan.nextElementSibling;
+      wrap.appendChild(keep);
+      moved++;
+      continue;
+    }
+    // stop si on tombe sur Totaux
+    if (scan.querySelector && scan.querySelector("#invTotal")) break;
+    scan = scan.nextElementSibling;
+  }
+})();
+
   
   // ================== POSITIONNEMENT PDF ==================
 
@@ -7544,6 +7616,49 @@ clone.querySelectorAll("h3").forEach(h=>{
 .pdf-payments h3{
   margin-top: 0;
 }
+
+
+/* ================= PDF : bas-gauche / bas-droite ================= */
+
+.pdf-totals{
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 240px;
+}
+
+/* Paiements plus petit, en bas à gauche */
+.pdf-payments{
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: 62%;
+  font-size: 10px;
+}
+
+.pdf-payments h1,
+.pdf-payments h2,
+.pdf-payments h3,
+.pdf-payments h4{
+  margin: 0 0 6px 0;
+  font-size: 12px;
+}
+
+.pdf-payments table{
+  margin-top: 6px;
+  font-size: 10px;
+}
+
+.pdf-payments th,
+.pdf-payments td{
+  padding: 4px;
+}
+
+/* Bonus : évite que la table prenne trop de hauteur visuelle */
+.pdf-payments table tr{
+  line-height: 1.15;
+}
+
 
       </style>
     </head>
