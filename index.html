@@ -3137,6 +3137,7 @@ const invoice = {
   workOrderNumber: wo.number,
   customer: wo.clientName,
   vehicle: wo.vehicleLabel,
+  vehicleKm: wo.vehicleKm || null,
   date: new Date().toLocaleDateString("fr-CA"),
   items: [],
   status: "unpaid",     // unpaid | partial | paid
@@ -3225,11 +3226,25 @@ function deleteWorkOrder(id){
 
   // 🔥 ICI : UI EXACTE du WO (celle que tu connais)
   detail.innerHTML += `
-    <div class="card">
-      <h2>${wo.__fromInvoice ? "Facture" : "Bon de travail"} #${wo.number}</h2>
-      <p><b>Client :</b> ${wo.clientName}</p>
-      <p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
-    </div>
+  <div class="card">
+    <h2>${wo.__fromInvoice ? "Facture" : "Bon de travail"} #${wo.number}</h2>
+
+    <p><b>Client :</b> ${wo.clientName}</p>
+
+    <p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
+
+    <p>
+      <b>Kilométrage :</b>
+      <input
+        id="woVehicleKmInput"
+        type="number"
+        style="width:120px"
+        value="${wo.vehicleKm || ''}"
+        onchange="saveWorkOrderVehicleKm(${wo.id}, this.value)"
+      > km
+    </p>
+  </div>
+`;
 
     <div class="card">
       <h3>Pièces</h3>
@@ -3653,6 +3668,33 @@ let WO_TIMER = {
 let timerBtn = null;
 let timerDisplay = null;
 let stopBtn = null;
+
+
+    function saveWorkOrderVehicleKm(woId, kmValue){
+
+  const wo = WORKORDERS.find(w => String(w.id) === String(woId));
+  if (!wo) return;
+
+  const km = Number(kmValue) || 0;
+  wo.vehicleKm = km;
+
+  saveWorkOrders();
+
+  // 🔁 Aussi mettre à jour le véhicule du client (si trouvé)
+  const client = CLIENTS.find(c => c.name === wo.clientName);
+  if (client && Array.isArray(client.vehicles)){
+    const veh = client.vehicles.find(v =>
+      `${v.year} ${v.make} ${v.model}` === wo.vehicleLabel
+    );
+    if (veh){
+      veh.km = km;
+      saveClients();
+    }
+  }
+
+  console.log("KM sauvegardé:", km);
+}
+
 
 function bindWOTimerUI(){
   timerBtn = document.getElementById("woTimerBtn");
