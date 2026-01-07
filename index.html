@@ -534,6 +534,19 @@ button.link:hover{
 }
 
 
+    /* ===================== PDF MODE (html2canvas) ===================== */
+.pdf-export .pdf-hide{
+  display:none !important;
+}
+
+.pdf-export input,
+.pdf-export select,
+.pdf-export textarea,
+.pdf-export button{
+  display:none !important;
+}
+
+
 
     
   </style>
@@ -1494,7 +1507,7 @@ const isPaid =
 <div class="invoice-bottom-grid">
 
   <!-- COLONNE GAUCHE : TAXES -->
-  <div class="invoice-taxes-left">
+  <div class="invoice-taxes-left pdf-hide">
     <h4>Taxes</h4>
 
     <label>
@@ -7436,10 +7449,27 @@ function woConvertToInvoice(wo) {
 
   
   function printInvoice(){
+
+  const content = document.getElementById("invoiceEditContent");
+if(content) content.classList.add("pdf-export");
+
   const content = $("invoiceEditContent");
   if (!content) return;
 
   const printWindow = window.open("", "", "width=800,height=900");
+
+    // 🔧 Clone du contenu pour nettoyage PDF
+const clone = content.cloneNode(true);
+
+// ❌ Supprimer bloc TAXES
+clone.querySelectorAll(".invoice-ui-taxes").forEach(el => el.remove());
+
+// ❌ Supprimer bloc ESCOMPTE
+clone.querySelectorAll(".invoice-ui-discount").forEach(el => el.remove());
+
+// ❌ Supprimer tous les inputs / selects restants
+clone.querySelectorAll("input, select, textarea, button").forEach(el => el.remove());
+
   printWindow.document.write(`
     <html>
     <head>
@@ -7480,7 +7510,7 @@ function woConvertToInvoice(wo) {
 </style>
     </head>
     <body>
-      ${content.innerHTML}
+      ${clone.innerHTML}
     </body>
     </html>
   `);
