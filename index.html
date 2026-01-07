@@ -1151,6 +1151,22 @@ const STORAGE = {
 }
 
 
+  function renderInvoiceDiscount(inv, container){
+  const row = container.querySelector("#invDiscountRow");
+  const amount = container.querySelector("#invDiscountAmount");
+
+  if (!row || !amount) return;
+
+  if (inv.discount && inv.discount > 0){
+    row.style.display = "flex";
+    amount.textContent = "- " + money(inv.discount) + " $";
+  } else {
+    row.style.display = "none";
+  }
+}
+
+
+
 /* ===== MIGRATION LOCALSTORAGE (TEMPORAIRE) ===== */
 (function migrateOldStorage(){
   const map = {
@@ -6335,16 +6351,19 @@ content.innerHTML = `
 
 <!-- 🟦 LIGNE ESCOMPTE (affichée seulement si > 0) -->
 ${inv.discount && inv.discount > 0 ? `
-  <div style="
-    display:flex;
+  <div
+  id="invDiscountRow"
+  style="
+    display:${inv.discount && inv.discount > 0 ? 'flex' : 'none'};
     justify-content:space-between;
     color:#ffb74d;
     font-weight:600;
     margin-bottom:4px;
-  ">
-    <span>Escompte</span>
-    <span>- ${money(inv.discount)} $</span>
-  </div>
+  "
+>
+  <span>Escompte</span>
+  <span id="invDiscountAmount">- ${money(inv.discount || 0)} $</span>
+</div>
 ` : ``}
     
       <div style="display:flex; justify-content:space-between;">
@@ -6498,6 +6517,7 @@ setTimeout(() => {
 
     // ✅ update visuel immédiat
     renderInvoiceTotals(inv, content);
+    renderInvoiceDiscount(inv, content);
 
     // ✅ update la liste des factures (montant)
     if (typeof renderInvoiceList === "function") renderInvoiceList();
@@ -6514,6 +6534,7 @@ if (discountInput && discountType){
     recalcInvoice(inv);
     saveInvoices();
     renderInvoiceTotals(inv, content);
+    renderInvoiceDiscount(inv, content);
 
     if (typeof renderInvoiceList === "function") renderInvoiceList();
   };
