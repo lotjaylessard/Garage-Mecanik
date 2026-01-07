@@ -7448,76 +7448,69 @@ function woConvertToInvoice(wo) {
 }
 
   
-  function printInvoice(){
+function printInvoice(){
 
   const content = document.getElementById("invoiceEditContent");
-if(content) content.classList.add("pdf-export");
-
-  const content = $("invoiceEditContent");
   if (!content) return;
 
+  // 🔧 Clone du contenu pour impression (on ne touche PAS à l'écran)
+  const clone = content.cloneNode(true);
+
+  // ❌ Supprimer bloc TAXES (UI)
+  clone.querySelectorAll(".invoice-ui-taxes").forEach(el => el.remove());
+
+  // ❌ Supprimer bloc ESCOMPTE (UI)
+  clone.querySelectorAll(".invoice-ui-discount").forEach(el => el.remove());
+
+  // ❌ Supprimer toute UI interactive restante
+  clone.querySelectorAll("input, select, textarea, button, label").forEach(el => el.remove());
+
   const printWindow = window.open("", "", "width=800,height=900");
-
-    // 🔧 Clone du contenu pour nettoyage PDF
-const clone = content.cloneNode(true);
-
-// ❌ Supprimer bloc TAXES
-clone.querySelectorAll(".invoice-ui-taxes").forEach(el => el.remove());
-
-// ❌ Supprimer bloc ESCOMPTE
-clone.querySelectorAll(".invoice-ui-discount").forEach(el => el.remove());
-
-// ❌ Supprimer tous les inputs / selects restants
-clone.querySelectorAll("input, select, textarea, button").forEach(el => el.remove());
 
   printWindow.document.write(`
     <html>
     <head>
       <title>Facture</title>
       <style>
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    padding: 25px;
-    color: #000;
-  }
-  h2 {
-    margin-top: 0;
-    border-bottom: 2px solid #000;
-    padding-bottom: 6px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    font-size: 13px;
-  }
-  th, td {
-    border: 1px solid #000;
-    padding: 6px;
-  }
-  th {
-    background: #eee;
-  }
-  .muted {
-    color: #555;
-  }
-  button {
-    display: none;
-  }
-
-
-  
-</style>
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+          padding: 25px;
+          color: #000;
+        }
+        h2 {
+          margin-top: 0;
+          border-bottom: 2px solid #000;
+          padding-bottom: 6px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px;
+          font-size: 13px;
+        }
+        th, td {
+          border: 1px solid #000;
+          padding: 6px;
+        }
+        th {
+          background: #eee;
+        }
+        .muted {
+          color: #555;
+        }
+      </style>
     </head>
     <body>
       ${clone.innerHTML}
     </body>
     </html>
   `);
+
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
 }
+
 
   function markInvoicePaid(number){
   const inv = INVOICES.find(i => String(i.number) === String(number));
