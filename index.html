@@ -7465,6 +7465,25 @@ function printInvoice(){
   // ❌ Supprimer toute UI interactive restante
   clone.querySelectorAll("input, select, textarea, button, label").forEach(el => el.remove());
 
+  
+  // ================== POSITIONNEMENT PDF ==================
+
+// 🔹 Marquer le bloc TOTAUX (bas droite)
+const totalEl = clone.querySelector("#invTotal");
+if (totalEl){
+  const totalsBlock = totalEl.closest("div");
+  if (totalsBlock) totalsBlock.classList.add("pdf-totals");
+}
+
+// 🔹 Marquer le bloc HISTORIQUE PAIEMENTS (bas gauche)
+clone.querySelectorAll("h3").forEach(h=>{
+  if (h.textContent.includes("Historique")){
+    const payBlock = h.parentElement;
+    if (payBlock) payBlock.classList.add("pdf-payments");
+  }
+});
+
+
   const printWindow = window.open("", "", "width=800,height=900");
 
   printWindow.document.write(`
@@ -7498,6 +7517,35 @@ function printInvoice(){
         .muted {
           color: #555;
         }
+
+
+        /* ================= PDF LAYOUT ================= */
+
+/* Totaux en bas à droite */
+.pdf-totals{
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  width: 260px;
+}
+
+/* Historique paiements en bas à gauche */
+.pdf-payments{
+  position: fixed;
+  left: 25px;
+  bottom: 25px;
+  width: 60%;
+  font-size: 11px;
+}
+
+.pdf-payments table{
+  font-size: 11px;
+}
+
+.pdf-payments h3{
+  margin-top: 0;
+}
+
       </style>
     </head>
     <body>
