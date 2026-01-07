@@ -6311,11 +6311,14 @@ content.innerHTML = `
   </div>
 
   ${vehicleObj ? `
-    <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
-      ${vehicleObj.vin ? "VIN : " + vehicleObj.vin + "<br>" : ""}
-      ${vehicleObj.plate ? "Plaque : " + vehicleObj.plate : ""}
-    </div>
-  ` : ""}
+  <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
+    ${(vehicleObj.km || vehicleObj.mileage)
+      ? "KM : " + (vehicleObj.km || vehicleObj.mileage) + "<br>"
+      : ""}
+    ${vehicleObj.vin ? "VIN : " + vehicleObj.vin + "<br>" : ""}
+    ${vehicleObj.plate ? "Plaque : " + vehicleObj.plate : ""}
+  </div>
+` : ""}
 </div>
 
 
