@@ -3224,6 +3224,19 @@ function deleteWorkOrder(id){
   detail.innerHTML = "";
   detail.appendChild(hidden);
 
+// 🔹 Pré-remplir KM depuis le véhicule client si absent dans le WO
+if (!wo.vehicleKm){
+  const client = CLIENTS.find(c => c.name === wo.clientName);
+  if (client && Array.isArray(client.vehicles)){
+    const veh = client.vehicles.find(v =>
+      `${v.year} ${v.make} ${v.model}` === wo.vehicleLabel
+    );
+    if (veh && veh.km){
+      wo.vehicleKm = veh.km;
+    }
+  }
+}
+    
   // 🔥 ICI : UI EXACTE du WO (celle que tu connais)
   detail.innerHTML += `
   <div class="card">
@@ -3231,18 +3244,18 @@ function deleteWorkOrder(id){
 
     <p><b>Client :</b> ${wo.clientName}</p>
 
-    <p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
+<p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
 
-    <p>
-      <b>Kilométrage :</b>
-      <input
-        id="woVehicleKmInput"
-        type="number"
-        style="width:120px"
-        value="${wo.vehicleKm || ''}"
-        onchange="saveWorkOrderVehicleKm(${wo.id}, this.value)"
-      > km
-    </p>
+<p>
+  <b>Kilométrage :</b>
+  <input
+    id="woVehicleKmInput"
+    type="number"
+    style="width:120px"
+    value="${wo.vehicleKm || ''}"
+    onchange="saveWorkOrderVehicleKm(${wo.id}, this.value)"
+  > km
+</p>
   </div>
 
     <div class="card">
@@ -3674,12 +3687,14 @@ let stopBtn = null;
   const wo = WORKORDERS.find(w => String(w.id) === String(woId));
   if (!wo) return;
 
-  const km = Number(kmValue) || 0;
-  wo.vehicleKm = km;
+  const km = parseInt(kmValue);
+  if (isNaN(km)) return;
 
+  // ✅ sauvegarde dans le bon de travail
+  wo.vehicleKm = km;
   saveWorkOrders();
 
-  // 🔁 Aussi mettre à jour le véhicule du client (si trouvé)
+  // 🔁 synchroniser aussi dans le véhicule du client
   const client = CLIENTS.find(c => c.name === wo.clientName);
   if (client && Array.isArray(client.vehicles)){
     const veh = client.vehicles.find(v =>
@@ -3691,7 +3706,7 @@ let stopBtn = null;
     }
   }
 
-  console.log("KM sauvegardé:", km);
+  console.log("KM sauvegardé (WO + véhicule):", km);
 }
 
 
