@@ -7600,6 +7600,24 @@ clone.querySelectorAll("h3").forEach(h=>{
   width: 260px;
 }
 
+/* ===== Alignement propre du bloc TOTAL ===== */
+
+.pdf-totals hr{
+  margin: 6px 0 6px 0;   /* réduit l’espace avant TOTAL */
+}
+
+.pdf-totals div{
+  line-height: 1.2;     /* empêche les sauts trop grands */
+}
+
+.pdf-totals .total-row{
+  margin-top: 4px;      /* colle TOTAL au reste */
+  padding-top: 4px;
+  border-top: 1px solid #000;
+  font-size: 15px;
+  font-weight: bold;
+}
+
 
 /* ===== Historique paiements en bas à gauche ===== */
 .pdf-payments{
