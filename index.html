@@ -1431,12 +1431,12 @@ const isPaid =
 
     <label>
       <input type="checkbox" id="invApplyGST">
-      Appliquer TPS (${SETTINGS.gst}%)
+      TPS (${SETTINGS.gst}%)
     </label>
 
     <label>
       <input type="checkbox" id="invApplyQST">
-      Appliquer TVQ (${SETTINGS.qst}%)
+      TVQ (${SETTINGS.qst}%)
     </label>
   </div>
 
@@ -6332,6 +6332,21 @@ content.innerHTML = `
 
       <!-- Montants Taxes + Total -->
     <div style="min-width:280px;">
+
+<!-- 🟦 LIGNE ESCOMPTE (affichée seulement si > 0) -->
+${inv.discount && inv.discount > 0 ? `
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    color:#ffb74d;
+    font-weight:600;
+    margin-bottom:4px;
+  ">
+    <span>Escompte</span>
+    <span>- ${money(inv.discount)} $</span>
+  </div>
+` : ``}
+    
       <div style="display:flex; justify-content:space-between;">
         <span>Sous-total</span>
         <b id="invSubTotal">${money(inv.subTotal)} $</b>
