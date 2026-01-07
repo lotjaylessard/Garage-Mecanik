@@ -432,6 +432,19 @@ button.link:hover{
     padding: 6px 4px;
   }
 
+    /* ===================== PRINT : MASQUER UI TAXES & ESCOMPTE ===================== */
+
+  /* Masquer complètement le bloc Taxes (cases à cocher) */
+  div:has(input#invApplyGST),
+  div:has(input#invApplyQST) {
+    display: none !important;
+  }
+
+  /* Masquer complètement le bloc Escompte (input + select) */
+  div:has(input#invDiscountValue),
+  div:has(select#invDiscountType) {
+    display: none !important;
+  }
 }
 
 
