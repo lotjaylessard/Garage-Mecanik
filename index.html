@@ -3635,9 +3635,9 @@ setTimeout(() => {
   const kmInput = document.getElementById("woKmInput");
   if (!kmInput) return;
 
-  kmInput.onchange = () => {
-    wo.vehicleKm = Number(kmInput.value) || 0;
-    saveWorkOrders();
+  kmInput.oninput = () => {
+  saveWorkOrderVehicleKm(wo.id, kmInput.value);
+};
 
       const kmCell = document.getElementById("wo-km-cell-" + wo.id);
   if (kmCell){
@@ -3742,7 +3742,7 @@ let timerDisplay = null;
 let stopBtn = null;
 
 
-    function saveWorkOrderVehicleKm(woId, kmValue){
+function saveWorkOrderVehicleKm(woId, kmValue){
 
   const wo = WORKORDERS.find(w => String(w.id) === String(woId));
   if (!wo) return;
@@ -3755,9 +3755,11 @@ let stopBtn = null;
   saveWorkOrders();
 
   // 🔁 synchroniser aussi dans le véhicule du client
+  let veh = null;
+
   const client = CLIENTS.find(c => c.name === wo.clientName);
   if (client && Array.isArray(client.vehicles)){
-    const veh = client.vehicles.find(v =>
+    veh = client.vehicles.find(v =>
       `${v.year} ${v.make} ${v.model}` === wo.vehicleLabel
     );
     if (veh){
@@ -3766,7 +3768,27 @@ let stopBtn = null;
     }
   }
 
-  console.log("KM sauvegardé (WO + véhicule):", km);
+  // ================= UI LIVE UPDATE =================
+
+  // ✅ Liste des bons de travail
+  const kmCell = document.getElementById("wo-km-cell-" + wo.id);
+  if (kmCell){
+    kmCell.textContent = km + " km";
+  }
+
+  // ✅ Fiche véhicule (si ouverte)
+  const vehKmLabel = document.getElementById("vehicleKmLabel");
+  if (vehKmLabel){
+    vehKmLabel.textContent = km + " km";
+  }
+
+  // ✅ Section client / véhicule dans WO
+  const woKmLabel = document.getElementById("woVehicleKm");
+  if (woKmLabel){
+    woKmLabel.textContent = km + " km";
+  }
+
+  console.log("KM synchronisé partout :", km);
 }
 
 
