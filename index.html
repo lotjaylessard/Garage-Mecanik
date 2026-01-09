@@ -6419,9 +6419,9 @@ content.innerHTML = `
 
   ${vehicleObj ? `
   <div style="margin-left:12px; font-size:0.9em; color:#ccc;">
-    ${(vehicleObj.km || vehicleObj.mileage)
-      ? "KM : " + (vehicleObj.km || vehicleObj.mileage) + "<br>"
-      : ""}
+    ${(inv.vehicleKm || vehicleObj?.km)
+  ? "KM : " + (inv.vehicleKm || vehicleObj.km) + "<br>"
+  : ""}
     ${vehicleObj.vin ? "VIN : " + vehicleObj.vin + "<br>" : ""}
     ${vehicleObj.plate ? "Plaque : " + vehicleObj.plate : ""}
   </div>
