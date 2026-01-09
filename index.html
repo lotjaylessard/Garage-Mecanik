@@ -3094,6 +3094,9 @@ const clientNameDisplay = clientObj
       <td>${wo.date || ""}</td>
       <td>${clientNameDisplay}</td>
       <td>${wo.vehicleLabel || ""}</td>
+      <td id="wo-km-cell-${wo.id}">
+    ${wo.vehicleKm ? wo.vehicleKm + " km" : "-"}
+  </td>
       <td>
         <span class="status-badge status-${wo.status}">
           ${statusLabel}
@@ -3635,6 +3638,12 @@ setTimeout(() => {
   kmInput.onchange = () => {
     wo.vehicleKm = Number(kmInput.value) || 0;
     saveWorkOrders();
+
+      const kmCell = document.getElementById("wo-km-cell-" + wo.id);
+  if (kmCell){
+    kmCell.textContent = wo.vehicleKm ? wo.vehicleKm + " km" : "-";
+  }
+
 
     // sync vers véhicule client
     const client = CLIENTS.find(c => c.name === wo.clientName);
