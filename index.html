@@ -7481,28 +7481,37 @@ function importLinks(evt) {
     reader.readAsText(file);
 }
 
+  
 function initLinksModule() {
-    loadLinks();
-    renderLinks();
+  loadLinks();
+  renderLinks();
 
+  if ($("addLinkBtn")) {
     $("addLinkBtn").onclick = () => {
-        const name = $("linkName").value.trim();
-        const url = $("linkURL").value.trim();
-        const cat = $("linkCategory").value;
+      const name = $("linkName").value.trim();
+      const url = $("linkURL").value.trim();
+      const cat = $("linkCategory").value;
 
-        if (!name || !url) return alert("Nom et URL obligatoires.");
+      if (!name || !url) return alert("Nom et URL obligatoires.");
 
-        addLink(name, url, cat);
+      addLink(name, url, cat);
 
-        $("linkName").value = "";
-        $("linkURL").value = "";
+      $("linkName").value = "";
+      $("linkURL").value = "";
     };
+  }
 
-    $("linkSearch").oninput = renderLinks;
+  if ($("linkSearch")) $("linkSearch").oninput = renderLinks;
 
-    $("exportLinksBtn").onclick = exportLinks;
-    $("importLinksBtn").onclick = () => $("importLinksFile").click();
+  if ($("exportLinksBtn")) $("exportLinksBtn").onclick = exportLinks;
+
+  if ($("importLinksBtn")) {
+    $("importLinksBtn").onclick = () => $("importLinksFile")?.click();
+  }
+
+  if ($("importLinksFile")) {
     $("importLinksFile").onchange = importLinks;
+  }
 }
 
   
