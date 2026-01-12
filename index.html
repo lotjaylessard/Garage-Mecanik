@@ -1850,14 +1850,6 @@ if (document.getElementById("page-invoice-list")?.style.display === "block") {
 openInvoiceEditModal(number);
 }
 
-
-  if ($("closeInvoiceEditModal")){
-  $("closeInvoiceEditModal").onclick = () => {
-    $("invoiceEditModal").style.display = "none";
-  };
-}
-
-
   
   /* ===================== WORK ORDERS (Bons de travail) ===================== */
 
@@ -6747,6 +6739,14 @@ if (discountInput && discountType){
 
   // === AFFICHER LA MODAL ===
   modal.style.display = "flex";
+
+  // ✅ Bouton fermer modal
+const closeBtn = $("closeInvoiceEditModal");
+if (closeBtn){
+  closeBtn.onclick = () => {
+    $("invoiceEditModal").style.display = "none";
+  };
+}
 }
 
 
