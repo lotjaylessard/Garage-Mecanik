@@ -3597,6 +3597,20 @@ const statusLabel =
   </div>
 `;
 
+
+    // Bind boutons (safe) — DOIT ÊTRE DANS LE SCOPE DE wo
+const btnAddPart  = $("woAddPart");
+const btnAddLabor = $("woAddLabor");
+
+if (btnAddPart){
+  btnAddPart.onclick = () => woAddPartLine(wo);
+}
+
+if (btnAddLabor){
+  btnAddLabor.onclick = () => woAddLaborLine(wo);
+}
+
+
     // ================= KM sauvegarde =================
 setTimeout(() => {
   const kmInput = document.getElementById("woKmInput");
@@ -3626,19 +3640,6 @@ setTimeout(() => {
 }, 0);
 }
 };
-
-
-    // Bind boutons (safe)
-const btnAddPart  = $("woAddPart");
-const btnAddLabor = $("woAddLabor");
-
-if (btnAddPart){
-  btnAddPart.onclick = () => woAddPartLine(wo);
-}
-
-if (btnAddLabor){
-  btnAddLabor.onclick = () => woAddLaborLine(wo);
-}
 
     
     woRenderLines(wo);
