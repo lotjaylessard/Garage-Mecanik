@@ -3628,9 +3628,18 @@ setTimeout(() => {
 };
 
 
-    // Bind boutons
-    $("woAddPart").onclick = () => woAddPartLine(wo);
-    $("woAddLabor").onclick = () => woAddLaborLine(wo);
+    // Bind boutons (safe)
+const btnAddPart  = $("woAddPart");
+const btnAddLabor = $("woAddLabor");
+
+if (btnAddPart){
+  btnAddPart.onclick = () => woAddPartLine(wo);
+}
+
+if (btnAddLabor){
+  btnAddLabor.onclick = () => woAddLaborLine(wo);
+}
+
     
     woRenderLines(wo);
 
