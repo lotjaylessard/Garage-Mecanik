@@ -2016,8 +2016,8 @@ recalcInvoice(inv);
     number: invoice.number,
     date: invoice.date,
     clientName: invoice.customer,
-    vehicleLabel:
-    vehicleKm: vehicleKm, invoice.vehicle,
+    vehicleLabel: invoice.vehicle,
+    vehicleKm: vehicleKm,
     status: invoice.status || "draft",
 
     parts: (invoice.items || [])
