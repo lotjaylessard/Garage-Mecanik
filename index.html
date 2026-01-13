@@ -3640,26 +3640,6 @@ setTimeout(() => {
 
 }, 0);
 
-
-      const kmCell = document.getElementById("wo-km-cell-" + wo.id);
-  if (kmCell){
-    kmCell.textContent = wo.vehicleKm ? wo.vehicleKm + " km" : "-";
-  }
-
-
-    // sync vers véhicule client
-    const client = CLIENTS.find(c => c.name === wo.clientName);
-    if (client && Array.isArray(client.vehicles)){
-      const veh = client.vehicles.find(v =>
-        `${v.year} ${v.make} ${v.model}` === wo.vehicleLabel
-      );
-      if (veh){
-        veh.km = wo.vehicleKm;
-        saveClients();
-        }
-  }
-}, 0);
-
     
     woRenderLines(wo);
 
