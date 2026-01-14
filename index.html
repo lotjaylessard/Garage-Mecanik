@@ -4895,7 +4895,7 @@ vehiclesFlat.forEach(v => {
     <td>${v.vin}</td>
     <td>${v.km}</td>
     <td>
-  <button class="ghost" onclick="openVehicleModal('${client.id}','${v.id}')">Fiche</button>
+  <button class="ghost" onclick="openVehicleModal('${v.clientId}','${v.id}')">Fiche</button>
 </td>
   `;
   tbody.appendChild(tr);
