@@ -5126,12 +5126,6 @@ loadInvoices?.();
   content.innerHTML = renderVehicleModalContent(client, vehicle);
   modal.style.display = "flex";
 
-  console.log("DEBUG VEHICLE MODAL", {
-  clientId,
-  vehicleId,
-  client,
-  vehicles: client?.vehicles
-});
 }
 
 
@@ -5218,7 +5212,60 @@ loadInvoices?.();
       `;
     });
   }
-    }
+      return `
+    <div style="border:1px solid var(--border); border-radius:10px; padding:12px; background:#111; margin-bottom:12px;">
+      <div class="muted">Client</div>
+      <div style="font-weight:700; font-size:1.05rem;">
+        ${clientName || client.name || ""}
+      </div>
+
+      <div style="margin-top:10px;" class="muted">Véhicule</div>
+      <div style="font-weight:700;">${vehicleLabel}</div>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+        <div><span class="muted">Plaque :</span> <b>${vehicle.plate || "-"}</b></div>
+        <div><span class="muted">VIN :</span> <b>${vehicle.vin || "-"}</b></div>
+        <div><span class="muted">KM :</span> <b>${vehicle.km || "-"}</b></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h3 style="margin:0 0 8px;">Historique des bons de travail</h3>
+      <table style="width:100%;">
+        <thead>
+          <tr>
+            <th># BT</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th style="text-align:right;">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${woRows}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px;">Historique des factures</h3>
+      <table style="width:100%;">
+        <thead>
+          <tr>
+            <th># Facture</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th style="text-align:right;">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invRows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
 
 
     
