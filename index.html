@@ -3047,55 +3047,65 @@ const hay = `
     return true;
   });
 
-  filtered.forEach(wo => {
-    const tr = document.createElement("tr");
-    tr.dataset.id = wo.id;
+filtered.forEach(wo => {
+  const tr = document.createElement("tr");
+  tr.dataset.id = wo.id;
 
-    // 🔎 Résoudre le client depuis CLIENTS (source fiable)
-const clientObj = CLIENTS.find(c =>
-  c.id === wo.clientId ||
-  c.name === wo.clientName
-);
+  // 🔎 Résoudre le client depuis CLIENTS (source fiable)
+  const clientObj = CLIENTS.find(c =>
+    c.id === wo.clientId ||
+    c.name === wo.clientName
+  );
 
-// Format Nom, Prénom (cohérent avec Clients / Véhicules / Factures)
-const clientNameDisplay = clientObj
-  ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
-  : (wo.clientName || "");
+  // Format Nom, Prénom
+  const clientNameDisplay = clientObj
+    ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
+    : (wo.clientName || "");
 
-    const statusLabel =
-      wo.status === "en_cours" ? "En cours" :
-      wo.status === "termine"  ? "Terminé"  :
-      wo.status;
+  // 🚗 Résoudre le véhicule (ICI EXACTEMENT)
+  let vehicleObj = null;
+  if (clientObj && Array.isArray(clientObj.vehicles) && wo.vehicleId != null){
+    vehicleObj = clientObj.vehicles.find(v =>
+      String(v.id) === String(wo.vehicleId)
+    );
+  }
 
-    tr.innerHTML = `
-      <td>${wo.number || ""}</td>
-      <td>${wo.date || ""}</td>
-      <td>${clientNameDisplay}</td>
-      <td>${wo.vehicleLabel || ""}</td>
-      <td id="wo-km-cell-${wo.id}">
-  ${vehicleObj ? `
-    <div><span class="muted">Plaque :</span> <b>${vehicleObj.plate || "-"}</b></div>
-    <div><span class="muted">VIN :</span> <b>${vehicleObj.vin || "-"}</b></div>
-  ` : ``}
-  <div>
-    <span class="muted">KM :</span>
-    <b>${wo.vehicleKm || vehicleObj?.km || "-"}</b>
-  </div>
-</td>
-      <td>
-        <span class="status-badge status-${wo.status}">
-          ${statusLabel}
-        </span>
-      </td>
-      <td>${money(wo.estimateTotal || 0)} $</td>
-      <td>
-        <button class="ghost" data-action="open">Ouvrir</button>
-        <button class="ghost" onclick="finishWorkOrder(${wo.id})">✅ Terminé</button>
-        <button class="ghost danger" onclick="deleteWorkOrder(${wo.id})">🗑 Supprimer</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+  const statusLabel =
+    wo.status === "en_cours" ? "En cours" :
+    wo.status === "termine"  ? "Terminé"  :
+    wo.status;
+
+  // ⚠️ vehicleObj est MAINTENANT défini → OK
+  tr.innerHTML = `
+    <td>${wo.number || ""}</td>
+    <td>${wo.date || ""}</td>
+    <td>${clientNameDisplay}</td>
+    <td>${wo.vehicleLabel || ""}</td>
+    <td id="wo-km-cell-${wo.id}">
+      ${vehicleObj ? `
+        <div><span class="muted">Plaque :</span> <b>${vehicleObj.plate || "-"}</b></div>
+        <div><span class="muted">VIN :</span> <b>${vehicleObj.vin || "-"}</b></div>
+      ` : ``}
+      <div>
+        <span class="muted">KM :</span>
+        <b>${wo.vehicleKm || vehicleObj?.km || "-"}</b>
+      </div>
+    </td>
+    <td>
+      <span class="status-badge status-${wo.status}">
+        ${statusLabel}
+      </span>
+    </td>
+    <td>${money(wo.estimateTotal || 0)} $</td>
+    <td>
+      <button class="ghost" data-action="open">Ouvrir</button>
+      <button class="ghost" onclick="finishWorkOrder(${wo.id})">✅ Terminé</button>
+      <button class="ghost danger" onclick="deleteWorkOrder(${wo.id})">🗑 Supprimer</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+});
 
   tbody.querySelectorAll("button[data-action='open']").forEach(btn=>{
   btn.onclick = () => {
@@ -4250,20 +4260,6 @@ const hay = `
     .forEach(inv => {
       const tr = document.createElement("tr");
       tr.dataset.number = inv.number;
-
-      // 🔎 Résoudre le client depuis CLIENTS (source fiable)
-const clientObj = CLIENTS.find(c =>
-  c.id === inv.customerId ||
-  c.name === inv.customer
-);
-
-        // 🚗 Résoudre le véhicule depuis CLIENTS (source unique)
-let vehicleObj = null;
-if (clientObj && Array.isArray(clientObj.vehicles) && wo.vehicleId != null){
-  vehicleObj = clientObj.vehicles.find(v =>
-    String(v.id) === String(wo.vehicleId)
-  );
-}
 
 // Format Nom, Prénom (comme page Clients)
 const clientNameDisplay = clientObj
