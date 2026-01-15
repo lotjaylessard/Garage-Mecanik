@@ -3626,13 +3626,23 @@ setTimeout(() => {
   if (!kmInput) return;
 
   const saveKm = () => {
-    syncKmEverywhereFromWO(wo, kmInput.value);
+  syncKmEverywhereFromWO(wo, kmInput.value);
 
-    const kmCell = document.getElementById("wo-km-cell-" + wo.id);
-    if (kmCell){
-      kmCell.textContent = kmInput.value + " km";
-    }
-  };
+  // 🔄 UI live update — LISTES
+  if (typeof renderWorkOrders === "function"){
+    renderWorkOrders();
+  }
+
+  if (typeof renderVehiclesPage === "function"){
+    renderVehiclesPage();
+  }
+
+  // 🔄 cellule locale (sécurité)
+  const kmCell = document.getElementById("wo-km-cell-" + wo.id);
+  if (kmCell){
+    kmCell.textContent = wo.vehicleKm + " km";
+  }
+};
 
   // ✅ sauvegarde quand la valeur est finale
   kmInput.onchange = saveKm;
