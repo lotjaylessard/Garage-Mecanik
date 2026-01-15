@@ -3073,8 +3073,15 @@ const clientNameDisplay = clientObj
       <td>${clientNameDisplay}</td>
       <td>${wo.vehicleLabel || ""}</td>
       <td id="wo-km-cell-${wo.id}">
-    ${wo.vehicleKm ? wo.vehicleKm + " km" : "-"}
-  </td>
+  ${vehicleObj ? `
+    <div><span class="muted">Plaque :</span> <b>${vehicleObj.plate || "-"}</b></div>
+    <div><span class="muted">VIN :</span> <b>${vehicleObj.vin || "-"}</b></div>
+  ` : ``}
+  <div>
+    <span class="muted">KM :</span>
+    <b>${wo.vehicleKm || vehicleObj?.km || "-"}</b>
+  </div>
+</td>
       <td>
         <span class="status-badge status-${wo.status}">
           ${statusLabel}
@@ -4249,6 +4256,14 @@ const clientObj = CLIENTS.find(c =>
   c.id === inv.customerId ||
   c.name === inv.customer
 );
+
+        // 🚗 Résoudre le véhicule depuis CLIENTS (source unique)
+let vehicleObj = null;
+if (clientObj && Array.isArray(clientObj.vehicles) && wo.vehicleId != null){
+  vehicleObj = clientObj.vehicles.find(v =>
+    String(v.id) === String(wo.vehicleId)
+  );
+}
 
 // Format Nom, Prénom (comme page Clients)
 const clientNameDisplay = clientObj
