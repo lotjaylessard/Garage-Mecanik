@@ -660,7 +660,6 @@ button.link:hover{
     <th>Date</th>
     <th>Client</th>
     <th>Véhicule</th>
-    <th>Infos véhicule</th>
     <th>Statut</th>
     <th>Total estimé</th>
     <th></th>
@@ -3008,7 +3007,7 @@ function renderWorkOrders(){
 
   if (!WORKORDERS.length){
     tbody.innerHTML = `<tr>
-        <td colspan="8" class="muted">Aucun bon de travail pour le moment.</td>
+        <td colspan="7" class="muted">Aucun bon de travail pour le moment.</td>
       </tr>`;
     return;
   }
@@ -3083,15 +3082,9 @@ filtered.forEach(wo => {
     <td>${clientNameDisplay}</td>
     <td>${wo.vehicleLabel || ""}</td>
     <td id="wo-km-cell-${wo.id}">
-      ${vehicleObj ? `
-        <div><span class="muted">Plaque :</span> <b>${vehicleObj.plate || "-"}</b></div>
-        <div><span class="muted">VIN :</span> <b>${vehicleObj.vin || "-"}</b></div>
-      ` : ``}
-      <div>
-        <span class="muted">KM :</span>
-        <b>${wo.vehicleKm || vehicleObj?.km || "-"}</b>
-      </div>
-    </td>
+  ${wo.vehicleKm ? wo.vehicleKm + " km" : "-"}
+</td>
+
     <td>
       <span class="status-badge status-${wo.status}">
         ${statusLabel}
@@ -3203,17 +3196,20 @@ function deleteWorkOrder(id){
 }
 
 
-  function openWorkOrderDetail(wo){
+function openWorkOrderDetail(wo){
   if (!wo) return;
 
   // afficher la page WO
   showPage("page-workorders");
 
-  // masquer la liste
+  // masquer la liste / afficher le détail
   $("woListCard").style.display = "none";
   $("woDetailCard").style.display = "block";
 
-  // 🧠 IMPORTANT : injecter l’ID courant
+  // mémoriser le WO actif
+  window.__currentWO = wo;
+
+  // injecter l’ID courant
   const hidden = document.createElement("input");
   hidden.type = "hidden";
   hidden.id = "woEditId";
@@ -3223,97 +3219,98 @@ function deleteWorkOrder(id){
   detail.innerHTML = "";
   detail.appendChild(hidden);
 
-  // 🚗 Résoudre client + véhicule pour afficher Plaque/VIN
-const clientObj = CLIENTS.find(c =>
-  String(c.id) === String(wo.clientId || "") ||
-  String(c.name || "").trim() === String(wo.clientName || "").trim()
-);
+  // =====================================================
+  // 🚗 Résoudre client + véhicule (SOURCE UNIQUE)
+  // =====================================================
+  const clientObj = CLIENTS.find(c =>
+    String(c.id) === String(wo.clientId || "") ||
+    String(c.name || "").trim() === String(wo.clientName || "").trim()
+  );
 
-let vehicleObj = null;
-if (clientObj && Array.isArray(clientObj.vehicles)){
-  // 1) priorité: vehicleId si présent
-  if (wo.vehicleId != null){
-    vehicleObj = clientObj.vehicles.find(v => String(v.id) === String(wo.vehicleId));
-  }
-  // 2) fallback: match par label
-  if (!vehicleObj){
-    vehicleObj = clientObj.vehicles.find(v =>
-      `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim() === String(wo.vehicleLabel || "").trim()
-    );
-  }
-}
-
-// 🔹 Pré-remplir KM depuis le véhicule client si absent dans le WO
-if (!wo.vehicleKm){
-  const client = CLIENTS.find(c => c.name === wo.clientName);
-  if (client && Array.isArray(client.vehicles)){
-    const veh = client.vehicles.find(v =>
-      `${v.year} ${v.make} ${v.model}` === wo.vehicleLabel
-    );
-    if (veh && veh.km){
-      wo.vehicleKm = veh.km;
+  let vehicleObj = null;
+  if (clientObj && Array.isArray(clientObj.vehicles)){
+    // priorité : vehicleId
+    if (wo.vehicleId != null){
+      vehicleObj = clientObj.vehicles.find(v =>
+        String(v.id) === String(wo.vehicleId)
+      );
+    }
+    // fallback : label
+    if (!vehicleObj){
+      vehicleObj = clientObj.vehicles.find(v =>
+        `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim() ===
+        String(wo.vehicleLabel || "").trim()
+      );
     }
   }
-}
-    
-  // 🔥 ICI : UI EXACTE du WO (celle que tu connais)
+
+  // =====================================================
+  // 🔹 Pré-remplir KM depuis le véhicule si absent
+  // =====================================================
+  if (wo.vehicleKm == null && vehicleObj?.km){
+    wo.vehicleKm = vehicleObj.km;
+  }
+
+  // =====================================================
+  // 🔥 UI DÉTAIL DU BON DE TRAVAIL
+  // =====================================================
   detail.innerHTML += `
-  <div class="card">
-    <h2>${wo.__fromInvoice ? "Facture" : "Bon de travail"} #${wo.number}</h2>
+    <div class="card">
+      <h2>${wo.__fromInvoice ? "Facture" : "Bon de travail"} #${wo.number}</h2>
 
-<p><b>Client :</b> ${wo.clientName}</p>
+      <p><b>Client :</b> ${wo.clientName || "-"}</p>
 
-<p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
+      <p><b>Véhicule :</b> ${wo.vehicleLabel || "-"}</p>
 
-<p>
-  <b>Plaque :</b> ${vehicleObj?.plate || "-"}
-  &nbsp;&nbsp;•&nbsp;&nbsp;
-  <b>VIN :</b> ${vehicleObj?.vin || "-"}
-</p>
+      <p>
+        <b>Plaque :</b> ${vehicleObj?.plate || "-"}
+        &nbsp;&nbsp;•&nbsp;&nbsp;
+        <b>VIN :</b> ${vehicleObj?.vin || "-"}
+      </p>
 
-
-<p>
-  <b>Kilométrage :</b>
-  <input
-    id="woVehicleKmInput"
-    type="number"
-    min="0"
-    value="${wo.vehicleKm || ''}"
-    style="
-      margin-left:6px;
-      width:120px;
-      padding:4px;
-      border-radius:4px;
-      border:1px solid var(--border);
-      background:#111;
-      color:#fff;
-    "
-    onchange="saveWorkOrderVehicleKm(${wo.id}, this.value)"
-  >
-  km
-</p>
-  </div>
-
-  <div class="card">
-    <h3>Pièces</h3>
-    <table id="woPartsTable">
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th>Qté</th>
-          <th>Prix</th>
-          <th>Total</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div style="text-align:right;margin-top:6px;">
-      Total pièces : <b><span id="woPartsTotal">0.00 $</span></b>
+      <p>
+        <b>Kilométrage :</b>
+        <input
+          id="woVehicleKmInput"
+          type="number"
+          min="0"
+          value="${wo.vehicleKm ?? ""}"
+          style="
+            margin-left:6px;
+            width:120px;
+            padding:4px;
+            border-radius:4px;
+            border:1px solid var(--border);
+            background:#111;
+            color:#fff;
+          "
+          onchange="saveWorkOrderVehicleKm(${wo.id}, this.value)"
+        >
+        km
+      </p>
     </div>
-    <button class="ghost" onclick="woAddPartLine(window.__currentWO)">➕ Ajouter une pièce</button>
-  </div>
 
+    <div class="card">
+      <h3>Pièces</h3>
+      <table id="woPartsTable">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qté</th>
+            <th>Prix</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="text-align:right;margin-top:6px;">
+        Total pièces : <b><span id="woPartsTotal">0.00 $</span></b>
+      </div>
+      <button class="ghost" onclick="woAddPartLine(window.__currentWO)">
+        ➕ Ajouter une pièce
+      </button>
+    </div>
 
     <div class="card">
       <h3>Main-d’œuvre</h3>
@@ -3332,24 +3329,33 @@ if (!wo.vehicleKm){
       <div style="text-align:right;margin-top:6px;">
         Total main-d’œuvre : <b><span id="woLaborTotal">0.00 $</span></b>
       </div>
-      <button class="ghost" onclick="woAddLaborLine(window.__currentWO)">➕ Ajouter main-d’œuvre</button>
+      <button class="ghost" onclick="woAddLaborLine(window.__currentWO)">
+        ➕ Ajouter main-d’œuvre
+      </button>
     </div>
 
     <div class="card" style="text-align:right;">
       <h3>Total estimé : <span id="woEstimateTotal">0.00 $</span></h3>
       ${wo.__fromInvoice ? `
-  <button class="ghost" onclick="saveTempWOToInvoice(window.__currentWO); alert('Facture enregistrée !');">💾 Enregistrer facture</button>
-  <button class="ghost" onclick="showPage('page-invoice-list')">⬅ Retour</button>
-` : `
-  <button class="ghost" onclick="backToWorkOrdersList()">⬅ Retour</button>
-`}
+        <button class="ghost"
+          onclick="saveTempWOToInvoice(window.__currentWO);
+                   alert('Facture enregistrée !');">
+          💾 Enregistrer facture
+        </button>
+        <button class="ghost" onclick="showPage('page-invoice-list')">
+          ⬅ Retour
+        </button>
+      ` : `
+        <button class="ghost" onclick="backToWorkOrdersList()">
+          ⬅ Retour
+        </button>
+      `}
     </div>
   `;
 
-  // mémoriser le WO actif
-  window.__currentWO = wo;
-
-  // rendu des lignes
+  // =====================================================
+  // 🔁 Rendu des lignes (pièces / main-d’œuvre)
+  // =====================================================
   woRenderLines(wo);
 }
 
