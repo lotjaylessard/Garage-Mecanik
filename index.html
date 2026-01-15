@@ -3626,23 +3626,28 @@ setTimeout(() => {
   if (!kmInput) return;
 
   const saveKm = () => {
-  syncKmEverywhereFromWO(wo, kmInput.value);
+    syncKmEverywhereFromWO(wo, kmInput.value);
 
-  // 🔄 UI live update — LISTES
-  if (typeof renderWorkOrders === "function"){
-    renderWorkOrders();
-  }
+    // 🔥 INVALIDATION CACHE VÉHICULES (OBLIGATOIRE)
+    if (typeof VEHICLES_FLAT !== "undefined"){
+      VEHICLES_FLAT = [];
+    }
 
-  if (typeof renderVehiclesPage === "function"){
-    renderVehiclesPage();
-  }
+    // 🔄 UI live update — LISTES
+    if (typeof renderWorkOrders === "function"){
+      renderWorkOrders();
+    }
 
-  // 🔄 cellule locale (sécurité)
-  const kmCell = document.getElementById("wo-km-cell-" + wo.id);
-  if (kmCell){
-    kmCell.textContent = wo.vehicleKm + " km";
-  }
-};
+    if (typeof renderVehiclesPage === "function"){
+      renderVehiclesPage();
+    }
+
+    // 🔄 cellule locale (sécurité)
+    const kmCell = document.getElementById("wo-km-cell-" + wo.id);
+    if (kmCell){
+      kmCell.textContent = wo.vehicleKm + " km";
+    }
+  };
 
   // ✅ sauvegarde quand la valeur est finale
   kmInput.onchange = saveKm;
