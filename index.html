@@ -3246,25 +3246,45 @@ function openWorkOrderDetail(wo){
       <h2>Bon de travail #${wo.number}</h2>
       <div class="muted">${wo.date || ""}</div>
 
-      <p><b>Client :</b> ${wo.clientName}</p>
-      <p><b>Véhicule :</b> ${wo.vehicleLabel}</p>
+      <div style="
+  display:grid;
+  grid-template-columns:1fr;
+  row-gap:6px;
+  margin-top:8px;
+">
 
-      <p>
-        <b>Plaque :</b> ${vehicle?.plate || "-"}<br>
-        <b>VIN :</b> ${vehicle?.vin || "-"}
-      </p>
+  <div><b>Client :</b> ${wo.clientName || "-"}</div>
 
-      <p>
-        <b>Kilométrage :</b>
-        <input id="woKmInput" type="number" value="${wo.vehicleKm || ""}" style="width:120px;">
-        km
-      </p>
+  <div><b>Véhicule :</b> ${wo.vehicleLabel || "-"}</div>
 
-      <p><b>Description :</b>
-        <span style="background:#ffeb3b;color:#000;padding:2px 6px;border-radius:4px;">
-          ${wo.description || "—"}
-        </span>
-      </p>
+  <div><b>Plaque :</b> ${vehicle?.plate || "-"}</div>
+
+  <div><b>VIN :</b> ${vehicle?.vin || "-"}</div>
+
+  <div style="display:flex;align-items:center;gap:6px;">
+    <b>Kilométrage :</b>
+    <input
+      id="woKmInput"
+      type="number"
+      value="${wo.vehicleKm || ""}"
+      style="width:120px;"
+    >
+    km
+  </div>
+
+  <div style="display:flex;align-items:center;gap:6px;">
+    <b>Description :</b>
+    <span style="
+      background:#ffeb3b;
+      color:#000;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      ${wo.description || "—"}
+    </span>
+  </div>
+
+</div>
     </div>
 
     <div class="card">
