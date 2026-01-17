@@ -3199,73 +3199,68 @@ function deleteWorkOrder(id){
 function openWorkOrderDetail(wo){
   if (!wo) return;
 
-  // afficher la page WO
+  // ================= UI DE BASE =================
   showPage("page-workorders");
 
-  // masquer la liste / afficher le détail
-  $("woListCard").style.display = "none";
-  $("woDetailCard").style.display = "block";
-
-  // mémoriser le WO actif
-  window.__currentWO = wo;
-
-  // injecter l’ID courant
-  const hidden = document.createElement("input");
-  hidden.type = "hidden";
-  hidden.id = "woEditId";
-  hidden.value = wo.id;
+  if ($("woListCard")) $("woListCard").style.display = "none";
+  if ($("woDetailCard")) $("woDetailCard").style.display = "block";
 
   const detail = $("woDetailContent");
+  if (!detail) return;
   detail.innerHTML = "";
-  detail.appendChild(hidden);
 
-  // =====================================================
-  // 🚗 Résoudre client + véhicule (SOURCE UNIQUE)
-  // =====================================================
-  const clientObj = CLIENTS.find(c =>
+  // ================= ID ACTIF =================
+  let hidden = $("woEditId");
+  if (!hidden){
+    hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.id = "woEditId";
+    detail.appendChild(hidden);
+  }
+  hidden.value = wo.id;
+
+  // ================= RÉSOLUTION CLIENT =================
+  const client = CLIENTS.find(c =>
     String(c.id) === String(wo.clientId || "") ||
     String(c.name || "").trim() === String(wo.clientName || "").trim()
   );
 
-  let vehicleObj = null;
-  if (clientObj && Array.isArray(clientObj.vehicles)){
+  // ================= RÉSOLUTION VÉHICULE =================
+  let vehicle = null;
+  if (client && Array.isArray(client.vehicles)){
     // priorité : vehicleId
     if (wo.vehicleId != null){
-      vehicleObj = clientObj.vehicles.find(v =>
+      vehicle = client.vehicles.find(v =>
         String(v.id) === String(wo.vehicleId)
       );
     }
-    // fallback : label
-    if (!vehicleObj){
-      vehicleObj = clientObj.vehicles.find(v =>
+
+    // fallback : label "2020 Hyundai Kona"
+    if (!vehicle){
+      vehicle = client.vehicles.find(v =>
         `${v.year || ""} ${v.make || ""} ${v.model || ""}`.trim() ===
         String(wo.vehicleLabel || "").trim()
       );
     }
   }
 
-  // =====================================================
-  // 🔹 Pré-remplir KM depuis le véhicule si absent
-  // =====================================================
-  if (wo.vehicleKm == null && vehicleObj?.km){
-    wo.vehicleKm = vehicleObj.km;
+  // ================= KM : fallback depuis véhicule =================
+  if (!wo.vehicleKm && vehicle && vehicle.km){
+    wo.vehicleKm = vehicle.km;
   }
 
-  // =====================================================
-  // 🔥 UI DÉTAIL DU BON DE TRAVAIL
-  // =====================================================
-  detail.innerHTML += `
+  // ================= UI =================
+  detail.innerHTML = `
     <div class="card">
       <h2>${wo.__fromInvoice ? "Facture" : "Bon de travail"} #${wo.number}</h2>
 
       <p><b>Client :</b> ${wo.clientName || "-"}</p>
-
       <p><b>Véhicule :</b> ${wo.vehicleLabel || "-"}</p>
 
       <p>
-        <b>Plaque :</b> ${vehicleObj?.plate || "-"}
+        <b>Plaque :</b> ${vehicle?.plate || "-"}
         &nbsp;&nbsp;•&nbsp;&nbsp;
-        <b>VIN :</b> ${vehicleObj?.vin || "-"}
+        <b>VIN :</b> ${vehicle?.vin || "-"}
       </p>
 
       <p>
@@ -3274,17 +3269,9 @@ function openWorkOrderDetail(wo){
           id="woVehicleKmInput"
           type="number"
           min="0"
-          value="${wo.vehicleKm ?? ""}"
-          style="
-            margin-left:6px;
-            width:120px;
-            padding:4px;
-            border-radius:4px;
-            border:1px solid var(--border);
-            background:#111;
-            color:#fff;
-          "
-          onchange="saveWorkOrderVehicleKm(${wo.id}, this.value)"
+          value="${wo.vehicleKm || ""}"
+          style="margin-left:6px;width:120px;"
+          onchange="saveWorkOrderVehicleKm(${JSON.stringify(wo.id)}, this.value)"
         >
         km
       </p>
@@ -3336,26 +3323,18 @@ function openWorkOrderDetail(wo){
 
     <div class="card" style="text-align:right;">
       <h3>Total estimé : <span id="woEstimateTotal">0.00 $</span></h3>
-      ${wo.__fromInvoice ? `
-        <button class="ghost"
-          onclick="saveTempWOToInvoice(window.__currentWO);
-                   alert('Facture enregistrée !');">
-          💾 Enregistrer facture
-        </button>
-        <button class="ghost" onclick="showPage('page-invoice-list')">
-          ⬅ Retour
-        </button>
-      ` : `
-        <button class="ghost" onclick="backToWorkOrdersList()">
-          ⬅ Retour
-        </button>
-      `}
+      ${
+        wo.__fromInvoice
+        ? `<button class="ghost" onclick="showPage('page-invoice-list')">⬅ Retour</button>`
+        : `<button class="ghost" onclick="backToWorkOrdersList()">⬅ Retour</button>`
+      }
     </div>
   `;
 
-  // =====================================================
-  // 🔁 Rendu des lignes (pièces / main-d’œuvre)
-  // =====================================================
+  // ================= MÉMOIRE =================
+  window.__currentWO = wo;
+
+  // ================= RENDU DES LIGNES =================
   woRenderLines(wo);
 }
 
