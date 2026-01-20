@@ -3938,35 +3938,34 @@ function initWorkOrderSaveButton(){
 
   btn.onclick = () => {
 
-    // 🔍 MODE : édition ou création
-    const isEditing = !!window.__currentWO;
+    const editId = $("woEditId")?.value;
+    const isEditing = editId && editId !== "";
 
-    // ================= MODE MODIFICATION =================
+    /* ======================================================
+       MODE MODIFICATION (WO EXISTANT)
+    ====================================================== */
     if (isEditing){
-      const wo = window.__currentWO;
-      if (!wo || !wo.id){
+      const wo = getActiveWOById(editId);
+      if (!wo){
         alert("Erreur : bon de travail introuvable.");
         return;
       }
 
-      // Sécuriser tableaux
-      if (!Array.isArray(wo.parts)) wo.parts = [];
-      if (!Array.isArray(wo.labor)) wo.labor = [];
+      // 🔁 Recalcul TOTAL PROPRE
+      const totalParts = Array.isArray(wo.parts)
+        ? wo.parts.reduce((s,p)=> s + (Number(p.rate) * Number(p.qty)), 0)
+        : 0;
 
-      // 🔁 Recalcul COMPLET
-      const totalParts = wo.parts.reduce(
-        (s,p)=> s + (Number(p.rate || 0) * Number(p.qty || 0)), 0
-      );
-      const totalLabor = wo.labor.reduce(
-        (s,l)=> s + (Number(l.rate || 0) * Number(l.hours || 0)), 0
-      );
+      const totalLabor = Array.isArray(wo.labor)
+        ? wo.labor.reduce((s,l)=> s + (Number(l.rate) * Number(l.hours)), 0)
+        : 0;
 
       wo.estimateTotal = totalParts + totalLabor;
 
-      // 💾 Sauvegarde
-      saveWorkOrders();
+      // 💾 PERSISTENCE OFFICIELLE (OBLIGATOIRE)
+      persistActiveWO(wo);
 
-      // 🔄 Rafraîchissements UI
+      // 🔄 RAFRAÎCHISSEMENT UI
       woRenderLines(wo);
       renderWorkOrders();
 
@@ -3974,48 +3973,31 @@ function initWorkOrderSaveButton(){
       return;
     }
 
-    // ================= MODE CRÉATION =================
+    /* ======================================================
+       MODE CRÉATION (NOUVEAU WO)
+    ====================================================== */
     const clientId = $("woClientSelect")?.value;
     const vehicleId = $("woVehicleSelect")?.value;
-    const description = ($("woDescription")?.value || "").trim();
+    const description = $("woDescription")?.value.trim();
 
-    if (!clientId){
-      alert("Veuillez choisir un client.");
-      return;
-    }
-
-    if (!vehicleId){
-      alert("Veuillez choisir un véhicule.");
-      return;
-    }
+    if (!clientId) return alert("Veuillez choisir un client.");
+    if (!vehicleId) return alert("Veuillez choisir un véhicule.");
 
     const client = CLIENTS.find(c => String(c.id) === String(clientId));
-    if (!client){
-      alert("Client introuvable.");
-      return;
-    }
+    if (!client) return alert("Client introuvable.");
 
-    const vehicle = (client.vehicles || []).find(v =>
-      String(v.id) === String(vehicleId)
-    );
-
-    if (!vehicle){
-      alert("Véhicule introuvable.");
-      return;
-    }
+    const vehicle = client.vehicles.find(v => String(v.id) === String(vehicleId));
+    if (!vehicle) return alert("Véhicule introuvable.");
 
     const wo = {
       id: Date.now(),
-      number: "BT-" + Date.now(),
+      number: generateWorkOrderNumber(client.name),
       date: new Date().toLocaleString("fr-CA"),
-
-      // 🔗 LIENS SOLIDES
-      clientId: client.id,
       clientName: client.name,
-      vehicleId: vehicle.id,
       vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-      vehicleKm: vehicle.km || null,
-
+      vehiclePlate: vehicle.plate || "",
+      vehicleVin: vehicle.vin || "",
+      vehicleKm: vehicle.km || 0,
       description,
       parts: [],
       labor: [],
@@ -4024,7 +4006,9 @@ function initWorkOrderSaveButton(){
     };
 
     WORKORDERS.push(wo);
-    saveWorkOrders();
+    localStorage.setItem(STORAGE.workorders, JSON.stringify(WORKORDERS));
+    scheduleCloudSync();
+
     renderWorkOrders();
 
     alert("Bon de travail créé !");
