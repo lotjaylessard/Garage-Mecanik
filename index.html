@@ -3938,28 +3938,37 @@ function initWorkOrderSaveButton(){
 
   btn.onclick = () => {
 
-    const editId = $("woEditId")?.value;
-    const isEditing = editId && editId !== "";
+    // 🔍 MODE : édition ou création
+    const isEditing = !!window.__currentWO;
 
     // ================= MODE MODIFICATION =================
     if (isEditing){
-      const wo = WORKORDERS.find(w => String(w.id) === String(editId));
-      if (!wo) return alert("Erreur : bon de travail introuvable.");
+      const wo = window.__currentWO;
+      if (!wo || !wo.id){
+        alert("Erreur : bon de travail introuvable.");
+        return;
+      }
 
-      // 🔒 Description non modifiable ici (elle est dans l'entête)
-      // wo.description = $("woDescription")?.value.trim();
+      // Sécuriser tableaux
+      if (!Array.isArray(wo.parts)) wo.parts = [];
+      if (!Array.isArray(wo.labor)) wo.labor = [];
 
       // 🔁 Recalcul COMPLET
-      const totalParts = wo.parts.reduce((s,p)=> s + (p.rate * p.qty), 0);
-      const totalLabor = wo.labor.reduce((s,l)=> s + (l.rate * l.hours), 0);
+      const totalParts = wo.parts.reduce(
+        (s,p)=> s + (Number(p.rate || 0) * Number(p.qty || 0)), 0
+      );
+      const totalLabor = wo.labor.reduce(
+        (s,l)=> s + (Number(l.rate || 0) * Number(l.hours || 0)), 0
+      );
+
       wo.estimateTotal = totalParts + totalLabor;
 
       // 💾 Sauvegarde
       saveWorkOrders();
 
-      // 🔄 RAFRAÎCHISSEMENT IMMÉDIAT
-      woRenderLines(wo);      // ⬅️ MET À JOUR LES TOTAUX VISIBLES
-      renderWorkOrders();     // ⬅️ MET À JOUR LA LISTE
+      // 🔄 Rafraîchissements UI
+      woRenderLines(wo);
+      renderWorkOrders();
 
       alert("Bon de travail mis à jour !");
       return;
@@ -3968,20 +3977,45 @@ function initWorkOrderSaveButton(){
     // ================= MODE CRÉATION =================
     const clientId = $("woClientSelect")?.value;
     const vehicleId = $("woVehicleSelect")?.value;
-    const description = $("woDescription")?.value.trim();
+    const description = ($("woDescription")?.value || "").trim();
 
-    if (!clientId) return alert("Veuillez choisir un client.");
-    if (!vehicleId) return alert("Veuillez choisir un véhicule.");
+    if (!clientId){
+      alert("Veuillez choisir un client.");
+      return;
+    }
+
+    if (!vehicleId){
+      alert("Veuillez choisir un véhicule.");
+      return;
+    }
 
     const client = CLIENTS.find(c => String(c.id) === String(clientId));
-    const vehicle = client.vehicles.find(v => String(v.id) === String(vehicleId));
+    if (!client){
+      alert("Client introuvable.");
+      return;
+    }
+
+    const vehicle = (client.vehicles || []).find(v =>
+      String(v.id) === String(vehicleId)
+    );
+
+    if (!vehicle){
+      alert("Véhicule introuvable.");
+      return;
+    }
 
     const wo = {
       id: Date.now(),
       number: "BT-" + Date.now(),
       date: new Date().toLocaleString("fr-CA"),
+
+      // 🔗 LIENS SOLIDES
+      clientId: client.id,
       clientName: client.name,
+      vehicleId: vehicle.id,
       vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+      vehicleKm: vehicle.km || null,
+
       description,
       parts: [],
       labor: [],
@@ -3996,8 +4030,6 @@ function initWorkOrderSaveButton(){
     alert("Bon de travail créé !");
   };
 }
-
-
   
 
 /* ===================== SETTINGS ===================== */
