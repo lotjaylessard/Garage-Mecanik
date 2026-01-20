@@ -3373,13 +3373,32 @@ function openWorkOrderDetail(wo){
 </div>
 
 
-    <div class="card" style="text-align:right;">
-      <h3>Total estimé : <span id="woEstimateTotal">0 $</span></h3>
-      <button class="ghost" onclick="backToWorkOrdersList()">⬅ Retour</button>
-    </div>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+  <h3 style="margin:0;">
+    Total estimé : <span id="woEstimateTotal">0 $</span>
+  </h3>
+
+  <div style="display:flex;gap:8px;">
+    <button id="woSaveBtn">💾 Enregistrer</button>
+
+    <button
+      class="ghost"
+      onclick="finishWorkOrder(${wo.id})">
+      ✅ Terminé
+    </button>
+
+    <button
+      class="ghost"
+      onclick="backToWorkOrdersList()">
+      ⬅ Retour
+    </button>
+  </div>
+</div>
   `;
 
   window.__currentWO = wo;
+  woRenderLines(wo);
+initWorkOrderSaveButton(); // 👈 doit être là
 
     // ================= BIND BOUTONS WO (IMPORTANT) =================
   const btnAddPart  = $("woAddPart");
