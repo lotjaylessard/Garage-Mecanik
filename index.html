@@ -3868,28 +3868,7 @@ if (stopBtn){
 }
 
 
-const saveBtn = $("woSaveBtn");
-if (saveBtn){
-  saveBtn.onclick = () => {
 
-    // recalcul totals
-    const totalParts = wo.parts.reduce((s,p)=> s + (Number(p.rate||0) * Number(p.qty||0)), 0);
-    const totalLabor = wo.labor.reduce((s,l)=> s + (Number(l.rate||0) * Number(l.hours||0)), 0);
-    wo.estimateTotal = totalParts + totalLabor;
-
-    // refresh panneau de droite (tout de suite)
-    if ($("woPartsTotal")) $("woPartsTotal").innerText = money(totalParts) + " $";
-    if ($("woLaborTotal")) $("woLaborTotal").innerText = money(totalLabor) + " $";
-    if ($("woEstimateTotal")) $("woEstimateTotal").innerText = money(wo.estimateTotal) + " $";
-
-    // save + refresh liste BT + refresh dashboard
-    saveWorkOrders();
-    renderWorkOrders();
-    renderDashboard();
-
-    alert("Modifications enregistrées !");
-  };
-}
   };
 
 
@@ -3939,17 +3918,24 @@ function initWorkOrderSaveButton(){
   btn.onclick = () => {
 
     const editId = $("woEditId")?.value;
-    const isEditing = editId && editId !== "";
+    const isEditing = !!(editId || window.__currentWO);
 
     /* ======================================================
        MODE MODIFICATION (WO EXISTANT)
     ====================================================== */
     if (isEditing){
-      const wo = getActiveWOById(editId);
-      if (!wo){
-        alert("Erreur : bon de travail introuvable.");
-        return;
-      }
+      const wo =
+  WORKORDERS.find(w => String(w.id) === String(editId)) ||
+  window.__currentWO;
+
+if (!wo){
+  alert("Erreur : bon de travail introuvable.");
+  return;
+}
+
+// 🔒 s’assurer que le WO actif est bien celui-ci
+window.__currentWO = wo;
+
 
       // 🔁 Recalcul TOTAL PROPRE
       const totalParts = Array.isArray(wo.parts)
@@ -3961,6 +3947,8 @@ function initWorkOrderSaveButton(){
         : 0;
 
       wo.estimateTotal = totalParts + totalLabor;
+
+      saveWorkOrders(); // garantit l’écriture locale avant toute autre logique
 
       // 💾 PERSISTENCE OFFICIELLE (OBLIGATOIRE)
       persistActiveWO(wo);
