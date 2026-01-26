@@ -3006,7 +3006,8 @@ function renderWorkOrders(){
   if (!tbody) return;
 
   if (!WORKORDERS.length){
-    tbody.innerHTML = `<tr>
+    tbody.innerHTML = `
+      <tr>
         <td colspan="7" class="muted">Aucun bon de travail pour le moment.</td>
       </tr>`;
     return;
@@ -3020,26 +3021,24 @@ function renderWorkOrders(){
   let filtered = WORKORDERS.filter(wo => {
     if (!wo || !wo.id) return false;
 
-    // ✅ garder seulement en cours + terminé (comme tu veux)
     if (!["en_cours", "termine"].includes(wo.status)) return false;
-
     if (selectedStatus && wo.status !== selectedStatus) return false;
 
     if (search) {
       const clientObj = CLIENTS.find(c =>
-  c.id === wo.clientId ||
-  c.name === wo.clientName
-);
+        c.id === wo.clientId ||
+        c.name === wo.clientName
+      );
 
-const clientNameSearch = clientObj
-  ? `${clientObj.lastName || ""} ${clientObj.firstName || ""}`
-  : (wo.clientName || "");
+      const clientNameSearch = clientObj
+        ? `${clientObj.lastName || ""} ${clientObj.firstName || ""}`
+        : (wo.clientName || "");
 
-const hay = `
-  ${clientNameSearch}
-  ${wo.vehicleLabel || ""}
-  ${wo.number || ""}
-`.toLowerCase();
+      const hay = `
+        ${clientNameSearch}
+        ${wo.vehicleLabel || ""}
+        ${wo.number || ""}
+      `.toLowerCase();
 
       if (!hay.includes(search)) return false;
     }
@@ -3051,16 +3050,14 @@ const hay = `
     const tr = document.createElement("tr");
     tr.dataset.id = wo.id;
 
-    // 🔎 Résoudre le client depuis CLIENTS (source fiable)
-const clientObj = CLIENTS.find(c =>
-  c.id === wo.clientId ||
-  c.name === wo.clientName
-);
+    const clientObj = CLIENTS.find(c =>
+      c.id === wo.clientId ||
+      c.name === wo.clientName
+    );
 
-// Format Nom, Prénom (cohérent avec Clients / Véhicules / Factures)
-const clientNameDisplay = clientObj
-  ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
-  : (wo.clientName || "");
+    const clientNameDisplay = clientObj
+      ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
+      : (wo.clientName || "");
 
     const statusLabel =
       wo.status === "en_cours" ? "En cours" :
@@ -3073,15 +3070,11 @@ const clientNameDisplay = clientObj
       <td>${clientNameDisplay}</td>
       <td>${wo.vehicleLabel || ""}</td>
       <td id="wo-km-cell-${wo.id}">
-  ${vehicleObj ? `
-    <div><span class="muted">Plaque :</span> <b>${vehicleObj.plate || "-"}</b></div>
-    <div><span class="muted">VIN :</span> <b>${vehicleObj.vin || "-"}</b></div>
-  ` : ``}
-  <div>
-    <span class="muted">KM :</span>
-    <b>${wo.vehicleKm || vehicleObj?.km || "-"}</b>
-  </div>
-</td>
+        <div>
+          <span class="muted">KM :</span>
+          <b>${wo.vehicleKm || "-"}</b>
+        </div>
+      </td>
       <td>
         <span class="status-badge status-${wo.status}">
           ${statusLabel}
@@ -3094,17 +3087,17 @@ const clientNameDisplay = clientObj
         <button class="ghost danger" onclick="deleteWorkOrder(${wo.id})">🗑 Supprimer</button>
       </td>
     `;
+
     tbody.appendChild(tr);
   });
 
   tbody.querySelectorAll("button[data-action='open']").forEach(btn=>{
-  btn.onclick = () => {
-    const id = btn.closest("tr").dataset.id;
-    const wo = WORKORDERS.find(w => String(w.id) === String(id));
-    if (wo) openWorkOrderDetail(wo);
-  };
-});
-
+    btn.onclick = () => {
+      const id = btn.closest("tr").dataset.id;
+      const wo = WORKORDERS.find(w => String(w.id) === String(id));
+      if (wo) openWorkOrderDetail(wo);
+    };
+  });
 }
 
   
