@@ -4256,6 +4256,10 @@ function renderInvoiceList(){
         ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
         : (inv.customer || "");
 
+// 🔁 recalcul sûr pour affichage liste
+normalizeInvoiceTaxes(inv);
+recalcInvoice(inv);
+      
       tr.innerHTML = `
         <td>${inv.number}</td>
         <td>${inv.date || ""}</td>
