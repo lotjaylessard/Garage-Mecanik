@@ -3769,52 +3769,6 @@ let timerBtn = null;
 let timerDisplay = null;
 let stopBtn = null;
 
-
-// ✅ FONCTION CENTRALE — synchro KM partout
-function syncKmEverywhereFromWO(wo, newKm){
-  newKm = Number(newKm);
-  if (!newKm || newKm <= 0) return;
-
-  // 1. update WO
-  wo.vehicleKm = newKm;
-
-  // 2. update véhicule client
-  const client = CLIENTS.find(c => c.name === wo.clientName);
-  if (client && Array.isArray(client.vehicles)){
-    const veh = client.vehicles.find(v =>
-      `${v.year} ${v.make} ${v.model}` === wo.vehicleLabel
-    );
-    if (veh){
-      if (!veh.km || newKm > veh.km){
-        veh.km = newKm;
-      }
-    }
-  }
-
-  // 3. update factures liées
-  if (typeof INVOICES !== "undefined"){
-    INVOICES.forEach(inv => {
-      if (inv.workOrderNumber === wo.number){
-        if (!inv.vehicleKm || newKm > inv.vehicleKm){
-          inv.vehicleKm = newKm;
-        }
-      }
-    });
-  }
-
-  // 4. sauvegarde TOTALE
-  saveWorkOrders();
-  saveClients();
-  if (typeof saveInvoices === "function") saveInvoices();
-
-  // 5. refresh UI
-  renderWorkOrders();
-  if (typeof renderClientsTable === "function") renderClientsTable();
-
-  console.log("KM synchronisé partout :", newKm);
-}
-
-
 // ✅ FONCTION APPELÉE PAR L’INPUT HTML
 function saveWorkOrderVehicleKm(woId, kmValue){
   const wo = WORKORDERS.find(w => String(w.id) === String(woId));
