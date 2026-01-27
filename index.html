@@ -4213,6 +4213,7 @@ function renderInvoiceList(){
   tbody.innerHTML = "";
 
   INVOICES
+    .filter(inv => inv.archived !== true)   // ✅ LIGNE AJOUTÉE
     .filter(inv => {
       if (statusFilter && inv.status !== statusFilter) return false;
 
@@ -4240,21 +4241,18 @@ function renderInvoiceList(){
       const tr = document.createElement("tr");
       tr.dataset.number = inv.number;
 
-      // 🔎 Résoudre le client depuis CLIENTS (source fiable)
       const clientObj = CLIENTS.find(c =>
         c.id === inv.customerId ||
         c.name === inv.customer
       );
 
-      // Format Nom, Prénom (cohérent avec Clients / Factures)
       const clientNameDisplay = clientObj
         ? `${clientObj.lastName || ""}${clientObj.firstName ? ", " + clientObj.firstName : ""}`.trim()
         : (inv.customer || "");
 
-// 🔁 recalcul sûr pour affichage liste
-normalizeInvoiceTaxes(inv);
-recalcInvoice(inv);
-      
+      normalizeInvoiceTaxes(inv);
+      recalcInvoice(inv);
+
       tr.innerHTML = `
         <td>${inv.number}</td>
         <td>${inv.date || ""}</td>
@@ -4274,20 +4272,20 @@ recalcInvoice(inv);
           }
         </td>
         <td style="text-align:right;">
-  <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">
-    Ouvrir
-  </button>
+          <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">
+            Ouvrir
+          </button>
 
-  ${
-    inv.status === "paid"
-      ? `<button class="ghost" onclick="archiveInvoice('${inv.number}')">
-           Archiver
-         </button>`
-      : `<button class="ghost danger" onclick="deleteInvoice('${inv.number}')">
-           Supprimer
-         </button>`
-  }
-</td>
+          ${
+            inv.status === "paid"
+              ? `<button class="ghost" onclick="archiveInvoice('${inv.number}')">
+                   Archiver
+                 </button>`
+              : `<button class="ghost danger" onclick="deleteInvoice('${inv.number}')">
+                   Supprimer
+                 </button>`
+          }
+        </td>
       `;
 
       tbody.appendChild(tr);
