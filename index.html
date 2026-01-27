@@ -2257,8 +2257,6 @@ const isPaid = totalPaid >= Number(wo.total || 0);
  <h2>
   Facture #${wo.number}
 </h2>
->
-
 
   <p class="muted">Modification de facture (UI bon de travail)</p>
 
@@ -2269,6 +2267,22 @@ const isPaid = totalPaid >= Number(wo.total || 0);
   <p>
     <b>Véhicule :</b> ${wo.vehicleLabel}
   </p>
+
+  <p style="margin-top:6px;">
+  <b>Kilométrage :</b>
+  <input
+    type="number"
+    id="woVehicleKm"
+    value="${wo.vehicleKm ?? ''}"
+    placeholder="KM"
+    style="width:140px;margin-left:8px;"
+    oninput="
+      if (window.__currentWO) {
+        window.__currentWO.vehicleKm = Number(this.value) || null;
+      }
+    "
+  >
+</p>
 </div>
 
     <!-- PIÈCES -->
