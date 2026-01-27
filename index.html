@@ -1761,6 +1761,11 @@ let SETTINGS = {
   defaultHourlyRate: 90   // ⬅️ valeur par défaut sécuritaire
 };
 let INVOICES = [];
+
+// 🔥 RESET COMPLET DES FACTURES / HISTORIQUE (TEMPORAIRE)
+localStorage.removeItem(STORAGE.invoices);
+INVOICES = [];
+
 let WORKORDERS = [];
 let items = [];
 let CLIENTS = [];
