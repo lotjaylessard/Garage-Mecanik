@@ -3126,7 +3126,7 @@ function finishWorkOrder(id){
   if (!confirm(`Terminer le bon de travail #${wo.number} et créer une facture ?`)) return;
 
   // 1) Marquer le WO comme facturé (pour le retirer de "En cours / Terminé" si tu veux)
-  wo.status = "billed";
+  wo.status = "facture";
   saveWorkOrders();
 
 // 2️⃣ Construire la facture PRO depuis le WO
