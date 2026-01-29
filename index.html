@@ -616,6 +616,34 @@ button.link:hover{
   color:var(--text);
 }
 
+
+    /* ===============================
+   FIX BARRE SERVICES (TAILLE)
+=============================== */
+
+.services-toolbar{
+  display:flex;
+  gap:12px;
+  margin:12px 0 18px;
+}
+
+.services-toolbar input,
+.services-toolbar select{
+  height:42px;
+  font-size:14px;
+}
+
+#serviceSearchInput{
+  flex:1;
+  min-width:260px;
+  width:100%;
+}
+
+#serviceCategoryFilter{
+  width:240px;
+}
+
+
     
   </style>
 
@@ -6265,6 +6293,25 @@ wrap.appendChild(row);
       alert("Service ajouté à la facture en cours.");
     });
   });
+}
+
+  function initServiceSearchAndFilter(){
+  const searchInput = document.getElementById("serviceSearchInput");
+  const catFilter   = document.getElementById("serviceCategoryFilter");
+
+  if (searchInput){
+    searchInput.oninput = e=>{
+      SERVICE_SEARCH_TERM = e.target.value.toLowerCase();
+      renderServices();
+    };
+  }
+
+  if (catFilter){
+    catFilter.onchange = e=>{
+      SERVICE_CATEGORY_FILTER = e.target.value;
+      renderServices();
+    };
+  }
 }
 
 
