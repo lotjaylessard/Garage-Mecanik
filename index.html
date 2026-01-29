@@ -2210,6 +2210,28 @@ function persistActiveWO(wo){
 }
 
 
+  function stopWOTimer(){
+  if (!WO_TIMER_START) return;
+
+  // arrêter l’interval
+  clearInterval(WO_TIMER_INTERVAL);
+  WO_TIMER_INTERVAL = null;
+
+  const elapsedMs = Date.now() - WO_TIMER_START;
+  WO_TIMER_START = null;
+
+  const hours = Math.round((elapsedMs / 3600000) * 100) / 100;
+
+  console.log("WO TIMER STOP");
+  console.log("Heures calculées :", hours);
+
+  const display = document.getElementById("woTimerDisplay");
+  if (display){
+    display.textContent = "⏱ 00:00:00";
+  }
+}
+
+
   function formatDuration(ms){
   const totalSec = Math.floor(ms / 1000);
   const h = String(Math.floor(totalSec / 3600)).padStart(2,"0");
@@ -3447,17 +3469,24 @@ function openWorkOrderDetail(wo){
   // ===============================
   setTimeout(() => {
 
-    const startBtn = document.getElementById("woTimerBtn");
+  const startBtn = document.getElementById("woTimerBtn");
+  const stopBtn  = document.getElementById("woTimerStopBtn");
 
-    if (!startBtn) {
-      console.warn("woTimerBtn introuvable");
-      return;
-    }
+  if (!startBtn || !stopBtn){
+    console.warn("Boutons timer introuvables");
+    return;
+  }
 
-    startBtn.onclick = () => {
-  startWOTimer();
-};
-  }, 0);
+  startBtn.onclick = () => {
+    startWOTimer();
+  };
+
+  stopBtn.onclick = () => {
+    stopWOTimer();
+  };
+
+}, 0);
+
 }
 
 
