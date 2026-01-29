@@ -6129,7 +6129,6 @@ const filterVehicle = $("filterVehicle")?.value || "";
 INVOICES
   .slice()
   .sort((a, b) => Number(b.number) - Number(a.number))
-  .filter(inv => inv.archived === true)
   .filter(inv => {
       if (filterClient && inv.customer !== filterClient) return false;
       if (filterVehicle) {
