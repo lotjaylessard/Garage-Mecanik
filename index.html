@@ -1606,6 +1606,14 @@ function showPage(id){
       loadInvoices();
       renderInvoiceList();
       break;
+
+    case "page-history":
+      // reset filtres historique
+      if ($("filterClient")) $("filterClient").value = "";
+      if ($("filterVehicle")) $("filterVehicle").value = "";
+
+      renderHistoryTable();
+      break;
   }
 }
 
