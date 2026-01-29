@@ -1619,7 +1619,22 @@ function showPage(id){
 
 
 document.querySelectorAll('.navBtn').forEach(btn=>{
-  btn.addEventListener('click',()=>showPage(btn.dataset.page));
+  btn.addEventListener('click',()=>{
+
+    // 🧠 CAS SPÉCIAL : on est dans un WO ouvert
+    if (
+      btn.dataset.page === "page-workorders" &&
+      $("woDetailCard") &&
+      $("woDetailCard").style.display === "block"
+    ){
+      returnToWOListFromDetail();
+      showPage("page-workorders");
+      return;
+    }
+
+    // comportement normal
+    showPage(btn.dataset.page);
+  });
 });
 
 
@@ -2174,6 +2189,31 @@ function persistActiveWO(wo){
   // 💾 sauvegarde réelle
   localStorage.setItem(STORAGE.workorders, JSON.stringify(WORKORDERS));
   scheduleCloudSync();
+}
+
+
+  function returnToWOListFromDetail(){
+  // si le détail n’est pas visible → rien à faire
+  if (!$("woDetailCard") || $("woDetailCard").style.display === "none"){
+    return;
+  }
+
+  // récupérer le WO actif
+  const woId = $("woEditId")?.value;
+  if (woId){
+    const wo = getActiveWOById(woId);
+    if (wo){
+      persistActiveWO(wo); // 🔥 sauvegarde critique
+    }
+  }
+
+  // revenir à la liste
+  $("woDetailCard").style.display = "none";
+  $("woListCard").style.display = "block";
+
+  // rafraîchir la liste
+  loadWorkOrders();
+  renderWorkOrdersTable();
 }
 
   
