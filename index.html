@@ -6424,9 +6424,6 @@ if ($("filterVehicle")) {
 
 function renderDashboard(){
   loadInvoices();
-  console.log("DASHBOARD → INVOICES =", INVOICES);
-  console.log("DASHBOARD → INVOICES.length =", INVOICES?.length);
-
   loadWorkOrders();
   if (!Array.isArray(WORKORDERS)) WORKORDERS = [];
   const invoicesCount=INVOICES.length;
