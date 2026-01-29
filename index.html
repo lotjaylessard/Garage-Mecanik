@@ -587,6 +587,35 @@ button.link:hover{
   justify-content:flex-end;
 }
 
+
+    /* ===============================
+   SERVICES — BARRE RECHERCHE
+=============================== */
+
+.services-toolbar{
+  display:flex;
+  gap:12px;
+  margin:10px 0 14px;
+}
+
+#serviceSearchInput{
+  flex:1;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+}
+
+#serviceCategoryFilter{
+  min-width:220px;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+}
+
     
   </style>
 
@@ -843,7 +872,36 @@ button.link:hover{
       </div>
 
       <h3>Services enregistrés</h3>
-      <div id="servicesList" style="display:flex;flex-wrap:wrap;gap:15px;"></div>
+
+<!-- 🔍 Barre recherche + filtre -->
+<div class="services-toolbar">
+
+  <input
+    type="text"
+    id="serviceSearchInput"
+    placeholder="Rechercher un service..."
+  />
+
+  <select id="serviceCategoryFilter">
+    <option value="">Toutes les catégories</option>
+    <option value="Entretien">Entretien</option>
+    <option value="Mécanique générale">Mécanique générale</option>
+    <option value="Freins">Freins</option>
+    <option value="Suspension">Suspension</option>
+    <option value="Direction">Direction</option>
+    <option value="Refroidissement">Refroidissement</option>
+    <option value="Diagnostic">Diagnostic</option>
+    <option value="Électricité">Électricité</option>
+    <option value="Pneus">Pneus</option>
+    <option value="Échappement">Échappement</option>
+    <option value="Transmission">Transmission</option>
+    <option value="Moteur">Moteur</option>
+    <option value="Divers">Divers</option>
+  </select>
+
+</div>
+
+<div id="servicesList"></div>
     </div>
 
     <!-- PIÈCES -->
@@ -6208,6 +6266,31 @@ wrap.appendChild(row);
     });
   });
 }
+
+
+  // ===============================
+// SERVICES — SEARCH & FILTER INIT
+// ===============================
+(function initServiceFilters(){
+
+  const searchInput = document.getElementById("serviceSearchInput");
+  if (searchInput){
+    searchInput.addEventListener("input", e=>{
+      SERVICE_SEARCH_TERM = e.target.value.toLowerCase();
+      renderServices();
+    });
+  }
+
+  const catFilter = document.getElementById("serviceCategoryFilter");
+  if (catFilter){
+    catFilter.addEventListener("change", e=>{
+      SERVICE_CATEGORY_FILTER = e.target.value;
+      renderServices();
+    });
+  }
+
+})();
+
 
 function initServicesModule(){
   loadServices();
