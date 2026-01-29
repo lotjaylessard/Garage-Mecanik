@@ -1789,6 +1789,8 @@ let INVOICES = [];
 localStorage.removeItem(STORAGE.invoices);
 INVOICES = [];
 
+let WO_TIMER_INTERVAL = null;
+let WO_TIMER_START = null;
 let WORKORDERS = [];
 let items = [];
 let CLIENTS = [];
@@ -2189,6 +2191,31 @@ function persistActiveWO(wo){
   // 💾 sauvegarde réelle
   localStorage.setItem(STORAGE.workorders, JSON.stringify(WORKORDERS));
   scheduleCloudSync();
+}
+
+
+  function startWOTimer(){
+  if (WO_TIMER_INTERVAL) return; // déjà en cours
+
+  WO_TIMER_START = Date.now();
+
+  WO_TIMER_INTERVAL = setInterval(() => {
+    const elapsed = Date.now() - WO_TIMER_START;
+
+    const display = document.getElementById("woTimerDisplay");
+    if (!display) return;
+
+    display.textContent = "⏱ " + formatDuration(elapsed);
+  }, 1000);
+}
+
+
+  function formatDuration(ms){
+  const totalSec = Math.floor(ms / 1000);
+  const h = String(Math.floor(totalSec / 3600)).padStart(2,"0");
+  const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2,"0");
+  const s = String(totalSec % 60).padStart(2,"0");
+  return `${h}:${m}:${s}`;
 }
 
 
@@ -3428,9 +3455,8 @@ function openWorkOrderDetail(wo){
     }
 
     startBtn.onclick = () => {
-      console.log("WO TIMER START CLICK");
-    };
-
+  startWOTimer();
+};
   }, 0);
 }
 
