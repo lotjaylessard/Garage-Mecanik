@@ -2195,9 +2195,16 @@ function persistActiveWO(wo){
 
 
   function startWOTimer(){
-  if (WO_TIMER_INTERVAL) return; // déjà en cours
+  if (WO_TIMER_INTERVAL) return;
 
   WO_TIMER_START = Date.now();
+
+  // 🔁 Bascule boutons
+  const startBtn = document.getElementById("woTimerBtn");
+  const stopBtn  = document.getElementById("woTimerStopBtn");
+
+  if (startBtn) startBtn.style.display = "none";
+  if (stopBtn)  stopBtn.style.display  = "inline-block";
 
   WO_TIMER_INTERVAL = setInterval(() => {
     const elapsed = Date.now() - WO_TIMER_START;
@@ -2213,7 +2220,6 @@ function persistActiveWO(wo){
   function stopWOTimer(){
   if (!WO_TIMER_START) return;
 
-  // arrêter l’interval
   clearInterval(WO_TIMER_INTERVAL);
   WO_TIMER_INTERVAL = null;
 
@@ -2224,6 +2230,13 @@ function persistActiveWO(wo){
 
   console.log("WO TIMER STOP");
   console.log("Heures calculées :", hours);
+
+  // 🔁 Bascule boutons
+  const startBtn = document.getElementById("woTimerBtn");
+  const stopBtn  = document.getElementById("woTimerStopBtn");
+
+  if (startBtn) startBtn.style.display = "inline-block";
+  if (stopBtn)  stopBtn.style.display  = "none";
 
   const display = document.getElementById("woTimerDisplay");
   if (display){
