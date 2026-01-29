@@ -2242,6 +2242,30 @@ function persistActiveWO(wo){
   if (display){
     display.textContent = "⏱ 00:00:00";
   }
+
+      // ===============================
+  // AJOUT MAIN-D’ŒUVRE AU WO
+  // ===============================
+  const woId = document.getElementById("woEditId")?.value;
+  if (!woId) return;
+
+  const wo = getActiveWOById(woId);
+  if (!wo) return;
+
+  if (!Array.isArray(wo.labor)) wo.labor = [];
+
+  const rate = Number(SETTINGS.defaultLaborRate || 60);
+
+  wo.labor.push({
+    description: "Temps de travail (timer)",
+    hours: hours,
+    rate: rate,
+    total: Math.round(hours * rate * 100) / 100
+  });
+
+  persistActiveWO(wo);
+  woRenderLines(wo);
+
 }
 
 
