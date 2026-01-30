@@ -1936,6 +1936,7 @@ let items = [];
 let CLIENTS = [];
 let PARTS = [];
 let SERVICES = [];
+let EDITING_SERVICE_ID = null;
 let VEHICLES_SORT = {key: "client", dir: 1 // 1 = asc, -1 = desc 
   }; // ⚠️ utilisé implicitement par renderVehiclesPage() pour le tri
 
@@ -6163,8 +6164,25 @@ function loadServices(){
 
 
   function editService(id){
-  console.log("editService appelé pour :", id);
+  const srv = SERVICES.find(s => String(s.id) === String(id));
+  if (!srv) return;
+
+  EDITING_SERVICE_ID = srv.id;
+
+  $("srvName").value = srv.name || "";
+  $("srvCategory").value = srv.category || "";
+  $("srvDesc").value = srv.desc || "";
+
+  $("srvPriceFixed").value = srv.priceFixed || "";
+  $("srvHours").value = srv.hours || "";
+  $("srvRate").value = srv.rate || "";
+
+  $("srvAddBtn").textContent = "💾 Modifier le service";
+
+  // optionnel mais pro : focus
+  $("srvName").focus();
 }
+  
 
 function deleteService(id){
   const srv = SERVICES.find(s => String(s.id) === String(id));
