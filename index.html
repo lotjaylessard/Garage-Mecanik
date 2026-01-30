@@ -1728,19 +1728,24 @@ function showPage(id){
 
   // routage spécifique
   switch(id){
-    case "page-invoice-list":
-      loadInvoices();
-      renderInvoiceList();
-      break;
+  case "page-invoice-list":
+    loadInvoices();
+    renderInvoiceList();
+    break;
 
-    case "page-history":
-      // reset filtres historique
-      if ($("filterClient")) $("filterClient").value = "";
-      if ($("filterVehicle")) $("filterVehicle").value = "";
+  case "page-services":
+    SERVICES = loadArrayFromStorage(STORAGE.services);
+    renderServicesList();
+    break;
 
-      renderHistoryTable();
-      break;
-  }
+  case "page-history":
+    // reset filtres historique
+    if ($("filterClient")) $("filterClient").value = "";
+    if ($("filterVehicle")) $("filterVehicle").value = "";
+
+    renderHistoryTable();
+    break;
+}
 }
 
 
@@ -6155,6 +6160,73 @@ function initPartsModule(){
 function loadServices(){
   SERVICES = loadArrayFromStorage(STORAGE.services);
 }
+
+
+  function renderServicesList(){
+  const list = $("servicesList");
+  if (!list) return;
+
+  const search = $("serviceSearchInput")?.value.toLowerCase() || "";
+  const category = $("serviceCategoryFilter")?.value || "";
+
+  list.innerHTML = "";
+
+  const filtered = SERVICES.filter(s => {
+    const matchText =
+      s.name.toLowerCase().includes(search) ||
+      (s.desc || "").toLowerCase().includes(search);
+
+    const matchCategory =
+      !category || s.category === category;
+
+    return matchText && matchCategory;
+  });
+
+  if (filtered.length === 0){
+    list.innerHTML = `<div class="muted">Aucun service trouvé.</div>`;
+    return;
+  }
+
+  filtered.forEach(s => {
+    list.innerHTML += `
+      <div class="service-row">
+        <div class="srv-name">
+          <strong>${escapeHTML(s.name)}</strong>
+          <div class="srv-desc">${escapeHTML(s.desc || "")}</div>
+        </div>
+
+        <div class="srv-cat">${escapeHTML(s.category)}</div>
+
+        <div class="srv-price">
+          ${
+            s.priceFixed > 0
+              ? `Forfait : ${money(s.priceFixed)} $`
+              : `${s.hours} h x ${money(s.rate)} $ / h`
+          }
+        </div>
+
+        <div class="srv-actions">
+          <button class="ghost" onclick="editService('${s.id}')">Modifier</button>
+          <button class="ghost danger" onclick="deleteService('${s.id}')">Supprimer</button>
+          <button onclick="addServiceToCurrentWO('${s.id}')">+ Bon de travail</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+  if ($("serviceSearchInput")){
+    $("serviceSearchInput").addEventListener("input", renderServicesList);
+  }
+
+  if ($("serviceCategoryFilter")){
+    $("serviceCategoryFilter").addEventListener("change", renderServicesList);
+  }
+
+});
 
   
 function saveServices(){
