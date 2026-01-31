@@ -6385,23 +6385,29 @@ function deleteService(id){
 
   filtered.forEach(p => {
     list.innerHTML += `
-      <div class="card" style="width:260px;">
-        <h4>${escapeHTML(p.name)}</h4>
-        <div class="small"># Pièce : ${escapeHTML(p.number || "")}</div>
-        <div>Catégorie : <b>${escapeHTML(p.category)}</b></div>
-        <div>Stock : ${p.qty}</div>
-        <div>Coût : ${money(p.cost)} $</div>
-        <div>Prix : ${money(p.price)} $</div>
-        <div class="muted">Marge : ${calcMargin(p.cost, p.price)}%</div>
-
-        <div style="display:flex;gap:6px;margin-top:8px;">
-          <button class="ghost" onclick="editPart('${p.id}')">Modifier</button>
-          <button class="ghost danger" onclick="deletePart('${p.id}')">Supprimer</button>
+      <div class="service-row">
+        <div class="service-main">
+          <div class="service-title">${escapeHTML(p.name)}</div>
+          <div class="service-desc">
+            # Pièce : ${escapeHTML(p.number || "")}
+            &nbsp;•&nbsp;
+            Catégorie : ${escapeHTML(p.category)}
+            &nbsp;•&nbsp;
+            Stock : ${p.qty}
+            &nbsp;•&nbsp;
+            Coût : ${money(p.cost)} $
+            &nbsp;•&nbsp;
+            Prix : ${money(p.price)} $
+            &nbsp;•&nbsp;
+            Marge : ${calcMargin(p.cost, p.price)}%
+          </div>
         </div>
 
-        <button style="margin-top:6px;width:100%;" onclick="addPartToCurrentWO('${p.id}')">
-          + Ajouter au bon de travail
-        </button>
+        <div class="service-actions">
+          <button class="ghost" onclick="editPart('${p.id}')">Modifier</button>
+          <button class="ghost danger" onclick="deletePart('${p.id}')">Supprimer</button>
+          <button onclick="addPartToCurrentWO('${p.id}')">+ Bon de travail</button>
+        </div>
       </div>
     `;
   });
