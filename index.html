@@ -1734,9 +1734,54 @@ function showPage(id){
     break;
 
   case "page-services":
-    SERVICES = loadArrayFromStorage(STORAGE.services);
-    renderServicesList();
-    break;
+  SERVICES = loadArrayFromStorage(STORAGE.services);
+  renderServicesList();
+
+  // 🔥 brancher le bouton Ajouter / Modifier ICI
+  if ($("srvAddBtn")){
+    $("srvAddBtn").onclick = () => {
+
+      const data = {
+        id: EDITING_SERVICE_ID || Date.now(),
+        name: $("srvName").value.trim(),
+        category: $("srvCategory").value,
+        desc: $("srvDesc").value.trim(),
+        priceFixed: Number($("srvPriceFixed").value || 0),
+        hours: Number($("srvHours").value || 0),
+        rate: Number($("srvRate").value || 0)
+      };
+
+      if (!data.name){
+        alert("Nom du service requis.");
+        return;
+      }
+
+      if (EDITING_SERVICE_ID){
+        SERVICES = SERVICES.map(s =>
+          String(s.id) === String(EDITING_SERVICE_ID) ? data : s
+        );
+      } else {
+        SERVICES.push(data);
+      }
+
+      localStorage.setItem(STORAGE.services, JSON.stringify(SERVICES));
+      scheduleCloudSync();
+
+      // reset UI
+      EDITING_SERVICE_ID = null;
+      $("srvAddBtn").textContent = "Ajouter le service";
+
+      $("srvName").value = "";
+      $("srvDesc").value = "";
+      $("srvPriceFixed").value = "";
+      $("srvHours").value = "";
+      $("srvRate").value = "";
+
+      renderServicesList();
+    };
+  }
+
+  break;
 
   case "page-history":
     // reset filtres historique
