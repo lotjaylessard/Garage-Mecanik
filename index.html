@@ -644,6 +644,14 @@ button.link:hover{
 }
 
 
+    .service-actions{
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 👈 ALIGNEMENT IDENTIQUE AUX SERVICES */
+  gap: 6px;
+}
+
+
     
   </style>
 
@@ -4934,7 +4942,6 @@ function adjustStockForLinkedItem(item, deltaQty){
   part.qty = current + deltaQty;
   if(part.qty<0) part.qty=0;
   saveParts();
-  renderParts();
   renderDashboard();
 }
 
@@ -4952,7 +4959,6 @@ function linkNewItemToInventory(item){
   part.qty = currentQty - qty;
   item.invNumber = part.number;
   saveParts();
-  renderParts();
   renderDashboard();
   return true;
 }
@@ -6140,7 +6146,7 @@ function initClientsModule(){
 }
 
 /* ===================== INVENTAIRE PIÈCES ===================== */
-function renderParts(){
+function renderParts_OLD_DO_NOT_USE(){
   const wrap=$('partsInventoryList');
   if(!wrap) return;
   wrap.innerHTML='';
@@ -6185,7 +6191,6 @@ function renderParts(){
       if(!confirm('Supprimer cette pièce ?')) return;
       PARTS.splice(id,1);
       saveParts();
-      renderParts();
       renderDashboard();
     });
   });
@@ -6202,7 +6207,6 @@ function renderParts(){
       const newPrice=Number(prompt("Prix de vente :",p.price)||p.price);
       PARTS[id]={name:newName,number:newNumber,category:newCat,qty:newQty,cost:newCost,price:newPrice};
       saveParts();
-      renderParts();
       renderDashboard();
     });
   });
@@ -6218,7 +6222,6 @@ function renderParts(){
       }
       p.qty=currentQty-1;
       saveParts();
-      renderParts();
       renderDashboard();
       const newItem={
         type:"Pièce (Inventaire)",
@@ -6247,7 +6250,6 @@ function initPartsModule(){
       if(qty<0){alert("Quantité invalide");return;}
       PARTS.push({name,number,qty,cost,price,category});
       saveParts();
-      renderParts();
       renderDashboard();
       $('partInvName').value='';
       $('partInvNumber').value='';
@@ -6256,9 +6258,6 @@ function initPartsModule(){
       $('partInvPrice').value='';
     });
   }
-  if($('partInvSearch')) $('partInvSearch').addEventListener('input',renderParts);
-  if($('partInvFilter')) $('partInvFilter').addEventListener('change',renderParts);
-  renderParts();
 }
 
 /* ===================== SERVICES ===================== */
@@ -6783,7 +6782,6 @@ if (part.qty < qtyToAdd) {
 // Décrémente le stock
 part.qty -= qtyToAdd;
 saveParts();
-renderParts();
 renderDashboard();
 
 // Ajoute dans la facture
@@ -7946,7 +7944,6 @@ function importAllData(json){
     initSettings();
     renderInvoicesTable();
     renderClientsTable();
-    renderParts();
     renderServices();
     renderDashboard();
     alert("Backup importé avec succès !");
