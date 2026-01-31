@@ -1733,6 +1733,54 @@ function showPage(id){
     renderInvoiceList();
     break;
 
+      case "page-parts":
+  PARTS = loadArrayFromStorage(STORAGE.parts);
+  renderPartsList();
+
+  if ($("partInvAddBtn")){
+    $("partInvAddBtn").onclick = () => {
+
+      const data = {
+        id: EDITING_PART_ID || Date.now(),
+        name: $("partInvName").value.trim(),
+        number: $("partInvNumber").value.trim(),
+        category: $("partInvCategory").value,
+        qty: Number($("partInvQty").value || 0),
+        cost: Number($("partInvCost").value || 0),
+        price: Number($("partInvPrice").value || 0)
+      };
+
+      if (!data.name){
+        alert("Nom de la pièce requis.");
+        return;
+      }
+
+      if (EDITING_PART_ID){
+        PARTS = PARTS.map(p =>
+          String(p.id) === String(EDITING_PART_ID) ? data : p
+        );
+      } else {
+        PARTS.push(data);
+      }
+
+      localStorage.setItem(STORAGE.parts, JSON.stringify(PARTS));
+      scheduleCloudSync();
+
+      EDITING_PART_ID = null;
+      $("partInvAddBtn").textContent = "Ajouter dans l’inventaire";
+
+      $("partInvName").value = "";
+      $("partInvNumber").value = "";
+      $("partInvQty").value = 1;
+      $("partInvCost").value = "";
+      $("partInvPrice").value = "";
+
+      renderPartsList();
+    };
+  }
+
+  break;
+
   case "page-services":
   SERVICES = loadArrayFromStorage(STORAGE.services);
   renderServicesList();
@@ -1980,6 +2028,7 @@ let WORKORDERS = [];
 let items = [];
 let CLIENTS = [];
 let PARTS = [];
+let EDITING_PART_ID = null;
 let SERVICES = [];
 let EDITING_SERVICE_ID = null;
 let VEHICLES_SORT = {key: "client", dir: 1 // 1 = asc, -1 = desc 
@@ -6299,12 +6348,99 @@ function deleteService(id){
 }
 
 
+  function renderPartsList(){
+  const list = $("partsInventoryList");
+  if (!list) return;
+
+  const search = $("partInvSearch")?.value.toLowerCase() || "";
+  const category = $("partInvFilter")?.value || "";
+
+  list.innerHTML = "";
+
+  const filtered = PARTS.filter(p => {
+    const matchText =
+      p.name.toLowerCase().includes(search) ||
+      (p.number || "").toLowerCase().includes(search) ||
+      p.category.toLowerCase().includes(search);
+
+    const matchCategory = !category || p.category === category;
+
+    return matchText && matchCategory;
+  });
+
+  if (!filtered.length){
+    list.innerHTML = `<div class="muted">Aucune pièce trouvée.</div>`;
+    return;
+  }
+
+  filtered.forEach(p => {
+    list.innerHTML += `
+      <div class="card" style="width:260px;">
+        <h4>${escapeHTML(p.name)}</h4>
+        <div class="small"># Pièce : ${escapeHTML(p.number || "")}</div>
+        <div>Catégorie : <b>${escapeHTML(p.category)}</b></div>
+        <div>Stock : ${p.qty}</div>
+        <div>Coût : ${money(p.cost)} $</div>
+        <div>Prix : ${money(p.price)} $</div>
+        <div class="muted">Marge : ${calcMargin(p.cost, p.price)}%</div>
+
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="ghost" onclick="editPart('${p.id}')">Modifier</button>
+          <button class="ghost danger" onclick="deletePart('${p.id}')">Supprimer</button>
+        </div>
+
+        <button style="margin-top:6px;width:100%;" onclick="addPartToCurrentWO('${p.id}')">
+          + Ajouter au bon de travail
+        </button>
+      </div>
+    `;
+  });
+}
+
+
+  function deletePart(id){
+  const p = PARTS.find(x => String(x.id) === String(id));
+  if (!p) return;
+
+  if (!confirm(`Supprimer la pièce "${p.name}" ?`)) return;
+
+  PARTS = PARTS.filter(x => String(x.id) !== String(id));
+  localStorage.setItem(STORAGE.parts, JSON.stringify(PARTS));
+  scheduleCloudSync();
+
+  renderPartsList();
+}
+
+
+  function editPart(id){
+  const p = PARTS.find(x => String(x.id) === String(id));
+  if (!p) return;
+
+  EDITING_PART_ID = p.id;
+
+  $("partInvName").value = p.name || "";
+  $("partInvNumber").value = p.number || "";
+  $("partInvCategory").value = p.category || "Divers";
+  $("partInvQty").value = p.qty || 0;
+  $("partInvCost").value = p.cost || 0;
+  $("partInvPrice").value = p.price || 0;
+
+  $("partInvAddBtn").textContent = "💾 Modifier la pièce";
+}
+
+
   document.addEventListener("DOMContentLoaded", () => {
+
+  if ($("partInvSearch")){
+  $("partInvSearch").addEventListener("input", renderPartsList);
+  }
+  if ($("partInvFilter")){
+  $("partInvFilter").addEventListener("change", renderPartsList);
+  }
 
   if ($("serviceSearchInput")){
     $("serviceSearchInput").addEventListener("input", renderServicesList);
   }
-
   if ($("serviceCategoryFilter")){
     $("serviceCategoryFilter").addEventListener("change", renderServicesList);
   }
