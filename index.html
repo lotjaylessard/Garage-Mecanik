@@ -6429,10 +6429,9 @@ function renderPartsList(){
   localStorage.setItem(STORAGE.parts, JSON.stringify(PARTS));
   scheduleCloudSync();
 
-// 🔄 Reset filtres après suppression
-if ($("partInvSearch")) $("partInvSearch").value = "";
-if ($("partInvFilter")) $("partInvFilter").value = "";
-    
+  // 🔥 FIX CRITIQUE
+  PARTS = loadArrayFromStorage(STORAGE.parts);
+
   renderPartsList();
 }
 
