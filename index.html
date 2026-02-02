@@ -1751,6 +1751,10 @@ function showPage(id){
     renderInvoiceList();
     break;
 
+    case "page-settings":
+  loadSettings();
+  break;
+
       case "page-parts":
   PARTS = loadArrayFromStorage(STORAGE.parts);
   renderPartsList();
@@ -4574,6 +4578,8 @@ function toNum(v, fallback=0){
   return Number.isFinite(n) ? n : fallback;
 }
 
+
+  
   
 function loadSettings(){
   try{
@@ -4594,6 +4600,38 @@ function saveSettings(){
   } else {
     scheduleCloudSync();
   }
+}
+
+
+  // ===============================
+// 💾 Sauvegarde des paramètres
+// ===============================
+if ($("saveSettings")){
+  $("saveSettings").onclick = () => {
+
+    SETTINGS.garageName =
+      $("settingGarageName").value.trim() || "Garage";
+
+    SETTINGS.gst =
+      Number($("settingGST").value || 0);
+
+    SETTINGS.qst =
+      Number($("settingQST").value || 0);
+
+    SETTINGS.defaultHourlyRate =
+      Number($("settingDefaultHourlyRate").value || 0);
+
+    localStorage.setItem(
+      STORAGE.settings,
+      JSON.stringify(SETTINGS)
+    );
+
+    scheduleCloudSync();
+
+    updateGarageNameUI();
+
+    alert("Paramètres enregistrés");
+  };
 }
 
   
@@ -8438,6 +8476,40 @@ function initLinksModule() {
   if ($("importLinksFile")) {
     $("importLinksFile").onchange = importLinks;
   }
+}
+
+
+  function loadSettings(){
+  const saved = JSON.parse(localStorage.getItem(STORAGE.settings) || "{}");
+
+  SETTINGS = {
+    ...SETTINGS,
+    ...saved
+  };
+
+  if ($("settingGarageName"))
+    $("settingGarageName").value = SETTINGS.garageName || "";
+
+  if ($("settingGST"))
+    $("settingGST").value = SETTINGS.gst ?? 0;
+
+  if ($("settingQST"))
+    $("settingQST").value = SETTINGS.qst ?? 0;
+
+  if ($("settingDefaultHourlyRate"))
+    $("settingDefaultHourlyRate").value = SETTINGS.defaultHourlyRate ?? 0;
+
+  updateGarageNameUI();
+}
+
+
+  function updateGarageNameUI(){
+  const title = document.querySelector(".topbar h1");
+  if (title){
+    title.textContent = `${SETTINGS.garageName} — Gestion`;
+  }
+
+  document.title = `${SETTINGS.garageName} — Gestion`;
 }
 
 
