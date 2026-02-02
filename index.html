@@ -6426,8 +6426,30 @@ function renderPartsList(){
   });
 }
 
+  
+function migratePartsAddId(){
+  let changed = false;
+
+  PARTS = PARTS.map(p => {
+    if (!p.id){
+      changed = true;
+      return { ...p, id: Date.now() + Math.random() };
+    }
+    return p;
+  });
+
+  if (changed){
+    localStorage.setItem(STORAGE.parts, JSON.stringify(PARTS));
+    console.log("Migration PARTS terminée : IDs ajoutés");
+  }
+}
+
 
   function deletePart(id){
+    if (!id) {
+  console.error("deletePart appelé sans id valide", id);
+  return;
+}
   const p = PARTS.find(x => String(x.id) === String(id));
   if (!p) return;
 
