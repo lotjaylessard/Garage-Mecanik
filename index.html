@@ -1001,7 +1001,7 @@ button.link:hover{
 
       <input id="partInvSearch" placeholder="Rechercher une pièce (nom, # ou catégorie)..." style="margin-bottom:15px;" />
 
-      <div id="partsInventoryList" style="display:flex;flex-wrap:wrap;gap:15px;"></div>
+      <div id="partsInventoryList"></div>
     </div>
 
     <!-- HISTORIQUE GLOBAL -->
@@ -6366,8 +6366,8 @@ function renderPartsList(){
 
   list.innerHTML = "";
 
-  const filtered = PARTS.filter(p => {
-    const hay = `${p.name} ${p.number || ""} ${p.category}`.toLowerCase();
+  const filtered = PARTS.filter(p=>{
+    const hay = `${p.name} ${p.number||""} ${p.category}`.toLowerCase();
     if (search && !hay.includes(search)) return false;
     if (category && p.category !== category) return false;
     return true;
@@ -6378,34 +6378,36 @@ function renderPartsList(){
     return;
   }
 
-  filtered.forEach(p => {
-
-    const priceLabel = `${money(p.price)} $`;
-
-    const desc = `
-      # Pièce : ${escapeHTML(p.number || "")}
-      • Stock : ${p.qty}
-      • Coût : ${money(p.cost)} $
-      • Marge : ${calcMargin(p.cost, p.price)}%
-    `;
+  filtered.forEach(p=>{
 
     list.innerHTML += `
       <div class="service-row">
 
-        <!-- IDENTIQUE AUX SERVICES -->
-        <div class="service-main">
-          <div class="service-title">${escapeHTML(p.name)}</div>
-          <div class="service-desc">${desc}</div>
+        <!-- COL 1 : NOM + DESC -->
+        <div>
+          <div class="srv-name">
+            <strong>${escapeHTML(p.name)}</strong>
+          </div>
+          <div class="srv-desc">
+            # Pièce : ${escapeHTML(p.number||"")}
+            • Stock : ${p.qty}
+            • Coût : ${money(p.cost)} $
+            • Marge : ${calcMargin(p.cost,p.price)}%
+          </div>
         </div>
 
-        <!-- IDENTIQUE AUX SERVICES -->
-        <div class="service-meta">
-          <div class="service-cat">${escapeHTML(p.category)}</div>
-          <div class="service-price">${priceLabel}</div>
+        <!-- COL 2 : CAT -->
+        <div class="srv-cat">
+          ${escapeHTML(p.category)}
         </div>
 
-        <!-- IDENTIQUE AUX SERVICES -->
-        <div class="service-actions">
+        <!-- COL 3 : PRIX -->
+        <div class="srv-price">
+          ${money(p.price)} $
+        </div>
+
+        <!-- COL 4 : ACTIONS -->
+        <div class="srv-actions">
           <button class="ghost" onclick="editPart('${p.id}')">Modifier</button>
           <button class="ghost danger" onclick="deletePart('${p.id}')">Supprimer</button>
           <button onclick="addPartToCurrentWO('${p.id}')">+ Bon de travail</button>
