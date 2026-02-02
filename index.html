@@ -6361,14 +6361,13 @@ function renderPartsList(){
   const list = $("partsInventoryList");
   if (!list) return;
 
-  const search = $("partInvSearch")?.value.toLowerCase() || "";
+  const search = ($("partInvSearch")?.value || "").toLowerCase();
   const category = $("partInvFilter")?.value || "";
 
   list.innerHTML = "";
 
   const filtered = PARTS.filter(p => {
-    const hay =
-      `${p.name} ${p.number || ""} ${p.category}`.toLowerCase();
+    const hay = `${p.name} ${p.number || ""} ${p.category}`.toLowerCase();
     if (search && !hay.includes(search)) return false;
     if (category && p.category !== category) return false;
     return true;
@@ -6382,7 +6381,7 @@ function renderPartsList(){
   filtered.forEach(p => {
 
     const priceLabel = `${money(p.price)} $`;
-    const categoryLabel = p.category;
+
     const desc = `
       # Pièce : ${escapeHTML(p.number || "")}
       • Stock : ${p.qty}
@@ -6393,19 +6392,19 @@ function renderPartsList(){
     list.innerHTML += `
       <div class="service-row">
 
-        <!-- COLONNE GAUCHE (IDENTIQUE SERVICES) -->
-        <div class="service-left">
+        <!-- IDENTIQUE AUX SERVICES -->
+        <div class="service-main">
           <div class="service-title">${escapeHTML(p.name)}</div>
           <div class="service-desc">${desc}</div>
         </div>
 
-        <!-- COLONNE CENTRALE (IDENTIQUE SERVICES) -->
-        <div class="service-center">
-          <span class="badge">${escapeHTML(categoryLabel)}</span>
-          <span class="price">${priceLabel}</span>
+        <!-- IDENTIQUE AUX SERVICES -->
+        <div class="service-meta">
+          <div class="service-cat">${escapeHTML(p.category)}</div>
+          <div class="service-price">${priceLabel}</div>
         </div>
 
-        <!-- COLONNE DROITE (IDENTIQUE SERVICES) -->
+        <!-- IDENTIQUE AUX SERVICES -->
         <div class="service-actions">
           <button class="ghost" onclick="editPart('${p.id}')">Modifier</button>
           <button class="ghost danger" onclick="deletePart('${p.id}')">Supprimer</button>
