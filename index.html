@@ -651,6 +651,23 @@ button.link:hover{
   gap: 6px;
 }
 
+/* ===============================
+   Status Liste Factures
+=============================== */
+    .status-badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:8px;
+  font-weight:800;
+  font-size:0.85rem;
+  color:#fff;
+}
+
+/* Factures */
+.status-paid{ background:#1b5e20; }    /* vert */
+.status-unpaid{ background:#b71c1c; }  /* rouge */
+.status-partial{ background:#f9a825; color:#111; } /* jaune (optionnel) */
+
 
     
   </style>
@@ -4784,19 +4801,27 @@ function renderInvoiceList(){
         <td>${inv.date || ""}</td>
         <td>${clientNameDisplay}</td>
         <td class="invoice-total">${money(inv.total)} $</td>
-        <td>
-          ${
-            inv.status === "paid"
-              ? (inv.paymentMethod === "cash"
-                  ? "Payée (Comptant)"
-                  : inv.paymentMethod === "transfer"
-                    ? "Payée (Virement)"
-                    : "Payée")
-              : inv.status === "partial"
-                ? "Partielle"
-                : "Impayée"
-          }
-        </td>
+        <td class="invoice-status">
+  <span class="status-badge ${
+    inv.status === "paid"
+      ? "status-paid"
+      : inv.status === "partial"
+        ? "status-partial"
+        : "status-unpaid"
+  }">
+    ${
+      inv.status === "paid"
+        ? (inv.paymentMethod === "cash"
+            ? "Payée (Comptant)"
+            : inv.paymentMethod === "transfer"
+              ? "Payée (Virement)"
+              : "Payée")
+        : inv.status === "partial"
+          ? "Partielle"
+          : "Impayée"
+    }
+  </span>
+</td>
         <td style="text-align:right;">
           <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">
             Ouvrir
@@ -4843,18 +4868,26 @@ function updateInvoiceRow(inv){
     null;
   if (statusCell){
     statusCell.innerHTML = `
-      ${
-        inv.status === "paid"
-          ? (inv.paymentMethod === "cash"
-              ? "Payée (Comptant)"
-              : inv.paymentMethod === "transfer"
-                ? "Payée (Virement)"
-                : "Payée")
-          : inv.status === "partial"
-            ? "Partielle"
-            : "Impayée"
-      }
-    `.trim();
+  <span class="status-badge ${
+    inv.status === "paid"
+      ? "status-paid"
+      : inv.status === "partial"
+        ? "status-partial"
+        : "status-unpaid"
+  }">
+    ${
+      inv.status === "paid"
+        ? (inv.paymentMethod === "cash"
+            ? "Payée (Comptant)"
+            : inv.paymentMethod === "transfer"
+              ? "Payée (Virement)"
+              : "Payée")
+        : inv.status === "partial"
+          ? "Partielle"
+          : "Impayée"
+    }
+  </span>
+`.trim();
   }
 }
 
