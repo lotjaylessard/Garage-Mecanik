@@ -2092,6 +2092,133 @@ function loadInvoices(){
 }
 
 
+/* ======================================================
+   FACTURE — OUVERTURE MODALE ÉDITION
+   Point d’entrée UNIQUE du bouton "✏️ Modifier"
+====================================================== */
+function openInvoiceEditModal(number){
+  loadInvoices();
+
+  const inv = INVOICES.find(i => String(i.number) === String(number));
+  if (!inv){
+    alert("Facture introuvable.");
+    return;
+  }
+
+  // référence globale pour l’édition
+  window.currentInvoice = inv;
+
+  // normaliser taxes si anciennes factures
+  normalizeInvoiceTaxes(inv);
+
+  // cloner les items pour édition
+  items = Array.isArray(inv.items)
+    ? inv.items.map(it => ({ ...it }))
+    : [];
+
+  // injecter UI
+  renderInvoiceEditUI(inv);
+
+  // afficher modal
+  const modal = document.getElementById("invoiceEditModal");
+  modal.style.display = "flex";
+}
+
+
+  /* ======================================================
+   FACTURE — UI ÉDITION
+====================================================== */
+function renderInvoiceEditUI(inv){
+  const box = document.getElementById("invoiceEditContent");
+  if (!box) return;
+
+  box.innerHTML = `
+    <h2>Modifier facture #${inv.number}</h2>
+
+    <div class="muted">${inv.date || ""}</div>
+
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Qté</th>
+          <th>Prix</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="invoice-bottom-grid">
+      <div class="invoice-taxes-left">
+        <h4>Taxes</h4>
+        <label>
+          <input type="checkbox" id="invApplyGST">
+          TPS (${SETTINGS.gst}%)
+        </label>
+        <label>
+          <input type="checkbox" id="invApplyQST">
+          TVQ (${SETTINGS.qst}%)
+        </label>
+      </div>
+
+      <div class="invoice-totals-right">
+        <div>Sous-total : <span id="invSubTotal"></span></div>
+        <div>TPS : <span id="invGST"></span></div>
+        <div>TVQ : <span id="invQST"></span></div>
+        <h3>Total : <span id="invTotal"></span></h3>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="ghost" onclick="closeInvoiceEditModal()">Fermer</button>
+      <button onclick="saveInvoiceEdits()">💾 Enregistrer</button>
+    </div>
+  `;
+
+  // état des taxes
+  $("invApplyGST").checked = inv.applyGST !== false;
+  $("invApplyQST").checked = inv.applyQST !== false;
+
+  $("invApplyGST").onchange = () => {
+    inv.applyGST = $("invApplyGST").checked;
+    recalcInvoice(inv);
+    renderInvoiceTotals(inv, document);
+  };
+
+  $("invApplyQST").onchange = () => {
+    inv.applyQST = $("invApplyQST").checked;
+    recalcInvoice(inv);
+    renderInvoiceTotals(inv, document);
+  };
+
+  // rendu items + totaux
+  renderItems();
+  recalcInvoice(inv);
+  renderInvoiceTotals(inv, document);
+}
+
+
+  function closeInvoiceEditModal(){
+  document.getElementById("invoiceEditModal").style.display = "none";
+}
+
+function saveInvoiceEdits(){
+  if (!currentInvoice) return;
+
+  // réinjecter les items édités
+  currentInvoice.items = items.map(it => ({ ...it }));
+
+  recalcInvoice(currentInvoice);
+  saveInvoices();
+
+  closeInvoiceEditModal();
+  renderInvoiceList();
+}
+
+
 function saveInvoices(){
   localStorage.setItem(STORAGE.invoices, JSON.stringify(INVOICES));
   scheduleCloudSync();
