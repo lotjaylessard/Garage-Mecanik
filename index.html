@@ -2965,6 +2965,7 @@ const isPaid = totalPaid >= Number(wo.total || 0);
         <th>Heures</th>
         <th>Taux</th>
         <th>Total</th>
+        <th>Profit</th>
         <th></th>
       </tr>
     </thead>
@@ -3514,19 +3515,30 @@ if (manualLaborCancel){
 
 
   // main d’œuvre
-  const lBody = $("woLaborTable").querySelector("tbody");
-  lBody.innerHTML = wo.labor.map((l,i)=>`
+const lBody = $("woLaborTable").querySelector("tbody");
+lBody.innerHTML = wo.labor.map((l,i)=>{
+
+  const total = l.hours * l.rate;   // 💰 total = profit (100%)
+
+  return `
     <tr>
       <td>${l.description}</td>
       <td>${l.hours}</td>
-      <td>${money(l.rate)}$</td>
-      <td>${money(l.hours*l.rate)}$</td>
+      <td>${money(l.rate)} $</td>
+      <td>${money(total)} $</td>
+
+      <!-- ✅ NOUVELLE COLONNE PROFIT -->
+      <td style="color:#4CAF50;">
+        ${money(total)} $ <span class="muted">(100%)</span>
+      </td>
+
       <td>
         <button class="ghost" onclick="woEditLine('${wo.id}','labor',${i})">✏️</button>
-<button class="ghost" onclick="woRemoveLabor('${wo.id}',${i})">🗑</button>
+        <button class="ghost" onclick="woRemoveLabor('${wo.id}',${i})">🗑</button>
       </td>
     </tr>
-  `).join("");
+  `;
+}).join("");
 
   // === NOUVEAU : total pièces et total main-d'œuvre ===
   const totalParts = wo.parts.reduce((s,p)=> s + (p.qty * p.rate), 0);
