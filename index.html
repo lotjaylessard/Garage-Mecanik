@@ -1415,14 +1415,26 @@ function money(n){return Number(n||0).toFixed(2);}
 
 
   function calcWorkOrderProfit(wo){
-  if (!wo || !Array.isArray(wo.parts)) return 0;
+  if (!wo) return 0;
 
-  return wo.parts.reduce((sum, p) => {
-    const cost = Number(p.cost || 0);
-    const price = Number(p.price || 0);
-    const qty = Number(p.qty || 0);
-    return sum + ((price - cost) * qty);
-  }, 0);
+  // 🔩 profit pièces
+  const profitParts = Array.isArray(wo.parts)
+    ? wo.parts.reduce((sum, p) => {
+        const cost = Number(p.cost || 0);
+        const rate = Number(p.rate || 0);
+        const qty  = Number(p.qty || 0);
+        return sum + ((rate - cost) * qty);
+      }, 0)
+    : 0;
+
+  // 🛠️ profit main-d'œuvre (100 %)
+  const profitLabor = Array.isArray(wo.labor)
+    ? wo.labor.reduce((sum, l) => {
+        return sum + (Number(l.hours || 0) * Number(l.rate || 0));
+      }, 0)
+    : 0;
+
+  return profitParts + profitLabor;
 }
 
 
@@ -3570,13 +3582,13 @@ const profitLabor = wo.labor.reduce((sum, l) => {
 }, 0);
 
 // profit global
-const totalProfit = profitParts + profitLabor;
+const profitTotal = calcWorkOrderProfit(wo);
 
-  if ($("woEstimatedProfit")) {
-    $("woEstimatedProfit").innerText = money(totalProfit) + " $";
-    $("woEstimatedProfit").style.color =
-      totalProfit >= 0 ? "#4CAF50" : "#ff4d4d";
-  }
+if ($("woEstimatedProfit")) {
+  $("woEstimatedProfit").innerText = money(profitTotal) + " $";
+  $("woEstimatedProfit").style.color =
+    profitTotal >= 0 ? "#4CAF50" : "#ff4d4d";
+}
   
   saveWorkOrders();
 }
@@ -4350,7 +4362,10 @@ const statusLabel =
     <div class="muted">Pièces : <span id="woPartsTotal">0 $</span></div>
     <div class="muted">Main-d'œuvre : <span id="woLaborTotal">0 $</span></div>
     <h3 style="margin-top:10px;">Total estimé : <span id="woEstimateTotal">0 $</span></h3>
-    <div class="muted">Profit estimé : <span id="woProfitTotal">0 $</span></div>
+    <div>
+  <b>Profit estimé :</b>
+  <span id="woEstimatedProfit" style="color:#4CAF50;">0 $</span>
+</div>
   </div>
 
 
