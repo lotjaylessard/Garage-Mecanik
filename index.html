@@ -3435,6 +3435,10 @@ function woRenderLines(wo) {
 
     const profit = (price - cost) * qty;
 
+    const marginPct = price > 0
+  ? ((price - cost) / price) * 100
+  : 0;
+
     return `
   <tr>
     <td>${p.name}</td>
@@ -3443,7 +3447,8 @@ function woRenderLines(wo) {
     <td>${money(price)} $</td>
     <td>${money(price * qty)} $</td>
     <td style="color:${profit >= 0 ? '#4CAF50' : '#ff4d4d'}">
-  ${money(profit)} $
+  ${money(profit)} $ 
+  <span class="muted">(${marginPct.toFixed(1)}%)</span>
 </td>
     <td>
       <button class="ghost" onclick="woEditLine('${wo.id}','part',${i})">✏️</button>
@@ -3537,6 +3542,20 @@ if (manualLaborCancel){
 
   if ($("woEstimateTotal")) $("woEstimateTotal").innerText = money(total) + " $";
 
+    // === PROFIT TOTAL (pièces) ===
+  const totalProfit = wo.parts.reduce((sum, p) => {
+    const cost  = Number(p.cost || 0);
+    const price = Number(p.rate || 0);
+    const qty   = Number(p.qty || 0);
+    return sum + ((price - cost) * qty);
+  }, 0);
+
+  if ($("woEstimatedProfit")) {
+    $("woEstimatedProfit").innerText = money(totalProfit) + " $";
+    $("woEstimatedProfit").style.color =
+      totalProfit >= 0 ? "#4CAF50" : "#ff4d4d";
+  }
+  
   saveWorkOrders();
 }
 
