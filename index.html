@@ -5106,7 +5106,13 @@ function renderItems(){
     sub+=total;
     const tr=document.createElement('tr');
     tr.innerHTML = `
-  <td>${it.type}</td>
+  <td>
+  <select
+    onchange="items[${i}].type = this.value; invoiceCalcTotals();">
+    <option value="Pièce" ${it.type==="Pièce"?"selected":""}>Pièce</option>
+    <option value="Main-d'œuvre" ${it.type==="Main-d'œuvre"?"selected":""}>Main-d'œuvre</option>
+  </select>
+</td>
 
   <!-- Description modifiable -->
   <td>
@@ -5117,7 +5123,7 @@ function renderItems(){
   <!-- Quantité modifiable -->
   <td>
     <input type="number" step="0.1" value="${it.qty}"
-      oninput="items[${i}].qty = Number(this.value); invoiceCalcTotals();" />
+      oninput="items[${i}].qty = Number(this.value || 0); invoiceCalcTotals();" />
   </td>
 
   <!-- Prix modifiable -->
@@ -5129,6 +5135,9 @@ function renderItems(){
   <!-- Total automatique -->
   <td>${money(it.qty * it.rate)}</td>
 
+  <!-- Bouton ajouter -->
+<button class="ghost" onclick="addItem()">➕ Ajouter une ligne</button>
+
   <!-- Bouton supprimer -->
   <td><button class="ghost" onclick="removeItem(${i})">X</button></td>
 `;
@@ -5137,6 +5146,19 @@ function renderItems(){
   });
   renderTotals(sub);
 }
+
+
+  function addItem(){
+  items.push({
+    type: "Pièce",
+    desc: "",
+    qty: 1,
+    rate: 0
+  });
+  invoiceCalcTotals();
+  renderItems();
+}
+  
 
 function removeItem(i){
   const item = items[i];
