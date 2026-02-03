@@ -3554,13 +3554,23 @@ lBody.innerHTML = wo.labor.map((l,i)=>{
 
   if ($("woEstimateTotal")) $("woEstimateTotal").innerText = money(total) + " $";
 
-    // === PROFIT TOTAL (pièces) ===
-  const totalProfit = wo.parts.reduce((sum, p) => {
-    const cost  = Number(p.cost || 0);
-    const price = Number(p.rate || 0);
-    const qty   = Number(p.qty || 0);
-    return sum + ((price - cost) * qty);
-  }, 0);
+    // === PROFIT TOTAL (pièces + main-d'œuvre) ===
+
+// profit pièces
+const profitParts = wo.parts.reduce((sum, p) => {
+  const cost  = Number(p.cost || 0);
+  const price = Number(p.rate || 0);
+  const qty   = Number(p.qty || 0);
+  return sum + ((price - cost) * qty);
+}, 0);
+
+// profit main-d'œuvre (100 %)
+const profitLabor = wo.labor.reduce((sum, l) => {
+  return sum + (Number(l.hours || 0) * Number(l.rate || 0));
+}, 0);
+
+// profit global
+const totalProfit = profitParts + profitLabor;
 
   if ($("woEstimatedProfit")) {
     $("woEstimatedProfit").innerText = money(totalProfit) + " $";
