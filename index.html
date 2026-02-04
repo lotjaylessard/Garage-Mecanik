@@ -7511,8 +7511,11 @@ WORKORDERS = loadArrayFromStorage(STORAGE.workorders);
   // Recharge les factures depuis le storage
   loadInvoices(); // INVOICES = loadArrayFromStorage(...) :contentReference[oaicite:2]{index=2}
 
-  // 1) Dashboard = même logique que page Factures : factures "actives" = pas payées
-  const activeInvoices = (INVOICES || []).filter(inv => (inv.status || "unpaid") !== "paid");
+  // === FACTURES PAGE FACTURES (payées + non payées, PAS historique) ===
+const activeInvoices = (INVOICES || []).filter(
+  inv => inv.locked !== true
+);
+
   const invoicesCount = activeInvoices.length;
 
   // 2) Revenus totaux = total de l'historique (toutes les factures, payées incluses)
