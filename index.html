@@ -668,6 +668,12 @@ button.link:hover{
 .status-unpaid{ background:#b71c1c; }  /* rouge */
 .status-partial{ background:#f9a825; color:#111; } /* jaune (optionnel) */
 
+/* WO Historique */
+    .readonly{
+  opacity:0.75;
+  cursor:not-allowed;
+}
+
 
     
   </style>
@@ -7332,7 +7338,12 @@ workorders
   const tr = document.createElement("tr");
 
   tr.innerHTML = `
-    <td>${wo.number || ""}</td>
+    <td>
+  <button class="ghost btn-open-wo"
+          data-wo-id="${wo.id}">
+    ${wo.number}
+  </button>
+</td>
     <td>${wo.date || ""}</td>
     <td>${wo.clientName || ""}</td>
     <td>${wo.vehicleLabel || ""}</td>
@@ -7346,6 +7357,72 @@ workorders
 
   tbody.appendChild(tr);
 });
+}
+
+
+  const historyWOTable = document.querySelector("#historyWOTable");
+
+if (historyWOTable){
+  historyWOTable.addEventListener("click", (e)=>{
+    const btn = e.target.closest(".btn-open-wo");
+    if (!btn) return;
+
+    const woId = btn.dataset.woId;
+    if (!woId) return;
+
+    openWorkOrderReadOnly(woId);
+  });
+}
+
+
+  function openWorkOrderReadOnly(woId){
+  loadWorkOrders();
+
+  const wo = WORKORDERS.find(w => String(w.id) === String(woId));
+  if (!wo){
+    alert("Bon de travail introuvable.");
+    return;
+  }
+
+  // Aller sur la page Work Orders
+  showPage("page-workorders");
+  initWorkOrdersModule();
+
+  // Masquer la liste, afficher le détail
+  if ($("woListCard")) $("woListCard").style.display = "none";
+  if ($("woDetailCard")) $("woDetailCard").style.display = "block";
+
+  // Injecter l’ID (important pour le moteur existant)
+  if ($("woEditId")) $("woEditId").value = String(wo.id);
+
+  // Rendre le WO
+  renderWorkOrderDetail(wo);
+
+  // 🔒 LECTURE SEULE
+  setWorkOrderReadOnlyMode();
+}
+
+
+  function setWorkOrderReadOnlyMode(){
+
+  // Désactiver tous les inputs / textarea / select
+  document
+    .querySelectorAll("#woDetailCard input, #woDetailCard textarea, #woDetailCard select")
+    .forEach(el => {
+      el.disabled = true;
+      el.classList.add("readonly");
+    });
+
+  // Masquer les boutons d’action
+  [
+    "woSaveBtn",
+    "woAddPartBtn",
+    "woAddServiceBtn",
+    "woAddNoteBtn",
+    "woFinishBtn"
+  ].forEach(id=>{
+    if ($(id)) $(id).style.display = "none";
+  });
 }
   
 
