@@ -7376,7 +7376,9 @@ workorders
         ${wo.status}
       </span>
     </td>
-    <td>${money(wo.total || wo.estimatedTotal || 0)} $</td>
+    <td style="text-align:right;">
+  ${money(calcWorkOrderTotal(wo))} $
+</td>
   `;
 
   tbody.appendChild(tr);
@@ -7396,6 +7398,25 @@ if (historyWOTable){
 
     openWorkOrderReadOnly(woId);
   });
+}
+
+
+  function calcWorkOrderTotal(wo){
+  let total = 0;
+
+  if (Array.isArray(wo.parts)){
+    wo.parts.forEach(p=>{
+      total += Number(p.qty || 0) * Number(p.rate || 0);
+    });
+  }
+
+  if (Array.isArray(wo.labor)){
+    wo.labor.forEach(l=>{
+      total += Number(l.hours || 0) * Number(l.rate || 0);
+    });
+  }
+
+  return total;
 }
 
 
