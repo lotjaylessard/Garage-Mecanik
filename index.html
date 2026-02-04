@@ -7508,16 +7508,18 @@ INVOICES = loadArrayFromStorage(STORAGE.invoices);
 WORKORDERS = loadArrayFromStorage(STORAGE.workorders);
 
   
-// === FACTURES ACTIVES (page Factures seulement, PAS historique) ===
-const activeInvoices = INVOICES.filter(inv => inv.locked !== true);
+// === FACTURES ACTIVES = celles visibles dans la page Factures ===
+const activeInvoices = INVOICES.filter(inv =>
+  WORKORDERS.some(wo => String(wo.number) === String(inv.number))
+);
 
 const invoicesCount = activeInvoices.length;
 
-// ⚠️ Revenu basé UNIQUEMENT sur factures actives
 const revenue = activeInvoices.reduce(
   (s, inv) => s + Number(inv.total || 0),
   0
 );
+  
   const clientsCount=CLIENTS.length;
   let vehiclesCount=0;
   CLIENTS.forEach(c=>vehiclesCount+=(c.vehicles||[]).length);
