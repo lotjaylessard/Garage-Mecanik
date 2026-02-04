@@ -7386,17 +7386,12 @@ if (historyWOTable){
 
   // Aller sur la page Work Orders
   showPage("page-workorders");
-  initWorkOrdersModule();
-
-  // Masquer la liste, afficher le détail
-  if ($("woListCard")) $("woListCard").style.display = "none";
-  if ($("woDetailCard")) $("woDetailCard").style.display = "block";
 
   // Injecter l’ID (important pour le moteur existant)
   if ($("woEditId")) $("woEditId").value = String(wo.id);
 
   // Rendre le WO
-  renderWorkOrderDetail(wo);
+  openWorkOrderDetail(wo);
 
   // 🔒 LECTURE SEULE
   setWorkOrderReadOnlyMode();
