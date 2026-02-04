@@ -722,7 +722,7 @@ button.link:hover{
       <h2>Tableau de bord</h2>
       <div class="stats-grid">
         <div class="stat-card">
-  <div class="stat-label">Factures totales</div>
+  <div class="stat-label">Factures Impayées</div>
   <div class="stat-value" id="statInvoices">0</div>
 
   <div class="stat-label" style="margin-top:6px;">Work Orders en cours</div>
@@ -1809,11 +1809,8 @@ function showPage(id){
 
   // logique par page
   if (id === "page-dashboard") {
-  loadInvoices();      // 🔥 MANQUANT
-  loadWorkOrders();
-  renderDashboard();   // 🔥 recalcul avec vraies données
-}
-
+    loadWorkOrders();
+  }
 
   if (id === "page-workorders") {
     initWorkOrdersModule();
@@ -7506,23 +7503,20 @@ if ($("filterVehicle")) {
 
 
 function renderDashboard(){
-  
-// 🔒 Source de vérité directe (dashboard = lecture seule)
+  // 🔒 Source de vérité directe (dashboard = lecture seule)
 INVOICES = loadArrayFromStorage(STORAGE.invoices);
 WORKORDERS = loadArrayFromStorage(STORAGE.workorders);
 
-// === FACTURES TOTALES = lignes affichées dans la page Factures ===
-let invoicesCount = 0;
-const invoiceTbody = document.querySelector('#invoiceTable tbody');
-if (invoiceTbody) {
-  invoicesCount = invoiceTbody.querySelectorAll('tr').length;
-}
+  
+  // Recharge les factures depuis le storage
+  loadInvoices(); // INVOICES = loadArrayFromStorage(...) :contentReference[oaicite:2]{index=2}
+
+  // 1) Dashboard = même logique que page Factures : factures "actives" = pas payées
+  const activeInvoices = (INVOICES || []).filter(inv => (inv.status || "unpaid") !== "paid");
+  const invoicesCount = activeInvoices.length;
 
   // 2) Revenus totaux = total de l'historique (toutes les factures, payées incluses)
   const revenue = (INVOICES || []).reduce((s, inv) => s + Number(inv.total || 0), 0);
-
-  if ($('statInvoices')) $('statInvoices').innerText = invoicesCount;
-if ($('dashTotalRevenue')) $('dashTotalRevenue').innerText = money(revenue) + ' $';
 
   const clientsCount=CLIENTS.length;
   let vehiclesCount=0;
@@ -7535,9 +7529,11 @@ const woInProgressCount = WORKORDERS.filter(
   wo => wo.status === "en_cours"
 ).length;
   
+  if($('statInvoices')) $('statInvoices').innerText=invoicesCount;
   if ($('statWOInProgress')) {
   $('statWOInProgress').innerText = woInProgressCount;
 }
+  if($('dashTotalRevenue')) $('dashTotalRevenue').innerText = money(revenue) + ' $';
 
   // === PROFITS TOTAUX (TOUS LES WORK ORDERS) ===
 const totalProfit = WORKORDERS.reduce((sum, wo) => {
@@ -7638,20 +7634,9 @@ if ($("lastNotesBox")) {
     /* ===== 5 DERNIÈRES FACTURES ===== */
 if ($("lastInvoicesBox")) {
 
-    /* ===== 5 DERNIÈRES FACTURES (page Factures) ===== */
-const lastFive = [];
-
-const invoiceTbody = document.querySelector('#invoiceTable tbody');
-if (invoiceTbody) {
-  const rows = [...invoiceTbody.querySelectorAll('tr')].slice(0, 5);
-
-  rows.forEach(tr => {
-    const numBtn = tr.querySelector('button');
-    if (numBtn) {
-      lastFive.push(numBtn.textContent.replace('#', '').trim());
-    }
-  });
-}
+    const lastFive = [...activeInvoices]
+        .sort((a, b) => new Date(b.date) - new Date(a.date)) // plus récent → plus ancien
+        .slice(0, 5);
 
     $("lastInvoicesBox").innerHTML = "";
 
