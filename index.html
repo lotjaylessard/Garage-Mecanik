@@ -722,9 +722,12 @@ button.link:hover{
       <h2>Tableau de bord</h2>
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Factures totales</div>
-          <div class="stat-value" id="statInvoices">0</div>
-        </div>
+  <div class="stat-label">Factures totales</div>
+  <div class="stat-value" id="statInvoices">0</div>
+
+  <div class="stat-label" style="margin-top:6px;">Work Orders en cours</div>
+  <div class="stat-value" id="statWOInProgress">0</div>
+</div>
         <div class="stat-card">
   <div class="stat-label">Revenus totaux</div>
   <div class="stat-value" id="dashTotalRevenue">0 $</div>
@@ -7508,14 +7511,34 @@ function renderDashboard(){
   loadInvoices();
   loadWorkOrders();
   if (!Array.isArray(WORKORDERS)) WORKORDERS = [];
-  const invoicesCount=INVOICES.length;
-  const revenue=INVOICES.reduce((s,inv)=>s+Number(inv.total||0),0);
+  
+  // === FACTURES ACTIVES (page Factures seulement, PAS historique) ===
+const activeInvoices = INVOICES.filter(inv =>
+  !inv.isArchived && inv.status !== "archived"
+);
+
+const invoicesCount = activeInvoices.length;
+
+// ⚠️ Revenu basé UNIQUEMENT sur factures actives
+const revenue = activeInvoices.reduce(
+  (s, inv) => s + Number(inv.total || 0),
+  0
+);
   const clientsCount=CLIENTS.length;
   let vehiclesCount=0;
   CLIENTS.forEach(c=>vehiclesCount+=(c.vehicles||[]).length);
   const partsCount=PARTS.reduce((s,p)=>s+Number(p.qty||0),0);
   const lowStock=PARTS.filter(p=>Number(p.qty||0)<=2).length;
+
+  // === WORK ORDERS EN COURS ===
+const woInProgressCount = WORKORDERS.filter(
+  wo => wo.status === "en_cours"
+).length;
+  
   if($('statInvoices')) $('statInvoices').innerText=invoicesCount;
+  if ($('statWOInProgress')) {
+  $('statWOInProgress').innerText = woInProgressCount;
+}
   if($('dashTotalRevenue')) $('dashTotalRevenue').innerText = money(revenue) + ' $';
 
   // === PROFITS TOTAUX (TOUS LES WORK ORDERS) ===
