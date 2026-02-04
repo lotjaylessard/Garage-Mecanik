@@ -1028,6 +1028,26 @@ button.link:hover{
 
     <!-- HISTORIQUE GLOBAL -->
     <div class="page" id="page-history">
+
+      
+      <h2>Historique des bons de travail</h2>
+<div class="card">
+  <table id="historyWOTable">
+    <thead>
+      <tr>
+        <th># BT</th>
+        <th>Date</th>
+        <th>Client</th>
+        <th>Véhicule</th>
+        <th>Statut</th>
+        <th>Total estimé</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+      
       <h2>Historique des factures</h2>
       <div class="card">
         <div style="display:flex; gap:15px; margin:10px 0;">
@@ -1905,6 +1925,7 @@ function showPage(id){
     if ($("filterVehicle")) $("filterVehicle").value = "";
 
     renderHistoryTable();
+    renderHistoryWOTable();
     break;
 }
 }
@@ -3816,9 +3837,10 @@ function finishWorkOrder(id){
 
   if (!confirm(`Terminer le bon de travail #${wo.number} et créer une facture ?`)) return;
 
-  // 1) Marquer le WO comme facturé (pour le retirer de "En cours / Terminé" si tu veux)
-  wo.status = "facture";
-  saveWorkOrders();
+  // 1) Marquer le WO comme terminé (HISTORIQUE)
+wo.status = "termine";
+wo.completedAt = new Date().toISOString();
+saveWorkOrders();
 
 // 2️⃣ Construire la facture PRO depuis le WO
 const invoice = {
@@ -7246,6 +7268,39 @@ INVOICES
       tbody.appendChild(tr);
   });
 }
+
+
+  function renderHistoryWOTable(){
+  const tbody = document.querySelector("#historyWOTable tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  const workorders = loadArrayFromStorage(STORAGE.workorders);
+
+  workorders
+    .filter(wo => wo.status !== "en_cours")
+    .sort((a,b)=> new Date(b.date) - new Date(a.date))
+    .forEach(wo=>{
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${wo.number || ""}</td>
+        <td>${wo.date || ""}</td>
+        <td>${escapeHTML(wo.clientName || "")}</td>
+        <td>${escapeHTML(wo.vehicleLabel || "")}</td>
+        <td>
+          <span class="status-badge status-${wo.status}">
+            ${wo.status}
+          </span>
+        </td>
+        <td>${money(wo.total || wo.estimatedTotal || 0)} $</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+}
+  
 
   // === Activation des filtres historique ===
 if ($("filterClient")) {
