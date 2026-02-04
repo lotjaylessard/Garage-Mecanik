@@ -2133,11 +2133,6 @@ let SETTINGS = {
   defaultHourlyRate: 90   // ⬅️ valeur par défaut sécuritaire
 };
 let INVOICES = [];
-
-// 🔥 RESET COMPLET DES FACTURES / HISTORIQUE (TEMPORAIRE)
-localStorage.removeItem(STORAGE.invoices);
-INVOICES = [];
-
 let WO_TIMER_INTERVAL = null;
 let WO_TIMER_START = null;
 let WO_TIMER_ELAPSED = 0; // temps accumulé en ms
