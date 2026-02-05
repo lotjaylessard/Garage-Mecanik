@@ -2664,6 +2664,41 @@ function persistActiveWO(wo){
     WORKORDERS.push(wo);
   }
 
+  // 🔥 NOUVEAU — synchroniser facture liée
+  const invoice = INVOICES.find(inv =>
+    String(inv.workOrderNumber) === String(wo.number)
+  );
+
+  if (invoice?.status === "paid") return;
+  
+  if (invoice){
+
+    invoice.items = [];
+
+    // Pièces
+    (wo.parts || []).forEach(p => {
+      invoice.items.push({
+        type: "Pièce",
+        desc: p.name,
+        qty: p.qty,
+        rate: p.rate
+      });
+    });
+
+    // Main-d’œuvre
+    (wo.labor || []).forEach(l => {
+      invoice.items.push({
+        type: "Main-d'œuvre",
+        desc: l.description,
+        qty: l.hours,
+        rate: l.rate
+      });
+    });
+
+    recalcInvoice(invoice);
+    saveInvoices();
+  }
+
   // 💾 sauvegarde réelle
   localStorage.setItem(STORAGE.workorders, JSON.stringify(WORKORDERS));
   scheduleCloudSync();
