@@ -7268,40 +7268,46 @@ partPickerFilter.onchange = renderPartPicker;
 function renderHistoryTable(){
   const tbody = document.querySelector('#historyTable tbody');
   if (!tbody) return;
+
   tbody.innerHTML = '';
 
   const filterClient = $("filterClient")?.value || "";
-const filterVehicle = $("filterVehicle")?.value || "";
+  const filterVehicle = $("filterVehicle")?.value || "";
 
-INVOICES
-  .slice()
-  .sort((a, b) => Number(b.number) - Number(a.number))
-  .filter(inv => {
+  // 🔥 Mettre à jour les filtres UNE seule fois
+  populateHistoryFiltersFromWorkOrders();
+
+  INVOICES
+    .slice()
+    .sort((a, b) => Number(b.number) - Number(a.number))
+    .filter(inv => {
+
+      // ✅ HISTORIQUE = factures archivées seulement
+      if (inv.archived !== true) return false;
+
       if (filterClient && inv.customer !== filterClient) return false;
+
       if (filterVehicle) {
-    const job = (inv.job || "").toLowerCase();
-    const v = filterVehicle.toLowerCase();
+        const job = (inv.job || "").toLowerCase();
+        const v = filterVehicle.toLowerCase();
 
-    // Essaye de trouver la marque, modèle ou année dans la description du job
-    if (!job.includes(v)) {
-        // Ex.: "Honda Civic 2014" devrait matcher même si la plaque est différente
-        const parts = v.split(" ").filter(x => x.trim().length > 0);
-        let allMatch = true;
+        if (!job.includes(v)) {
+          const parts = v.split(" ").filter(x => x.trim().length > 0);
+          let allMatch = true;
 
-        parts.forEach(p => {
+          parts.forEach(p => {
             if (!job.includes(p)) allMatch = false;
-        });
+          });
 
-        if (!allMatch) return false;
-    }
-}
-
-    populateHistoryFiltersFromWorkOrders();
+          if (!allMatch) return false;
+        }
+      }
 
       return true;
-  })
-  .forEach(inv => {
+    })
+    .forEach(inv => {
       const tr = document.createElement("tr");
+
       tr.innerHTML = `
         <td><button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">#${inv.number}</button></td>
         <td>${inv.date}</td>
@@ -7309,8 +7315,9 @@ INVOICES
         <td>${inv.job || ""}</td>
         <td>${money(inv.total || 0)} $</td>
       `;
+
       tbody.appendChild(tr);
-  });
+    });
 }
 
 
@@ -7509,13 +7516,14 @@ WORKORDERS = loadArrayFromStorage(STORAGE.workorders);
   const activeInvoices = (INVOICES || []).filter(inv => (inv.status || "unpaid") !== "paid");
   const invoicesCount = activeInvoices.length;
 
-  // === REVENUS = total des factures archivées ===
+// ===== REVENUS = FACTURES ARCHIVÉES SEULEMENT =====
 const archivedInvoices = (INVOICES || []).filter(inv => inv.archived === true);
 
 const revenue = archivedInvoices.reduce(
   (sum, inv) => sum + Number(inv.total || 0),
   0
 );
+
 
   const clientsCount=CLIENTS.length;
   let vehiclesCount=0;
