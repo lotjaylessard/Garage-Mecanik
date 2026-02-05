@@ -3877,6 +3877,12 @@ const isPaid = invoice && invoice.status === "paid";
   })
   .forEach(wo => {
 
+    const invoice = INVOICES.find(inv =>
+  String(inv.workOrderNumber) === String(wo.number)
+);
+
+const isPaid = invoice && invoice.status === "paid";
+
     const tr = document.createElement("tr");
     tr.dataset.id = wo.id;
 
