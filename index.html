@@ -3773,10 +3773,18 @@ function renderWorkOrders(){
   const search = ($("woSearch")?.value || "").toLowerCase();
 
   let filtered = WORKORDERS.filter(wo => {
-    if (!wo || !wo.id) return false;
 
-    if (!["en_cours", "termine"].includes(wo.status)) return false;
-    if (selectedStatus && wo.status !== selectedStatus) return false;
+  if (!wo || !wo.id) return false;
+
+  // 🔒 Masquer si facture payée
+  const invoice = INVOICES.find(inv =>
+    String(inv.workOrderNumber) === String(wo.number)
+  );
+
+  if (invoice && invoice.status === "paid") return false;
+
+  if (!["en_cours", "termine"].includes(wo.status)) return false;
+  if (selectedStatus && wo.status !== selectedStatus) return false;
 
     if (search) {
       const clientObj = CLIENTS.find(c =>
@@ -7317,7 +7325,7 @@ function renderHistoryTable(){
   INVOICES
     .slice()
     .sort((a, b) => Number(b.number) - Number(a.number))
-    .filter(inv => {
+    .filter(inv => inv.status === "paid")
 
       // ✅ HISTORIQUE = factures archivées seulement
       if (inv.archived !== true) return false;
