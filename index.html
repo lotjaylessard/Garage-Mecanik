@@ -7589,10 +7589,20 @@ const woInProgressCount = WORKORDERS.filter(
 }
   if($('dashTotalRevenue')) $('dashTotalRevenue').innerText = money(revenue) + ' $';
 
-  // === PROFITS TOTAUX (TOUS LES WORK ORDERS) ===
-const totalProfit = WORKORDERS.reduce((sum, wo) => {
+  // === PROFITS TOTAUX (WO dont facture payée seulement) ===
+const paidWorkOrders = WORKORDERS.filter(wo => {
+
+  const invoice = INVOICES.find(inv =>
+    String(inv.workOrderNumber) === String(wo.number)
+  );
+
+  return invoice && invoice.status === "paid";
+});
+
+const totalProfit = paidWorkOrders.reduce((sum, wo) => {
   return sum + calcWorkOrderProfit(wo);
 }, 0);
+
 
 if ($('dashTotalProfit')) {
   $('dashTotalProfit').innerText = money(totalProfit) + ' $';
