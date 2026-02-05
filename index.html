@@ -3776,7 +3776,7 @@ function renderWorkOrders(){
 
   if (!wo || !wo.id) return false;
 
-  // 🔒 Masquer si facture payée
+  // 🔒 Masquer WO si facture payée
   const invoice = INVOICES.find(inv =>
     String(inv.workOrderNumber) === String(wo.number)
   );
@@ -3786,27 +3786,27 @@ function renderWorkOrders(){
   if (!["en_cours", "termine"].includes(wo.status)) return false;
   if (selectedStatus && wo.status !== selectedStatus) return false;
 
-    if (search) {
-      const clientObj = CLIENTS.find(c =>
-        c.id === wo.clientId ||
-        c.name === wo.clientName
-      );
+  if (search) {
+    const clientObj = CLIENTS.find(c =>
+      c.id === wo.clientId ||
+      c.name === wo.clientName
+    );
 
-      const clientNameSearch = clientObj
-        ? `${clientObj.lastName || ""} ${clientObj.firstName || ""}`
-        : (wo.clientName || "");
+    const clientNameSearch = clientObj
+      ? `${clientObj.lastName || ""} ${clientObj.firstName || ""}`
+      : (wo.clientName || "");
 
-      const hay = `
-        ${clientNameSearch}
-        ${wo.vehicleLabel || ""}
-        ${wo.number || ""}
-      `.toLowerCase();
+    const hay = `
+      ${clientNameSearch}
+      ${wo.vehicleLabel || ""}
+      ${wo.number || ""}
+    `.toLowerCase();
 
-      if (!hay.includes(search)) return false;
-    }
+    if (!hay.includes(search)) return false;
+  }
 
-    return true;
-  });
+  return true;
+});
 
   filtered
   .slice()
