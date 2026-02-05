@@ -3834,7 +3834,12 @@ function renderWorkOrders(){
     String(inv.workOrderNumber) === String(wo.number)
   );
 
-  if (invoice && invoice.status === "paid") return false;
+  const invoice = INVOICES.find(inv =>
+  String(inv.workOrderNumber) === String(wo.number)
+);
+
+const isPaid = invoice && invoice.status === "paid";
+
 
   if (!["en_cours", "termine", "billed"].includes(wo.status)) return false;
   if (selectedStatus && wo.status !== selectedStatus) return false;
@@ -4327,7 +4332,6 @@ if (btnAddClient){
 });
   };
           
-console.log("BTN SAVE =", $("btnSaveWO"));
   $("btnSaveWO").onclick = saveNewWorkOrder;
           
           const cancelBtn = $("woCancelCreateBtn");
