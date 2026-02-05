@@ -3800,7 +3800,20 @@ function renderWorkOrders(){
     return true;
   });
 
-  filtered.forEach(wo => {
+  filtered
+  .slice()
+  .sort((a, b) => {
+
+    // ⭐ Priorité statut
+    if (a.status === "en_cours" && b.status === "termine") return -1;
+    if (a.status === "termine" && b.status === "en_cours") return 1;
+
+    // ⭐ Sinon tri par date décroissante
+    return new Date(b.date) - new Date(a.date);
+
+  })
+  .forEach(wo => {
+
     const tr = document.createElement("tr");
     tr.dataset.id = wo.id;
 
