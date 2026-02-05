@@ -7323,34 +7323,36 @@ function renderHistoryTable(){
   populateHistoryFiltersFromWorkOrders();
 
   INVOICES
-    .slice()
-    .sort((a, b) => Number(b.number) - Number(a.number))
-    .filter(inv => inv.status === "paid")
+  .slice()
+  .sort((a, b) => Number(b.number) - Number(a.number))
+  .filter(inv => {
 
-      // ✅ HISTORIQUE = factures archivées seulement
-      if (inv.archived !== true) return false;
+    // 🔥 Historique = factures payées ET archivées
+    if (inv.status !== "paid") return false;
+    if (inv.archived !== true) return false;
 
-      if (filterClient && inv.customer !== filterClient) return false;
+    if (filterClient && inv.customer !== filterClient) return false;
 
-      if (filterVehicle) {
-        const job = (inv.job || "").toLowerCase();
-        const v = filterVehicle.toLowerCase();
+    if (filterVehicle) {
+      const job = (inv.job || "").toLowerCase();
+      const v = filterVehicle.toLowerCase();
 
-        if (!job.includes(v)) {
-          const parts = v.split(" ").filter(x => x.trim().length > 0);
-          let allMatch = true;
+      if (!job.includes(v)) {
+        const parts = v.split(" ").filter(x => x.trim().length > 0);
+        let allMatch = true;
 
-          parts.forEach(p => {
-            if (!job.includes(p)) allMatch = false;
-          });
+        parts.forEach(p => {
+          if (!job.includes(p)) allMatch = false;
+        });
 
-          if (!allMatch) return false;
-        }
+        if (!allMatch) return false;
       }
+    }
 
-      return true;
-    })
-    .forEach(inv => {
+    return true;
+  })
+  .forEach(inv => {
+
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
