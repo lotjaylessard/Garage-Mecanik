@@ -3273,7 +3273,7 @@ function saveWorkOrders(){
   }
 const wo = {
     id: Date.now(),
-    number: generateWorkOrderNumber(client.name),
+    number: generateNextBTNumber(),
     date: new Date().toLocaleString("fr-CA"),
     clientId,
     clientName: client.name,
@@ -3286,6 +3286,12 @@ const wo = {
     labor: [],
     estimateTotal: 0
   };
+
+
+    if (WORKORDERS.some(w => w.number === wo.number)){
+  alert("Erreur : numéro de bon de travail dupliqué.");
+  return;
+}
 
 WORKORDERS.push(wo);
 saveWorkOrders();
@@ -4986,7 +4992,7 @@ if ($("woProfitTotal")) $("woProfitTotal").innerText = money(totalProfit) + " $"
 
     const wo = {
       id: Date.now(),
-      number: "BT-" + Date.now(),
+      number: generateNextBTNumber(),
       date: new Date().toLocaleString("fr-CA"),
       clientName: client.name,
       vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
@@ -4996,6 +5002,12 @@ if ($("woProfitTotal")) $("woProfitTotal").innerText = money(totalProfit) + " $"
       estimateTotal: 0,
       status: "en_cours"
     };
+
+
+    if (WORKORDERS.some(w => w.number === wo.number)){
+  alert("Erreur : numéro de bon de travail dupliqué.");
+  return;
+}
 
     WORKORDERS.push(wo);
     saveWorkOrders();
@@ -5017,6 +5029,17 @@ function toNum(v, fallback=0){
 }
 
 
+  function generateNextBTNumber(){
+  const all = loadArrayFromStorage(STORAGE.workorders) || [];
+
+  let max = 0;
+  all.forEach(wo => {
+    const m = String(wo.number || "").match(/^BT-(\d+)$/);
+    if (m) max = Math.max(max, Number(m[1]));
+  });
+
+  return "BT-" + (max + 1);
+}
   
   
 function loadSettings(){
