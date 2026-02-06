@@ -3887,8 +3887,21 @@ const isPaid = invoice && invoice.status === "paid";
 });
 
   filtered
+  .filter(wo => {
+    const invoice = INVOICES.find(inv =>
+      String(inv.workOrderNumber) === String(wo.number)
+    );
+
+    // 🚫 Si facture payée → ne pas afficher le WO
+    if (invoice && invoice.status === "paid") {
+      return false;
+    }
+
+    return true;
+  })
   .slice()
   .sort((a, b) => {
+
 
     // ⭐ Priorité statut
     if (a.status === "en_cours" && b.status === "termine") return -1;
