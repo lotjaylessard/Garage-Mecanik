@@ -2552,8 +2552,7 @@ recalcInvoice(inv);
   function invoiceToTempWO(invoice){
   return {
     __fromInvoice: true,              // 🔒 flag critique
-    __invoice invoice.number,  // lien inverse
-
+    __invoice: invoice.number,  // lien inverse
     id: "INV-" + invoice.number,      // ID virtuel
     number: invoice.number,
     date: invoice.date,
