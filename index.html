@@ -2469,13 +2469,13 @@ function addServiceToCurrentWO(serviceId){
 
   // 4️⃣ Ajouter au WO (PAS à la facture)
   wo.parts.push({
-    name: part.name,
-     part.number,
-    qty,
-    cost: Number(part.cost || 0),
-    rate: Number(part.price || 0),
-    total: qty * Number(part.price || 0)
-  });
+  name: part.name,
+  number: part.number,
+  qty: qty,
+  cost: Number(part.cost || 0),
+  rate: Number(part.price || 0),
+  total: qty * Number(part.price || 0)
+});
 
   // 5️⃣ Sauvegarde + rafraîchissement
   persistActiveWO(wo);
