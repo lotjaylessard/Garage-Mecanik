@@ -3896,9 +3896,9 @@ const isPaid = invoice && invoice.status === "paid";
       : (wo.clientName || "");
 
     const statusLabel =
-  isPaid ? "Facturé / Payé" :
   wo.status === "en_cours" ? "En cours" :
-  wo.status === "termine"  ? "Terminé"  :
+  wo.status === "termine" && isPaid ? "Terminé • Payé" :
+  wo.status === "termine" ? "Terminé" :
   wo.status;
 
     tr.innerHTML = `
@@ -4373,7 +4373,8 @@ $("woDetailCard").style.display = "block";
 
 const statusLabel =
   wo.status === "en_cours" ? "En cours" :
-  wo.status === "termine"  ? "Terminé"  :
+  wo.status === "termine" && isPaid ? "Terminé • Payé" :
+  wo.status === "termine" ? "Terminé" :
   wo.status;
 
     detail.innerHTML = `
