@@ -1878,7 +1878,7 @@ function showPage(id){
       const data = {
         id: EDITING_PART_ID || Date.now(),
         name: $("partInvName").value.trim(),
-        number: $("partInvNumber").value.trim(),
+         $("partInvNumber").value.trim(),
         category: $("partInvCategory").value,
         qty: Number($("partInvQty").value || 0),
         cost: Number($("partInvCost").value || 0),
@@ -2470,7 +2470,7 @@ function addServiceToCurrentWO(serviceId){
   // 4️⃣ Ajouter au WO (PAS à la facture)
   wo.parts.push({
     name: part.name,
-    number: part.number,
+     part.number,
     qty,
     cost: Number(part.cost || 0),
     rate: Number(part.price || 0),
@@ -2552,7 +2552,7 @@ recalcInvoice(inv);
   function invoiceToTempWO(invoice){
   return {
     __fromInvoice: true,              // 🔒 flag critique
-    __invoiceNumber: invoice.number,  // lien inverse
+    __invoice invoice.number,  // lien inverse
 
     id: "INV-" + invoice.number,      // ID virtuel
     number: invoice.number,
@@ -3291,7 +3291,7 @@ function saveWorkOrders(){
   }
 const wo = {
     id: Date.now(),
-    number: generateNextBTNumber(),
+    number: generateNextBTNumber(client.name),
     date: new Date().toLocaleString("fr-CA"),
     clientId,
     clientName: client.name,
@@ -5010,7 +5010,7 @@ if ($("woProfitTotal")) $("woProfitTotal").innerText = money(totalProfit) + " $"
 
     const wo = {
       id: Date.now(),
-      number: generateNextBTNumber(),
+      number: generateNextBTNumber(client.name),
       date: new Date().toLocaleString("fr-CA"),
       clientName: client.name,
       vehicleLabel: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
@@ -5047,16 +5047,39 @@ function toNum(v, fallback=0){
 }
 
 
-  function generateNextBTNumber(){
+function generateNextBTNumber(clientName){
+
+  if (!clientName) clientName = "XX";
+
+  // 🔹 Initiales
+  const initials = clientName
+    .split(" ")
+    .filter(w => w.length > 0)
+    .map(w => w[0].toUpperCase())
+    .join("");
+
+  // 🔹 Date AAAA-MM-JJ
+  const d = new Date();
+  const date =
+    d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+
   const all = loadArrayFromStorage(STORAGE.workorders) || [];
 
   let max = 0;
+
   all.forEach(wo => {
-    const m = String(wo.number || "").match(/^BT-(\d+)$/);
-    if (m) max = Math.max(max, Number(m[1]));
+    const regex = new RegExp(`^BT-${initials}-${date}-(\\d+)$`);
+    const match = String(wo.number || "").match(regex);
+
+    if (match){
+      const n = Number(match[1]);
+      if (n > max) max = n;
+    }
   });
 
-  return "BT-" + (max + 1);
+  return `BT-${initials}-${date}-${max + 1}`;
 }
   
   
