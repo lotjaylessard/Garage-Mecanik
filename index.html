@@ -1775,23 +1775,41 @@ const isPaid =
 
   /* ===================== # BT dans Work order ===================== */
   function generateWorkOrderNumber(clientName){
+
   if (!clientName) return "BT-UNKNOWN";
 
-  // Initiales du client (Jean Tremblay → JT)
+  // 🔹 Initiales
   const initials = clientName
     .split(" ")
     .filter(w => w.length > 0)
     .map(w => w[0].toUpperCase())
     .join("");
 
-  // Date AAAA-MM-JJ
+  // 🔹 Date AAAA-MM-JJ
   const d = new Date();
   const date =
     d.getFullYear() + "-" +
     String(d.getMonth() + 1).padStart(2, "0") + "-" +
     String(d.getDate()).padStart(2, "0");
 
-  return `BT-${initials}-${date}`;
+  // 🔹 Charger les WO existants
+  const existing = loadArrayFromStorage(STORAGE.workorders);
+
+  let max = 0;
+
+  existing.forEach(wo => {
+    const regex = new RegExp(`^BT-${initials}-${date}-(\\d+)$`);
+    const match = String(wo.number || "").match(regex);
+
+    if (match){
+      const n = Number(match[1]);
+      if (n > max) max = n;
+    }
+  });
+
+  const next = max + 1;
+
+  return `BT-${initials}-${date}-${next}`;
 }
 
 
