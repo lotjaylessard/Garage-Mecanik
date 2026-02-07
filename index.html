@@ -4131,10 +4131,6 @@ function openWorkOrderDetail(wo){
         >
         km
       </p>
-          <div style="margin-top:10px;">
-      <label style="color:var(--muted);font-size:0.85rem;">Notes techniques</label>
-      <textarea id="woNotes" placeholder="Notes du bon de travail...">${(wo.notes || "")}</textarea>
-    </div>
     </div>
 
     <div class="card">
@@ -4179,6 +4175,16 @@ function openWorkOrderDetail(wo){
       </div>
       <button class="ghost" onclick="woAddLaborLine(window.__currentWO)">➕ Ajouter main-d’œuvre</button>
     </div>
+
+    <div class="card">
+  <h3>Notes techniques</h3>
+
+  <textarea 
+    id="woNotes"
+    placeholder="Notes du bon de travail..."
+    style="min-height:120px;"
+  >${escapeHTML(wo.notes || "")}</textarea>
+</div>
 
     <div class="card" style="text-align:right;">
   <h3>
