@@ -4415,7 +4415,10 @@ if (!wo) return;
 
 
     $("woListCard").style.display = "none";
-$("woDetailCard").style.display = "block";
+    $("woDetailCard").style.display = "block";
+
+const invoice = INVOICES.find(inv => String(inv.workOrderNumber) === String(wo.number));
+const isPaid = invoice && invoice.status === "paid";
 
 const statusLabel =
   wo.status === "en_cours" ? "En cours" :
