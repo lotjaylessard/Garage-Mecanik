@@ -4047,11 +4047,16 @@ invoice.total = invoice.subTotal + invoice.gst + invoice.qst;
   saveInvoices();
 
   renderWorkOrders();
-  if (typeof renderInvoiceList === "function") renderInvoiceList();
-  showPage("page-invoice-list");
+if (typeof renderInvoiceList === "function") renderInvoiceList();
 
-  // 3) Ouvrir la facture en résumé (lecture seule) avec bouton Modifier
-  openInvoiceEditModal(invoice.number);
+// 👉 Rester dans les Work Orders
+showPage("page-workorders");
+
+// 👉 Réouvrir le WO en mode normal
+setTimeout(() => {
+  const freshWO = WORKORDERS.find(w => String(w.id) === String(id));
+  if (freshWO) openWorkOrderDetail(freshWO);
+}, 0);
 }
 
   
