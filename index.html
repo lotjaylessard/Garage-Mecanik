@@ -7487,7 +7487,9 @@ function renderHistoryTable(){
 
   INVOICES
   .slice()
-  .sort((a, b) => Number(b.number) - Number(a.number))
+  .sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  })
   .filter(inv => {
 
     // 🔥 Historique = factures payées ET archivées
