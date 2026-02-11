@@ -8895,6 +8895,7 @@ function updateNote(id, newText) {
     n.text = newText;
     saveNotes();
     renderNotes();
+    renderDashboard();
 }
 
 /* Supprimer */
@@ -8903,6 +8904,7 @@ function deleteNote(id) {
     NOTES = NOTES.filter(n => n.id !== id);
     saveNotes();
     renderNotes();
+    renderDashboard();
 }
 
 /* Rendu Notes */
