@@ -7668,94 +7668,84 @@ function renderHistoryTable(){
   const filterClient = $("filterClient")?.value || "";
   const filterVehicle = $("filterVehicle")?.value || "";
 
-  // 🔥 Mettre à jour les filtres UNE seule fois
   populateHistoryFiltersFromWorkOrders();
 
+  // 🔥 Déclarer AVANT la chaîne
+  let totalFacture = 0;
+  let totalProfit = 0;
+
   INVOICES
-  .slice()
-  .sort((a, b) => {
-    return new Date(b.date) - new Date(a.date);
-  })
-  .filter(inv => {
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .filter(inv => {
 
-    // 🔥 Historique = factures payées ET archivées
-    if (inv.status !== "paid") return false;
-    if (inv.archived !== true) return false;
+      if (inv.status !== "paid") return false;
+      if (inv.archived !== true) return false;
+      if (filterClient && inv.customer !== filterClient) return false;
+      if (filterVehicle && inv.vehicle !== filterVehicle) return false;
 
-    if (filterClient && inv.customer !== filterClient) return false;
-    
-    if (filterVehicle && inv.vehicle !== filterVehicle) return false;
+      return true;
+    })
+    .forEach(inv => {
 
+      const tr = document.createElement("tr");
 
-    return true;
-  })
+      const wo = WORKORDERS.find(w =>
+        String(w.number) === String(inv.workOrderNumber)
+      );
 
-    let totalFacture = 0;
-    let totalProfit = 0;
-    
-  .forEach(inv => {
+      const profit = wo ? calcWorkOrderProfit(wo) : 0;
 
-  const tr = document.createElement("tr");
+      totalFacture += Number(inv.total || 0);
+      totalProfit += Number(profit || 0);
 
-  // 🔎 Trouver le WO lié
-  const wo = WORKORDERS.find(w =>
-    String(w.number) === String(inv.workOrderNumber)
-  );
+      tr.innerHTML = `
+        <td>
+          <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">
+            #${inv.number}
+          </button>
+        </td>
+        <td>${inv.date}</td>
+        <td>${inv.customer || ""}</td>
+        <td>${inv.vehicle || inv.job || ""}</td>
+        <td style="text-align:right;">
+          ${money(inv.total || 0)} $
+        </td>
+        <td style="
+          text-align:right;
+          font-weight:600;
+          color:${profit < 0 ? '#ff4d4d' : '#4CAF50'};
+        ">
+          ${money(profit)} $
+        </td>
+      `;
 
-  const profit = wo ? calcWorkOrderProfit(wo) : 0;
-    
-    totalFacture += Number(inv.total || 0);
-    totalProfit += Number(profit || 0);
+      tbody.appendChild(tr);
+    });
 
+  // 🔥 Ligne TOTAL
+  const totalRow = document.createElement("tr");
 
-  tr.innerHTML = `
-    <td>
-      <button class="ghost" onclick="openInvoiceEditModal('${inv.number}')">
-        #${inv.number}
-      </button>
+  totalRow.style.borderTop = "2px solid #444";
+  totalRow.style.background = "rgba(255,255,255,0.03)";
+  totalRow.style.fontWeight = "700";
+
+  totalRow.innerHTML = `
+    <td colspan="4" style="text-align:right;padding-right:20px;">
+      TOTAL
     </td>
-    <td>${inv.date}</td>
-    <td>${inv.customer || ""}</td>
-    <td>${inv.vehicle || inv.job || ""}</td>
     <td style="text-align:right;">
-      ${money(inv.total || 0)} $
+      ${money(totalFacture)} $
     </td>
     <td style="
       text-align:right;
-      font-weight:600;
-      color:${profit < 0 ? '#ff4d4d' : '#4CAF50'};
+      color:${totalProfit < 0 ? '#ff4d4d' : '#4CAF50'};
     ">
-      ${money(profit)} $
+      ${money(totalProfit)} $
     </td>
   `;
 
-  tbody.appendChild(tr);
-});
-
-// 🔥 Ligne TOTAL
-const totalRow = document.createElement("tr");
-
-totalRow.style.borderTop = "2px solid #444";
-totalRow.style.background = "rgba(255,255,255,0.03)";
-totalRow.style.fontWeight = "700";
-
-totalRow.innerHTML = `
-  <td colspan="4" style="text-align:right;padding-right:20px;">
-    TOTAL
-  </td>
-  <td style="text-align:right;">
-    ${money(totalFacture)} $
-  </td>
-  <td style="
-    text-align:right;
-    color:${totalProfit < 0 ? '#ff4d4d' : '#4CAF50'};
-  ">
-    ${money(totalProfit)} $
-  </td>
-`;
-
-tbody.appendChild(totalRow);
-  
+  tbody.appendChild(totalRow);
 }
 
 
