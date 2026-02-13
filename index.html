@@ -3620,6 +3620,16 @@ function backToWorkOrdersList(){
 }
 
 
+  function backToHistoryFromWO(){
+  // Revenir à la page Historique
+  showPage("page-history");
+
+  // Remettre l'état de la page Work Orders "normal"
+  if ($("woListCard")) $("woListCard").style.display = "block";
+  if ($("woDetailCard")) $("woDetailCard").style.display = "none";
+}
+
+
 function bindWOTimerUI(){
   // temporaire : évite le crash global
 }
@@ -4162,6 +4172,18 @@ function openWorkOrderDetail(wo){
   const detail = $("woDetailContent");
   detail.innerHTML = "";
   detail.appendChild(hidden);
+
+    // ✅ BARRE DE RETOUR (toujours visible même en lecture seule)
+  const backBar = document.createElement("div");
+  backBar.id = "woBackBar";
+  backBar.style = "margin:10px 0 16px;";
+
+  // Si ouvert depuis historique → retour historique, sinon → retour liste WO
+  backBar.innerHTML = wo.__fromHistory
+    ? `<button id="btnBackHistory" class="ghost" onclick="backToHistoryFromWO()">⬅ Retour à l'historique</button>`
+    : `<button id="btnBackWorkOrders" class="ghost" onclick="backToWorkOrdersList()">⬅ Retour aux bons de travail</button>`;
+
+  detail.appendChild(backBar);
 
   // 🔹 Pré-remplir KM depuis le véhicule client si absent dans le WO
   if (!wo.vehicleKm){
@@ -7750,7 +7772,7 @@ if (historyWOTable){
 }
 
 
-  function openWorkOrderReadOnly(woId){
+function openWorkOrderReadOnly(woId){
   loadWorkOrders();
 
   const wo = WORKORDERS.find(w => String(w.id) === String(woId));
@@ -7759,22 +7781,23 @@ if (historyWOTable){
     return;
   }
 
-  // Aller sur la page Work Orders
+  // 🔥 AJOUTER CE FLAG
+  wo.__fromHistory = true;
+
   showPage("page-workorders");
 
-  // Injecter l’ID (important pour le moteur existant)
   if ($("woEditId")) $("woEditId").value = String(wo.id);
 
-  // Rendre le WO
   openWorkOrderDetail(wo);
 
-  // 🔒 LECTURE SEULE
   setWorkOrderReadOnlyMode();
 }
 
 
   function setWorkOrderReadOnlyMode(){
-
+    
+const keepBtnIds = new Set(["btnBackHistory", "btnBackWorkOrders"]);
+    
   const scope = document.getElementById("woDetailCard");
   if (!scope) return;
 
