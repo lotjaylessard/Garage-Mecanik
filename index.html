@@ -5431,6 +5431,16 @@ function renderInvoiceList(){
   const tbody = table?.querySelector("tbody");
   if (!tbody) return;
 
+  if (!INVOICES || !INVOICES.length){
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" class="muted">
+        Aucune facture pour l’instant.
+      </td>
+    </tr>`;
+  return;
+}
+
   if (!INVOICES.length){
     tbody.innerHTML = `
       <tr>
