@@ -2688,6 +2688,11 @@ function getActiveWOById(woId){
 function persistActiveWO(wo){
   if (!wo || !wo.id) return;
 
+    // 🔥 VALIDATION KM INTELLIGENTE
+  if (!validateAndUpdateVehicleKM(wo)){
+    return; // bloque la sauvegarde si invalide
+  }
+
   // 🔁 MODE FACTURE (WO temporaire)
   if (wo.__fromInvoice){
     saveTempWOToInvoice(wo);
@@ -3270,6 +3275,50 @@ function saveManualLabor(){
   
 function loadWorkOrders(){
   WORKORDERS = loadArrayFromStorage(STORAGE.workorders);
+}
+
+  
+  /* ===================== VALIDATION KM INTELLIGENTE ===================== */
+function validateAndUpdateVehicleKM(wo){
+
+  if (!wo) return true;
+
+  const newKm = Number(wo.vehicleKm || 0);
+  if (!newKm) return true; // rien à valider
+
+  // 🔎 Trouver le client
+  const client = CLIENTS.find(c =>
+    String(c.id) === String(wo.clientId)
+  );
+
+  if (!client || !Array.isArray(client.vehicles)) return true;
+
+  // 🔎 Trouver le véhicule
+  const vehicle = client.vehicles.find(v =>
+    String(v.id) === String(wo.vehicleId)
+  );
+
+  if (!vehicle) return true;
+
+  const currentKm = Number(vehicle.km || 0);
+
+  // ⛔ REFUSER si KM plus bas
+  if (newKm < currentKm){
+    alert(
+      "⚠️ Impossible d'enregistrer.\n\n" +
+      "Le kilométrage entré (" + newKm + " km) est plus bas que le kilométrage actuel du véhicule (" + currentKm + " km)."
+    );
+    return false;
+  }
+
+  // ✅ Mettre à jour le véhicule automatiquement
+  if (newKm > currentKm){
+    vehicle.km = newKm;
+    localStorage.setItem(STORAGE.clients, JSON.stringify(CLIENTS));
+    scheduleCloudSync();
+  }
+
+  return true;
 }
 
 
