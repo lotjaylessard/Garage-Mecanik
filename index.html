@@ -800,7 +800,7 @@ button.link:hover{
   <h3>📅 Revenus mensuels</h3>
   <div id="monthlyRevenueChart"
      style="
-       height:220px;
+       height:180px;
        display:flex;
        align-items:flex-end;
        gap:20px;
@@ -8244,9 +8244,15 @@ function renderMonthlyRevenueChart(){
     const data = months[key];
     const monthLabel = key;
 
-    const heightPercent = maxRevenue > 0
-      ? (data.revenue / maxRevenue) * 100
-      : 0;
+    const maxBarHeight = 150; // hauteur max en pixels
+
+const revenueHeight = maxRevenue > 0
+  ? (data.revenue / maxRevenue) * maxBarHeight
+  : 0;
+
+const profitHeight = maxRevenue > 0
+  ? (data.profit / maxRevenue) * maxBarHeight
+  : 0;
 
     const bar = document.createElement("div");
     bar.style.display = "flex";
@@ -8261,7 +8267,7 @@ function renderMonthlyRevenueChart(){
 
       <div style="
         width:40px;
-        height:${heightPercent}%;
+        height:${revenueHeight}px;
         min-height:5px;
         background:linear-gradient(to top,#ff9800,#ffc107);
         border-radius:6px;
@@ -8275,7 +8281,7 @@ function renderMonthlyRevenueChart(){
           position:absolute;
           bottom:0;
           width:100%;
-          height:${maxRevenue > 0 ? (data.profit / maxRevenue) * 100 : 0}%;
+          height:${profitHeight}px;
           background:#4CAF50;
           border-radius:6px 6px 0 0;
           opacity:0.9;
