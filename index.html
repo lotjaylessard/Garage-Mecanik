@@ -798,7 +798,15 @@ button.link:hover{
 
     <div class="card">
   <h3>📅 Revenus mensuels</h3>
-  <div id="monthlyRevenueChart" style="height:200px;display:flex;align-items:flex-end;gap:8px;"></div>
+  <div id="monthlyRevenueChart"
+     style="
+       height:220px;
+       display:flex;
+       align-items:flex-end;
+       gap:20px;
+       padding:10px;
+       overflow-x:auto;
+     ">
 </div>
       
 <div class="dashboard-two-cols">
@@ -8186,48 +8194,99 @@ if ($("lastWorkOrdersBox")) {
 }
 
 
-  function renderMonthlyRevenueChart(){
+function renderMonthlyRevenueChart(){
 
-  if (!$("monthlyRevenueChart")) return;
+  const container = document.getElementById("monthlyRevenueChart");
+  if (!container) return;
 
-  loadInvoices();
-
-  const container = $("monthlyRevenueChart");
   container.innerHTML = "";
 
-  const now = new Date();
-  const currentYear = now.getFullYear();
+  // 🔒 On prend seulement les factures archivées
+  const archivedInvoices = (INVOICES || []).filter(inv => inv.archived === true);
 
-  // 12 mois
-  const monthlyTotals = new Array(12).fill(0);
+  const months = {};
 
-  INVOICES.forEach(inv => {
+  archivedInvoices.forEach(inv => {
 
-    if (inv.status !== "paid") return;
+    if (!inv.date) return;
 
-    const date = new Date(inv.date);
-    if (date.getFullYear() !== currentYear) return;
+    const d = new Date(inv.date);
+    const key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
 
-    const month = date.getMonth(); // 0 à 11
-    monthlyTotals[month] += Number(inv.total || 0);
+    if (!months[key]){
+      months[key] = {
+        revenue: 0,
+        profit: 0
+      };
+    }
+
+    const total = Number(inv.total || 0);
+
+    // 🔎 Trouver le WO lié pour calculer profit
+    const wo = WORKORDERS.find(w => String(w.number) === String(inv.workOrderNumber));
+    const profit = wo ? calcWorkOrderProfit(wo) : 0;
+
+    months[key].revenue += total;
+    months[key].profit  += profit;
   });
 
-  const maxValue = Math.max(...monthlyTotals, 1);
+  const sortedKeys = Object.keys(months).sort();
 
-  monthlyTotals.forEach((value, index) => {
+  if (sortedKeys.length === 0){
+    container.innerHTML = `<span class="muted">Aucune donnée.</span>`;
+    return;
+  }
+
+  const maxRevenue = Math.max(...sortedKeys.map(k => months[k].revenue));
+
+  sortedKeys.forEach(key => {
+
+    const data = months[key];
+    const monthLabel = key;
+
+    const heightPercent = maxRevenue > 0
+      ? (data.revenue / maxRevenue) * 100
+      : 0;
 
     const bar = document.createElement("div");
+    bar.style.display = "flex";
+    bar.style.flexDirection = "column";
+    bar.style.alignItems = "center";
+    bar.style.width = "60px";
 
-    const heightPercent = (value / maxValue) * 100;
+    bar.innerHTML = `
+      <div style="font-size:0.75rem;margin-bottom:4px;text-align:center;">
+        ${money(data.revenue)} $
+      </div>
 
-    bar.style.flex = "1";
-    bar.style.height = heightPercent + "%";
-    bar.style.background = "linear-gradient(180deg,#FFD400,#FF9800)";
-    bar.style.borderRadius = "4px 4px 0 0";
-    bar.style.position = "relative";
-    bar.style.cursor = "pointer";
+      <div style="
+        width:40px;
+        height:${heightPercent}%;
+        min-height:5px;
+        background:linear-gradient(to top,#ff9800,#ffc107);
+        border-radius:6px;
+        position:relative;
+        display:flex;
+        align-items:flex-end;
+        justify-content:center;
+      ">
 
-    bar.title = monthLabel(index) + " : " + money(value) + " $";
+        <div style="
+          position:absolute;
+          bottom:0;
+          width:100%;
+          height:${maxRevenue > 0 ? (data.profit / maxRevenue) * 100 : 0}%;
+          background:#4CAF50;
+          border-radius:6px 6px 0 0;
+          opacity:0.9;
+        "></div>
+
+      </div>
+
+      <div style="font-size:0.75rem;margin-top:6px;color:var(--muted);">
+        ${monthLabel}
+      </div>
+    `;
 
     container.appendChild(bar);
   });
