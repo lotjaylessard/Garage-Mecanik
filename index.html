@@ -1083,6 +1083,7 @@ button.link:hover{
         <th>Date</th>
         <th>Client</th>
         <th>Véhicule</th>
+        <th>KM</th>
         <th>Statut</th>
         <th style="text-align:right;">Total estimé</th>
         <th style="text-align:right;">Profit estimé</th>
@@ -7697,6 +7698,8 @@ tr.innerHTML = `
   <td>${wo.date}</td>
   <td>${wo.clientName}</td>
   <td>${wo.vehicleLabel}</td>
+  <td style="text-align:right;">
+${wo.vehicleKm ? Number(wo.vehicleKm).toLocaleString("fr-CA") : "-"} km</td>
   <td>${renderWOStatusBadge(wo.status)}</td>
 
   <td style="text-align:right;">
