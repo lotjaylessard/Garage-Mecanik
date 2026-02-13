@@ -795,6 +795,11 @@ button.link:hover{
   <h3>5 Dernières notes</h3>
   <div id="lastNotesBox"></div>
 </div>
+
+    <div class="card">
+  <h3>📅 Revenus mensuels</h3>
+  <div id="monthlyRevenueChart" style="height:200px;display:flex;align-items:flex-end;gap:8px;"></div>
+</div>
       
 <div class="dashboard-two-cols">
 
@@ -8174,6 +8179,67 @@ if ($("lastWorkOrdersBox")) {
         selVeh.value = currentVeh;
       }
   }
+
+// 📅 Mini graphique revenus mensuels
+  renderMonthlyRevenueChart();
+  
+}
+
+
+  function renderMonthlyRevenueChart(){
+
+  if (!$("monthlyRevenueChart")) return;
+
+  loadInvoices();
+
+  const container = $("monthlyRevenueChart");
+  container.innerHTML = "";
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  // 12 mois
+  const monthlyTotals = new Array(12).fill(0);
+
+  INVOICES.forEach(inv => {
+
+    if (inv.status !== "paid") return;
+
+    const date = new Date(inv.date);
+    if (date.getFullYear() !== currentYear) return;
+
+    const month = date.getMonth(); // 0 à 11
+    monthlyTotals[month] += Number(inv.total || 0);
+  });
+
+  const maxValue = Math.max(...monthlyTotals, 1);
+
+  monthlyTotals.forEach((value, index) => {
+
+    const bar = document.createElement("div");
+
+    const heightPercent = (value / maxValue) * 100;
+
+    bar.style.flex = "1";
+    bar.style.height = heightPercent + "%";
+    bar.style.background = "linear-gradient(180deg,#FFD400,#FF9800)";
+    bar.style.borderRadius = "4px 4px 0 0";
+    bar.style.position = "relative";
+    bar.style.cursor = "pointer";
+
+    bar.title = monthLabel(index) + " : " + money(value) + " $";
+
+    container.appendChild(bar);
+  });
+}
+
+
+  function monthLabel(index){
+  const months = [
+    "Jan","Fév","Mar","Avr","Mai","Juin",
+    "Juil","Août","Sep","Oct","Nov","Déc"
+  ];
+  return months[index];
 }
 
   
