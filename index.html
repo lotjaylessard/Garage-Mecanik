@@ -1502,6 +1502,20 @@ function money(n){return Number(n||0).toFixed(2);}
 }
 
 
+      function isWorkOrderLocked(wo){
+  if (!wo) return false;
+
+  const invoice = INVOICES.find(inv =>
+    String(inv.workOrderNumber) === String(wo.number)
+  );
+
+  if (!invoice) return false;
+
+  return String(invoice.status).toLowerCase() === "paid";
+}
+
+
+
   /* ===================== UPDATE TOTAUX LIVE (UI ONLY) ===================== */
 function updateInvoiceTotalsLive(inv){
   const subEl = document.getElementById("invSubTotal");
@@ -4074,6 +4088,14 @@ function deleteWorkOrder(id){
 function openWorkOrderDetail(wo){
   if (!wo) return;
 
+    loadInvoices(); // 🔒 important
+
+  const invoice = INVOICES.find(inv =>
+    String(inv.workOrderNumber) === String(wo.number)
+  );
+
+  const locked = invoice && invoice.status === "paid";
+
   // afficher la page WO
   showPage("page-workorders");
 
@@ -4200,17 +4222,24 @@ function openWorkOrderDetail(wo){
     </span>
   </div>
 
-  ${
-    wo.__fromInvoice
+    ${
+    locked
       ? `
-        <button class="ghost" onclick="saveTempWOToInvoice(window.__currentWO); alert('Facture enregistrée !');">
-          💾 Enregistrer facture
-        </button>
-        <button class="ghost" onclick="showPage('page-invoice-list')">⬅ Retour</button>
-      `
-      : `
+        <div style="color:#ff4d4d;margin-bottom:10px;font-weight:600;">
+          🔒 Bon de travail verrouillé (facture payée)
+        </div>
         <button class="ghost" onclick="backToWorkOrdersList()">⬅ Retour</button>
       `
+      : wo.__fromInvoice
+        ? `
+          <button class="ghost" onclick="saveTempWOToInvoice(window.__currentWO); alert('Facture enregistrée !');">
+            💾 Enregistrer facture
+          </button>
+          <button class="ghost" onclick="showPage('page-invoice-list')">⬅ Retour</button>
+        `
+        : `
+          <button class="ghost" onclick="backToWorkOrdersList()">⬅ Retour</button>
+        `
   }
 </div>
   `;
@@ -4236,6 +4265,32 @@ function openWorkOrderDetail(wo){
   // rendu des lignes
   woRenderLines(wo);
 
+// 🔒 BLOQUER SI FACTURE PAYÉE
+if (locked){
+
+  // Désactiver champs KM et textarea
+  const kmInput = document.getElementById("woVehicleKmInput");
+  if (kmInput) kmInput.disabled = true;
+
+  const notes = document.getElementById("woNotes");
+  if (notes) notes.disabled = true;
+
+  // Supprimer boutons Ajouter pièce / main-d’œuvre
+  document
+    .querySelectorAll("#woDetailCard button")
+    .forEach(btn => {
+      if (
+        btn.innerText.includes("Ajouter") ||
+        btn.innerText.includes("Modifier") ||
+        btn.innerText.includes("🗑") ||
+        btn.innerText.includes("✏️")
+      ) {
+        btn.remove();
+      }
+    });
+
+}
+  
   // 💰 PROFIT ESTIMÉ GLOBAL
 if (typeof calcWorkOrderProfit === "function") {
   const profit = calcWorkOrderProfit(wo);
